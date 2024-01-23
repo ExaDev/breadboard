@@ -72,7 +72,9 @@
               ]
             }
           },
-          "required": ["text"]
+          "required": [
+            "text"
+          ]
         }
       }
     },
@@ -96,14 +98,16 @@
               "description": "ReAct's response to the user's problem"
             }
           },
-          "required": ["text"]
+          "required": [
+            "text"
+          ]
         }
       }
     }
   ],
   "kits": [
     {
-      "url": "npm:@google-labs/llm-starter"
+      "url": "npm:@google-labs/json-kit"
     },
     {
       "url": "npm:@google-labs/core-kit"

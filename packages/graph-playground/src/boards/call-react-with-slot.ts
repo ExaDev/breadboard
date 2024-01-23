@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Board, type NodeValue } from "@google-labs/breadboard";
+import { Board, Schema, type NodeValue } from "@google-labs/breadboard";
 import { Core } from "@google-labs/core-kit";
 
 /**
@@ -81,7 +81,7 @@ board
         },
       },
       required: ["text"],
-    },
+    } satisfies Schema,
   })
   .wire(
     "text",

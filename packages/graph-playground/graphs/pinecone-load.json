@@ -197,13 +197,13 @@
                       ],
                       "kits": [
                         {
-                          "url": "npm:@google-labs/llm-starter"
-                        },
-                        {
                           "url": "npm:@google-labs/core-kit"
                         },
                         {
                           "url": "npm:@google-labs/palm-kit"
+                        },
+                        {
+                          "url": "npm:@google-labs/json-kit"
                         }
                       ]
                     }
@@ -229,13 +229,13 @@
             ],
             "kits": [
               {
-                "url": "npm:@google-labs/llm-starter"
-              },
-              {
                 "url": "npm:@google-labs/core-kit"
               },
               {
                 "url": "npm:@google-labs/pinecone-kit"
+              },
+              {
+                "url": "npm:@google-labs/json-kit"
               }
             ]
           }
@@ -254,10 +254,10 @@
   ],
   "kits": [
     {
-      "url": "npm:@google-labs/llm-starter"
+      "url": "npm:@google-labs/core-kit"
     },
     {
-      "url": "npm:@google-labs/core-kit"
+      "url": "npm:@google-labs/json-kit"
     }
   ]
 }

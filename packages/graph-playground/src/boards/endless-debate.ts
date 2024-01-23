@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Board } from "@google-labs/breadboard";
+import { Board, Schema } from "@google-labs/breadboard";
 import { TemplateKit } from "@google-labs/template-kit";
 import { Core } from "@google-labs/core-kit";
 import { PaLMKit } from "@google-labs/palm-kit";
@@ -134,7 +134,7 @@ board
         },
       },
       required: ["text"],
-    },
+    } satisfies Schema,
   })
   .wire("text->topic", rememberQuestion.wire("accumulator->context", albert));
 

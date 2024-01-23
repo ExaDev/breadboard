@@ -187,10 +187,13 @@
   ],
   "kits": [
     {
-      "url": "npm:@google-labs/llm-starter"
+      "url": "npm:@google-labs/json-kit"
     },
     {
       "url": "npm:@google-labs/node-nursery"
+    },
+    {
+      "url": "npm:@google-labs/core-kit"
     }
   ]
 }

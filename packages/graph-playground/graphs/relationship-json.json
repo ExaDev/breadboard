@@ -221,7 +221,7 @@
             ],
             "kits": [
               {
-                "url": "npm:@google-labs/llm-starter"
+                "url": "npm:@google-labs/core-kit"
               },
               {
                 "url": "npm:@google-labs/palm-kit"
@@ -256,7 +256,7 @@
   ],
   "kits": [
     {
-      "url": "npm:@google-labs/llm-starter"
+      "url": "npm:@google-labs/template-kit"
     },
     {
       "url": "npm:@google-labs/core-kit"

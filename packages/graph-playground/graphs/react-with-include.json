@@ -111,7 +111,10 @@
       "id": "secrets-1",
       "type": "secrets",
       "configuration": {
-        "keys": ["PALM_KEY", "GOOGLE_CSE_ID"]
+        "keys": [
+          "PALM_KEY",
+          "GOOGLE_CSE_ID"
+        ]
       }
     },
     {
@@ -154,7 +157,9 @@
               "description": "Ask ReAct a question"
             }
           },
-          "required": ["text"]
+          "required": [
+            "text"
+          ]
         }
       }
     },
@@ -162,7 +167,9 @@
       "id": "react-completion",
       "type": "palm-generateText",
       "configuration": {
-        "stopSequences": ["\nObservation"]
+        "stopSequences": [
+          "\nObservation"
+        ]
       }
     },
     {
@@ -193,7 +200,7 @@
       "url": "npm:@google-labs/core-kit"
     },
     {
-      "url": "npm:@google-labs/llm-starter"
+      "url": "npm:@google-labs/template-kit"
     },
     {
       "url": "."
