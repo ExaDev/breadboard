@@ -33,9 +33,9 @@ jobs:
         node-versin:
           - 21.x
         fixtures: ${{ fromJson(needs.setup.outputs.matrix).fixtures }}
-    name: ${{ matrix.fixtures.name }}
+    name: ${{ matrix.fixtures.name }} on Node ${{ matrix.node-version }}
     steps:
-      - name: Setup node
+      - name: Setup node ${{ matrix.node-version }}
         uses: actions/setup-node@main
         with:
           node-version: ${{ matrix.node-version }}
