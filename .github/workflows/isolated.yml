@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-versin:
+        node-version:
           - 21.x
         fixtures: ${{ fromJson(needs.setup.outputs.matrix).fixtures }}
     name: ${{ matrix.fixtures.name }} on Node ${{ matrix.node-version }}
