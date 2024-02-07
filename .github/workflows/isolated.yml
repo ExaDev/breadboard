@@ -29,14 +29,15 @@ jobs:
     needs: setup
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
-    name: Test currently deployed ${{ matrix.name }}
+      matrix:
+        fixtures: ${{ fromJson(needs.setup.outputs.matrix).fixtures }}
+    name: ${{ matrix.fixtures.name }}
     steps:
       - name: Setup node
         uses: actions/setup-node@main
 
       - name: Output YAML arary to temporary script file
-        run: echo -e "${{ join(matrix.script, '\n') }}" > script.sh
+        run: echo -e "${{ join(matrix.fixtures.script, '\n') }}" > script.sh
 
       - name: Show script content
         run: cat script.sh

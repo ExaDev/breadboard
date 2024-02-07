@@ -1,5 +1,5 @@
 {
-  "include": [
+  "fixtures": [
     {
       "name": "npm init @google-labs/breadboard",
       "script": [
