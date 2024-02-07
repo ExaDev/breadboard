@@ -1,0 +1,17 @@
+{
+  "include": [
+    {
+      "name": "npm init @google-labs/breadboard",
+      "script": [
+        "npm init @google-labs/breadboard"
+      ]
+    },
+    {
+      "name": "npx cli run",
+      "script": [
+        "wget https://raw.githubusercontent.com/ExaDev-io/breadboard-samples/develop/samples/Breadboard%20Walkthrough/src/hello-world/board.json -O board.json",
+        "npx @google-labs/breadboard-cli run board.json"
+      ]
+    }
+  ]
+}
