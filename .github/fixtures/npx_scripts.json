@@ -3,7 +3,7 @@
     {
       "name": "npm init @google-labs/breadboard",
       "script": [
-        "npm init @google-labs/breadboard"
+        "npm init @google-labs/breadboard foo"
       ]
     },
     {
