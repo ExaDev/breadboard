@@ -60,28 +60,28 @@ jobs:
             script: |
               OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}
               npx @$OWNER_LC/breadboard-cli --version
-              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Hello World\"}"
+              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Artificial Intelligence\"}"
 
           - name: install + npx cli run
             script: |
               OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}
               npm install -g @$OWNER_LC/breadboard-cli
               npx @$OWNER_LC/breadboard-cli --version
-              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Hello World\"}"
+              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Artificial Intelligence\"}"
 
           - name: install x2 + npx cli run
             script: |
               OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}
               npm install -g @$OWNER_LC/breadboard @$OWNER_LC/breadboard-cli
               npx @$OWNER_LC/breadboard-cli --version
-              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Hello World\"}"
+              npx @$OWNER_LC/breadboard-cli run $BOARD -i "{\"message\": \"Artificial Intelligence\"}"
 
           - name: install + npx breadboard run
             script: |
               OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}
               npx @$OWNER_LC/breadboard-cli --version
               npm install -g @$OWNER_LC/breadboard-cli
-              npx breadboard run $BOARD -i "{\"message\": \"Hello World\"}"
+              npx breadboard run $BOARD -i "{\"message\": \"Artificial Intelligence\"}"
 
           ##############################################################################################################
 
@@ -166,7 +166,7 @@ jobs:
           registry-url: "https://npm.pkg.github.com/"
           scope: $OWNER_LC
       - run: npm install -g npm@${{ matrix.npm-version }}
-      - run: wget https://raw.githubusercontent.com/breadboard-ai/breadboard/main/packages/breadboard/tests/data/passing-all.json -O $BOARD
+      - run: wget https://raw.githubusercontent.com/breadboard-ai/breadboard/main/packages/breadboard/docs/tutorial/google-news-headlines.json -O $BOARD
       - run: npm config set -g @$OWNER_LC:registry https://npm.pkg.github.com/
       - name: Run command
         env:
