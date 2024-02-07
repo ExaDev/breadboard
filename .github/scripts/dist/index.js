@@ -28474,7 +28474,7 @@ exports.aliasDependencies = aliasDependencies;
 
 /***/ }),
 
-/***/ 829:
+/***/ 8829:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28587,7 +28587,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generationVersion = exports.runNumber = exports.runId = void 0;
 const github = __importStar(__nccwpck_require__(5438));
 const getDate_1 = __nccwpck_require__(2125);
-const getHMS_1 = __nccwpck_require__(644);
+const getHMS_1 = __nccwpck_require__(8644);
 /**
  * A unique number for each workflow run within a repository. This number does not change if you re-run the workflow run.
  */
@@ -28628,7 +28628,7 @@ exports.getYMD = getYMD;
 
 /***/ }),
 
-/***/ 644:
+/***/ 8644:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28713,7 +28713,7 @@ const npmInstall_1 = __nccwpck_require__(9410);
 const publishPackage_1 = __nccwpck_require__(2204);
 const renamePackage_1 = __nccwpck_require__(1086);
 const setVersion_1 = __nccwpck_require__(9556);
-const clean_1 = __nccwpck_require__(829);
+const clean_1 = __nccwpck_require__(8829);
 function spacer({ char = "=", count = 80, } = {}) {
     console.log(char.repeat(count));
 }
@@ -28728,10 +28728,7 @@ const packages = [
     "breadboard",
     "breadboard-cli",
     "create-breadboard",
-    "create-breadboard-kit",
-    "core-kit",
-    "template-kit",
-    "breadboard-web"
+    "create-breadboard-kit"
 ];
 const packagesWithScope = packages.map((pkg) => `${fromScope}/${pkg}`);
 const registry = "https://npm.pkg.github.com";

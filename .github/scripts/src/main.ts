@@ -27,10 +27,7 @@ const packages = [
   "breadboard",
   "breadboard-cli",
   "create-breadboard",
-  "create-breadboard-kit",
-  "core-kit",
-  "template-kit",
-  "breadboard-web"
+  "create-breadboard-kit"
 ] as const;
 
 const packagesWithScope = packages.map((pkg) => `${fromScope}/${pkg}`);
