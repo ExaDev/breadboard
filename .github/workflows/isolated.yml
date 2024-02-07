@@ -30,11 +30,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        node-versin:
+          - 21.x
         fixtures: ${{ fromJson(needs.setup.outputs.matrix).fixtures }}
     name: ${{ matrix.fixtures.name }}
     steps:
       - name: Setup node
         uses: actions/setup-node@main
+        with:
+          node-version: ${{ matrix.node-version }}
 
       - name: Output YAML arary to temporary script file
         run: echo -e "${{ join(matrix.fixtures.script, '\n') }}" > script.sh
