@@ -94,3 +94,15 @@ export type OutputArgs = {
     schema?: Schema;
   } & Record<string, unknown>;
 };
+
+export type ErrorMessage = {
+	message: string;
+	title: string;
+	description: string;
+};
+
+export type Error = (errorMessage?: string) => ErrorMessage;
+export interface BreadboardWebElement {
+	handleError: (error: string) => void;
+}
+

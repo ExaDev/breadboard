@@ -7,9 +7,13 @@
 import { ToastType } from "../../events/events.js";
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { BreadboardWebElement } from "../../types/types.js";
 
 @customElement("bb-toast")
-export class Toast extends LitElement {
+export class Toast extends LitElement implements BreadboardWebElement {
+  @property()
+  handleError = () => {};
+
   @property({ reflect: true })
   type: ToastType = ToastType.INFORMATION;
 
@@ -90,19 +94,23 @@ export class Toast extends LitElement {
   `;
 
   connectedCallback(): void {
-    super.connectedCallback();
+    try {
+      super.connectedCallback();
+      setTimeout(() => {
+        this.addEventListener(
+          "animationend",
+          () => {
+            this.remove();
+          },
+          { once: true }
+        );
 
-    setTimeout(() => {
-      this.addEventListener(
-        "animationend",
-        () => {
-          this.remove();
-        },
-        { once: true }
-      );
-
-      this.classList.add("toasted");
-    }, this.timeout);
+        this.classList.add("toasted");
+      }, this.timeout);
+    } catch (err) {
+      this.handleError;
+      dispatchEvent(new CustomEvent("error", { detail: err }));
+    }
   }
 
   render() {
