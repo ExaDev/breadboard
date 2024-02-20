@@ -7,12 +7,12 @@
 import { ToastType } from "../../events/events.js";
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BreadboardWebElement } from "../../types/types.js";
+import { BreadboardWebElement, Error } from "../../types/types.js";
 
 @customElement("bb-toast")
 export class Toast extends LitElement implements BreadboardWebElement {
   @property()
-  handleError = () => {};
+  handleError = (error: Error) => { console.log(error)};
 
   @property({ reflect: true })
   type: ToastType = ToastType.INFORMATION;
@@ -108,7 +108,7 @@ export class Toast extends LitElement implements BreadboardWebElement {
         this.classList.add("toasted");
       }, this.timeout);
     } catch (err) {
-      this.handleError;
+      this.handleError(err as Error);
       dispatchEvent(new CustomEvent("error", { detail: err }));
     }
   }

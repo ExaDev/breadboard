@@ -38,7 +38,6 @@ function App() {
           <Toast
             onClick={() => console.log("clicked")}
             onError={handleError}
-            errorMessage="Error message"
             toastMessage="Info"
           />
         )}

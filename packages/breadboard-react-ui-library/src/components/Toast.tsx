@@ -6,7 +6,6 @@ import { ToastType } from "../../../breadboard-ui/src/events/events";
 type ToastProps = {
   onClick: () => void;
   onError: () => void;
-  errorMessage: string;
   toastMessage: string;
 };
 
@@ -21,7 +20,6 @@ const Toast = ({
     react: React,
     events: {
       connectedCallback: "onClick",
-      updated: "onError",
     },
   });
 
