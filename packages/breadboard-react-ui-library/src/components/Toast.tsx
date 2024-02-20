@@ -5,30 +5,29 @@ import { ToastType } from "../../../breadboard-ui/src/events/events";
 
 type ToastProps = {
   toastMessage: string;
+  type: ToastType;
 };
 
-const Toast = ({ toastMessage }: ToastProps): React.JSX.Element => {
+const Toast = ({
+  toastMessage,
+  type = ToastType.INFORMATION,
+}: ToastProps): React.JSX.Element => {
   const LitReactToast = createComponent({
     tagName: "bb-toast",
     elementClass: Elements.Toast,
     react: React,
     events: {
-      onclick: "connectedCallback", //left hand side: the name of the react event; right hand side: the name of the custom component's event
+      onclick: "connectedCallback",
       onerror: "error",
     },
   });
 
   const handleError = (e: Event) => {
     console.log(e);
-    console.log("root app error");
   };
 
   return (
-    <LitReactToast
-      onerror={handleError}
-      type={ToastType.WARNING}
-      message={toastMessage}
-    />
+    <LitReactToast onerror={handleError} type={type} message={toastMessage} />
   );
 };
 

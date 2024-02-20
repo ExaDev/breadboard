@@ -4,6 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import Toast from "./components/Toast";
 import "../../breadboard-ui/public/styles/global.css";
+import { ToastType } from "../../breadboard-ui/src/events/events";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -30,7 +31,11 @@ function App() {
         <button id="toast-info" onClick={() => setInfo(true)}>
           Info Toast
         </button>
-        {info && <Toast toastMessage="Info" />}
+        {info && (
+          <>
+            <Toast type={ToastType.WARNING} toastMessage="Info" />
+          </>
+        )}
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
