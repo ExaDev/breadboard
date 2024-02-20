@@ -103,6 +103,6 @@ export type ErrorMessage = {
 
 export type Error = (errorMessage?: string) => ErrorMessage;
 export interface BreadboardWebElement {
-	handleError: (error: Error) => void;
+	onError: (errorMessage: string ) => void;
 }
 

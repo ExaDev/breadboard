@@ -9,10 +9,6 @@ function App() {
   const [count, setCount] = useState(0);
   const [info, setInfo] = useState(false);
 
-  const handleError = () => {
-    console.log("error");
-  };
-
   return (
     <>
       <div>
@@ -34,13 +30,7 @@ function App() {
         <button id="toast-info" onClick={() => setInfo(true)}>
           Info Toast
         </button>
-        {info && (
-          <Toast
-            onClick={() => console.log("clicked")}
-            onError={handleError}
-            toastMessage="Info"
-          />
-        )}
+        {info && <Toast toastMessage="Info" />}
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
