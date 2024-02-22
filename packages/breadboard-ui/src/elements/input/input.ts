@@ -227,7 +227,7 @@ export class Input extends LitElement {
   #getLocalStorageKey() {
     return `bb-remember-${this.id}`;
   }
-
+  
   #getRememberedValues(): InputData {
     if (!this.remember) return {};
     const key = this.#getLocalStorageKey();

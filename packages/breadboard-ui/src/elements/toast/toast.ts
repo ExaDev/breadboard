@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ToastEvent, ToastType } from "../../events/events.js";
+import { ToastType } from "../../events/events.js";
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BreadboardWebElement } from "../../types/types.js";
+import { BreadboardWebElement, ErrorMessage, 	 } from "../../types/types.js";
 
 @customElement("bb-toast")
-export class Toast extends LitElement implements BreadboardWebElement {
-  @property({ reflect: true })
-  onError = (error: unknown) => { console.log("error from web component") };
+export class Toast extends LitElement {
+
+  /* @property({ reflect: true })
+  onError = (error: ErrorMessage) => { console.log(error) }; */
 
   @property({ reflect: true })
   type: ToastType = ToastType.INFORMATION;
@@ -111,4 +112,14 @@ export class Toast extends LitElement implements BreadboardWebElement {
   render() {
     return html`<div>${this.message}</div>`;
   }
+
+  performUpdate() {
+	try {
+	  throw new Error("render error")
+	  super.performUpdate();
+	} catch(err) {
+	  this.dispatchEvent(new CustomEvent('error', {detail: err}));
+	}
+  }
+
 }

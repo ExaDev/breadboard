@@ -95,14 +95,8 @@ export type OutputArgs = {
   } & Record<string, unknown>;
 };
 
-export type ErrorMessage = {
-	message: string;
-	title: string;
-	description: string;
-};
+export type ErrorMessage = string | undefined;
 
-export type Error = (errorMessage?: string) => ErrorMessage;
 export interface BreadboardWebElement {
-	onError: (errorMessage: string ) => void;
+	onError: (error: ErrorMessage) => void;
 }
-
