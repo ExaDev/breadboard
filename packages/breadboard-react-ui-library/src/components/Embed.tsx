@@ -1,7 +1,7 @@
 import { createComponent } from "@lit/react";
 import React from "react";
 import { Embed } from "../../../breadboard-web/src/embed.js";
-//import background from "../../../breadboard-web/public/images/pattern.png";
+import background from "../../../breadboard-web/public/images/pattern.png";
 
 const EmbedWrapper = (): React.JSX.Element => {
   const LitReactEmbed = createComponent({
@@ -12,7 +12,10 @@ const EmbedWrapper = (): React.JSX.Element => {
   });
 
   return (
-    <LitReactEmbed style={{ marginTop: "3em" }} url="/graphs/blank.json" />
+    <LitReactEmbed
+      style={{ backgroundImage: `url(${background})`, marginTop: "3em" }}
+      url="/graphs/blank.json"
+    />
   );
 };
 

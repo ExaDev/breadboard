@@ -7,10 +7,9 @@ function App() {
 
   return (
     <>
-      <h1>Vite + React</h1>
       <div className="card">
         <button id="toast-info" onClick={() => setPreview(true)}>
-          Show Board Preview
+          Show Embedded Board
         </button>
         {preview && (
           <>

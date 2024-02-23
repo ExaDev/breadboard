@@ -1,11 +1,12 @@
 import { Elements } from "../../../breadboard-ui/src/index";
 import { createComponent } from "@lit/react";
 import React from "react";
-import { ToastType } from "../../../breadboard-ui/src/events/events";
+import { ToastType } from "../../../breadboard-ui/dist/src/events/events";
+import "../../../breadboard-ui/public/styles/global.css";
 
 type ToastProps = {
   toastMessage: string;
-  type: ToastType;
+  type?: ToastType;
 };
 
 const Toast = ({

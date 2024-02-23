@@ -7,14 +7,9 @@
 import { ToastType } from "../../events/events.js";
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BreadboardWebElement, ErrorMessage, 	 } from "../../types/types.js";
 
 @customElement("bb-toast")
 export class Toast extends LitElement {
-
-  /* @property({ reflect: true })
-  onError = (error: ErrorMessage) => { console.log(error) }; */
-
   @property({ reflect: true })
   type: ToastType = ToastType.INFORMATION;
 
@@ -115,7 +110,6 @@ export class Toast extends LitElement {
 
   performUpdate() {
 	try {
-	  throw new Error("render error")
 	  super.performUpdate();
 	} catch(err) {
 	  this.dispatchEvent(new CustomEvent('error', {detail: err}));
