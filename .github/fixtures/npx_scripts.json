@@ -3,6 +3,13 @@
   "fixtures": [
     {
       "checkout": false,
+      "name": "cli@0.5.2 help",
+      "script": [
+        "npx --verbose @google-labs/breadboard-cli@0.5.2 --help"
+      ]
+    },
+    {
+      "checkout": false,
       "expect": "fail",
       "name": "cli@0.5.1 help",
       "script": [
