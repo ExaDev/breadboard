@@ -34,7 +34,6 @@
     },
     {
       "checkout": false,
-      "expect": "fail",
       "name": "cli@0.4.0 help",
       "script": [
         "npx --verbose @google-labs/breadboard-cli@0.4.0 --help"
