@@ -95,8 +95,10 @@ export type OutputArgs = {
   } & Record<string, unknown>;
 };
 
+export type BreadboardElementErrorCode = "parseError" | "renderError";
+
 export type BreadboardElementError = {
-	code: "parseError" | "renderError",
+	code: BreadboardElementErrorCode,
 	message: string;  
 };
 

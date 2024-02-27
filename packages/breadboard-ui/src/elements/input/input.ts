@@ -25,7 +25,7 @@ import { customElement, property } from "lit/decorators.js";
 import { InputEnterEvent } from "../../events/events.js";
 import { WebcamInput } from "./webcam/webcam.js";
 import { DrawableInput } from "./drawable/drawable.js";
-import { InputArgs } from "../../types/types.js";
+import { BreadboardElementError, BreadboardElementErrorCode, BreadboardWebElement, InputArgs } from "../../types/types.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 export type InputData = Record<string, unknown>;
@@ -49,9 +49,9 @@ const parseValue = (type: Schema["type"], input: HTMLInputElement) => {
 };
 
 @customElement("bb-input")
-export class Input extends LitElement { //implements BreadboardWebElement {
-  //@property()
-  //onError = (error: BreadboardElementError) => { console.log(`An error of type ${error.code} has occured.`)} ;
+export class Input extends LitElement implements BreadboardWebElement {
+  @property()
+  onError = (error: BreadboardElementError) => { console.log(error.code, error.message)} ;
 
   @property({ reflect: false })
   remember = false;
@@ -299,11 +299,16 @@ export class Input extends LitElement { //implements BreadboardWebElement {
         const input = form[key];
         if (input && input.value) {
           try {
-			throw new Error("error");
 			const parsedValue = parseValue(property.type, input);
           	data[key] = parsedValue;
+			throw new Error("parse error");
+			
 		  } catch (error) {
-			this.dispatchEvent(new CustomEvent('parseError', {detail: error}));
+			if (error instanceof Error) {
+				const event = new CustomEvent('parseError', { bubbles: true, detail: error.message });
+				this.dispatchEvent(event);
+				this.onError({code: event.type as BreadboardElementErrorCode, message: event.detail});
+			}
 		  }
         } else {
           // Custom elements don't look like form elements, so they need to be

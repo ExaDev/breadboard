@@ -1,6 +1,6 @@
 import { Elements } from "../../../breadboard-ui/src/index";
 import { createComponent } from "@lit/react";
-import React from "react";
+import React, { useState } from "react";
 import { Schema } from "@google-labs/breadboard";
 import "../../../breadboard-ui/public/styles/global.css";
 
@@ -15,16 +15,19 @@ const InputForm = ({ configuration }: InputFormProps): React.JSX.Element => {
     tagName: "bb-input",
     elementClass: Elements.Input,
     react: React,
-    events: {
-      onerror: "parseError",
-    },
   });
 
+  const [errorMessage, setErrorMessage] = useState(false);
+  const handleError = () => {
+    console.log("error from comp");
+    return setErrorMessage(true);
+  };
+
   return (
-    <LitReactInput
-      onerror={() => console.log("Lit element threw an error")}
-      configuration={configuration}
-    />
+    <>
+      <LitReactInput onError={handleError} configuration={configuration} />
+      {errorMessage && <div>Error from react component.</div>}
+    </>
   );
 };
 
