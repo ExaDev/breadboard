@@ -95,8 +95,12 @@ export type OutputArgs = {
   } & Record<string, unknown>;
 };
 
-export type ErrorMessage = string | undefined;
+export type BreadboardElementError = {
+	code: "parseError" | "renderError",
+	message: string;  
+};
 
 export interface BreadboardWebElement {
-	onError: (error: ErrorMessage) => void;
+	onError: (error: BreadboardElementError) => void;
+	//styles: CSSStyleSheet;
 }

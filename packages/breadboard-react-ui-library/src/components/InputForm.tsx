@@ -1,7 +1,6 @@
 import { Elements } from "../../../breadboard-ui/src/index";
 import { createComponent } from "@lit/react";
 import React from "react";
-import "./Input.css";
 import { Schema } from "@google-labs/breadboard";
 import "../../../breadboard-ui/public/styles/global.css";
 
@@ -16,10 +15,17 @@ const InputForm = ({ configuration }: InputFormProps): React.JSX.Element => {
     tagName: "bb-input",
     elementClass: Elements.Input,
     react: React,
-    events: {},
+    events: {
+      onerror: "parseError",
+    },
   });
 
-  return <LitReactInput configuration={configuration} />;
+  return (
+    <LitReactInput
+      onerror={() => console.log("Lit element threw an error")}
+      configuration={configuration}
+    />
+  );
 };
 
 export default InputForm;

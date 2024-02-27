@@ -49,7 +49,10 @@ const parseValue = (type: Schema["type"], input: HTMLInputElement) => {
 };
 
 @customElement("bb-input")
-export class Input extends LitElement {
+export class Input extends LitElement { //implements BreadboardWebElement {
+  //@property()
+  //onError = (error: BreadboardElementError) => { console.log(`An error of type ${error.code} has occured.`)} ;
+
   @property({ reflect: false })
   remember = false;
 
@@ -295,8 +298,13 @@ export class Input extends LitElement {
       } else {
         const input = form[key];
         if (input && input.value) {
-          const parsedValue = parseValue(property.type, input);
-          data[key] = parsedValue;
+          try {
+			throw new Error("error");
+			const parsedValue = parseValue(property.type, input);
+          	data[key] = parsedValue;
+		  } catch (error) {
+			this.dispatchEvent(new CustomEvent('parseError', {detail: error}));
+		  }
         } else {
           // Custom elements don't look like form elements, so they need to be
           // processed separately.
