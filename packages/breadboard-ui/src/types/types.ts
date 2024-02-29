@@ -95,14 +95,19 @@ export type OutputArgs = {
   } & Record<string, unknown>;
 };
 
-export type BreadboardElementErrorCode = "parseError" | "renderError";
+export type BreadboardElementErrorCode = "parseError" | "renderError" | undefined;
 
 export type BreadboardElementError = {
 	code: BreadboardElementErrorCode,
-	message: string;  
+	message: string;
 };
 
+export type BreadboardErrorHandler = (error: BreadboardElementError) => void;
+
 export interface BreadboardWebElement {
-	onError: (error: BreadboardElementError) => void;
-	//styles: CSSStyleSheet;
+	onError: BreadboardErrorHandler;
+}
+
+export type BreadboardReactComponentProps = {
+	onError?: BreadboardErrorHandler;
 }

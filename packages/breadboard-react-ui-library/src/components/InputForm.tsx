@@ -1,32 +1,28 @@
 import { Elements } from "../../../breadboard-ui/src/index";
 import { createComponent } from "@lit/react";
-import React, { useState } from "react";
-import { Schema } from "@google-labs/breadboard";
+import React from "react";
 import "../../../breadboard-ui/public/styles/global.css";
+import {
+  BreadboardReactComponentProps,
+  InputArgs,
+} from "../../../breadboard-ui/src/types/types";
+import { handleError } from "../lib/errors";
 
-type InputFormProps = {
-  configuration: {
-    schema: Schema;
-  };
-};
+type InputFormProps = InputArgs & BreadboardReactComponentProps;
 
-const InputForm = ({ configuration }: InputFormProps): React.JSX.Element => {
+const InputForm = ({ schema, onError }: InputFormProps): React.JSX.Element => {
   const LitReactInput = createComponent({
     tagName: "bb-input",
     elementClass: Elements.Input,
     react: React,
   });
 
-  const [errorMessage, setErrorMessage] = useState(false);
-  const handleError = () => {
-    console.log("error from comp");
-    return setErrorMessage(true);
-  };
-
   return (
     <>
-      <LitReactInput onError={handleError} configuration={configuration} />
-      {errorMessage && <div>Error from react component.</div>}
+      <LitReactInput
+        onError={handleError(onError)}
+        configuration={{ schema: schema }}
+      />
     </>
   );
 };

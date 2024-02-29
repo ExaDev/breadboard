@@ -19,4 +19,5 @@ const EmbedWrapper = (): React.JSX.Element => {
   );
 };
 
+//get react-error-boundary
 export default EmbedWrapper;

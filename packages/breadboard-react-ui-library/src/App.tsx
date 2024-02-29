@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import BreadboardInputView from "./views/BreadboardInputView";
+//import BreadboardToastsView from "./views/BreadboardToastsView";
 
 function App() {
   const [preview, setPreview] = useState(false);
@@ -13,6 +14,9 @@ function App() {
         </button>
         {preview && (
           <>
+            {/* <EmbedWrapper /> */}
+            {/* <PreviewWrapper /> */}
+            {/*  <BreadboardToastsView /> */}
             <BreadboardInputView />
           </>
         )}
