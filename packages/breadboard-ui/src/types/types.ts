@@ -95,7 +95,13 @@ export type OutputArgs = {
   } & Record<string, unknown>;
 };
 
-export type BreadboardElementErrorCode = "parseError" | "renderError" | undefined;
+export const BreadboardElementErrorCode = {
+	PARSE: "parseError",
+	RENDER: "renderError"
+} as const;
+
+export type BreadboardElementErrorCode =
+	(typeof BreadboardElementErrorCode)[keyof typeof BreadboardElementErrorCode];
 
 export type BreadboardElementError = {
 	code: BreadboardElementErrorCode,

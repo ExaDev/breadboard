@@ -301,11 +301,11 @@ export class Input extends LitElement implements BreadboardWebElement {
           try {
 			const parsedValue = parseValue(property.type, input);
           	data[key] = parsedValue;
-			throw new Error("parse error");
+			//throw new Error("Error when parsing input values.");
 			
 		  } catch (error) {
 			if (error instanceof Error) {
-				const event = new CustomEvent('parseError', { bubbles: true, detail: error.message });
+				const event = new CustomEvent(`${BreadboardElementErrorCode.PARSE}`, { bubbles: true, detail: error.message });
 				this.dispatchEvent(event);
 				this.onError({code: event.type as BreadboardElementErrorCode, message: event.detail});
 			}

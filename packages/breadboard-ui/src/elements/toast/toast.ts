@@ -91,6 +91,7 @@ export class Toast extends LitElement {
 
   connectedCallback(): void {
 	super.connectedCallback();
+	
       setTimeout(() => {
         this.addEventListener(
           "animationend",
@@ -107,13 +108,4 @@ export class Toast extends LitElement {
   render() {
     return html`<div>${this.message}</div>`;
   }
-
-  performUpdate() {
-	try {
-	  super.performUpdate();
-	} catch(err) {
-	  this.dispatchEvent(new CustomEvent('error', {detail: err}));
-	}
-  }
-
 }
