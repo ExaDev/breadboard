@@ -362,7 +362,17 @@ export class Input extends LitElement implements BreadboardWebElement {
       return this.#renderProcessedValues(properties, this.processedValues);
     }
 
-    return this.#renderForm(properties, values);
+	try {
+		return this.#renderForm(properties, values);
+		//throw new Error("Error when rendering input form.");
+		
+	  } catch (error) {
+		if (error instanceof Error) {
+			const event = new CustomEvent(`${BreadboardElementErrorCode.RENDER}`, { bubbles: true, detail: error.message });
+			this.dispatchEvent(event);
+			this.onError({code: event.type as BreadboardElementErrorCode, message: event.detail});
+		}
+	  }
   }
 
   #renderProcessedValues(
