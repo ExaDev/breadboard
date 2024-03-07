@@ -9,7 +9,7 @@
     "outDir": "build",
     "paths": {
       "https://esm.sh/@xenova/transformers": [
-        "../../../node_modules/@xenova/transformers/types/transformers.d.ts"
+        "../../node_modules/@xenova/transformers/types/transformers.d.ts"
       ]
     },
 
