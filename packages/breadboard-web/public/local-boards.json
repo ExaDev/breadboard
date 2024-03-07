@@ -181,5 +181,10 @@
     "title": "Webcam",
     "url": "/graphs/webcam.json",
     "version": "0.0.2"
+  },
+  {
+    "title": "Xenova",
+    "url": "/graphs/xenova.json",
+    "version": "0.0.2"
   }
 ]

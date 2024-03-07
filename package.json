@@ -190,7 +190,9 @@
     "@rollup/rollup-linux-x64-gnu": "^4.8.0"
   },
   "dependencies": {
-    "litegraph.js": "^0.7.18"
+    "@xenova/transformers": "^2.15.1",
+    "litegraph.js": "^0.7.18",
+    "tsx": "^4.7.1"
   },
   "repository": {
     "type": "git",
