@@ -15,22 +15,9 @@ const xenovaPipe = code(async ({ message }) => {
     return { output }
 });
 
-const xenovaPipe2 = code(async ({ message }) => {
-    const pipe = await pipeline('sentiment-analysis', 'Xenova/bert-base-multilingual-uncased-sentiment')
-    const output = await pipe(message as string)
-  
-    return { output }
-});
-
-const test = code(async ({ message }) => {
-    const output = "ok"
-  
-    return { output }
-});
-
 
 const myBoard = board(({ message }) => {
-    const { output } = xenovaPipe2(message)
+    const { output } = xenovaPipe(message)
     return { output };
 });
 
