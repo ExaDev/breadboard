@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { describe, test } from "node:test";
 import { entries } from "../src/nodes/object/entries.js";
+import { fromEntries } from "../src/nodes/object/fromEntries.js";
 import { spread } from "../src/nodes/object/spread.js";
 
 describe("object nodes", async () => {
@@ -31,5 +32,13 @@ describe("object nodes", async () => {
     };
 
     assert.deepEqual(nodeEntriesResult, expected);
+  });
+  await test("fromEntries", async () => {
+    const o = { a: 1, b: 2, c: 3 };
+    const objectEntries = Object.entries(o);
+    const nativeFromEntriesResult = Object.fromEntries(objectEntries);
+    assert.deepEqual(nativeFromEntriesResult, o);
+    const result = await fromEntries().invoke({ entries: objectEntries });
+    assert.deepEqual(result, o);
   });
 });
