@@ -7,9 +7,7 @@ export const spread: Lambda<
   {
     [key: string]: unknown;
   }
-> = code<{
-  object: object;
-}>((inputs) => {
+> = code((inputs) => {
   const object = inputs.object;
   if (typeof object !== "object") {
     throw new Error(`object is of type ${typeof object} not object`);
