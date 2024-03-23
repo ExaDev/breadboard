@@ -6,6 +6,7 @@ import { gather } from "../src/nodes/object/gather.js";
 import { keys } from "../src/nodes/object/keys.js";
 import { spread } from "../src/nodes/object/spread.js";
 import { values } from "../src/nodes/object/values.js";
+import { rest } from "../src/nodes/object/rest.js";
 
 describe("object nodes", async () => {
   await test("spread", async () => {
@@ -62,5 +63,11 @@ describe("object nodes", async () => {
     assert.deepEqual(result, {
       values: Object.values(o),
     });
+  });
+  await test("rest", async () => {
+    const o = { a: 1, b: 2, c: 3 };
+    const { a, ...obj } = o;
+    const result = await rest().invoke({ object: o, key: "a" });
+    assert.deepEqual(result, { a, rest: obj });
   });
 });
