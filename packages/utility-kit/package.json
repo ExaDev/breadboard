@@ -43,7 +43,7 @@
       "clean": "if-file-deleted"
     },
     "test": {
-      "command": "node --test --test-reporter spec --loader ts-node/esm tests/**/*.test.ts",
+      "command": "c8 node --test --test-reporter spec --loader ts-node/esm tests/**/*.test.ts",
       "env": {
         "FORCE_COLOR": "1"
       }
@@ -110,6 +110,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.20.0",
     "ava": "^5.2.0",
+    "c8": "^9.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "wireit": "^0.14.4"
