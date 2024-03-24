@@ -1,6 +1,5 @@
 import { Lambda, code } from "@google-labs/breadboard";
-
-export const entries: Lambda<
+export const objectEntries: Lambda<
   {
     object: { [key: string]: unknown };
   },

@@ -1,6 +1,8 @@
-export { entries } from "./entries.js";
-export { fromEntries } from "./fromEntries.js";
-export { keys } from "./keys.js";
-export { rest } from "./rest.js";
-export { spread } from "./spread.js";
-export { values } from "./values.js";
+export * from './entries.js';
+export * from './fromEntries.js';
+export * from './gather.js';
+export * from './keys.js';
+export * from './rest.js';
+export * from './spread.js';
+export * from './values.js';
+
