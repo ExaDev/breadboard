@@ -1,18 +1,45 @@
-import { Lambda, code } from "@google-labs/breadboard";
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
 
-export const pop: Lambda<
+export function pop<T>(inputs: {
+  array: T[];
+}): { last: T | undefined; array: T[] } {
+  const { array } = inputs;
+  const last = array.pop();
+  return {
+    last,
+    array,
+  };
+}
+
+export const popNodeType: MonomorphicDefinition<
   {
-    array: unknown[];
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
   },
   {
-    value: unknown;
-    array: unknown[];
+    last: {
+      type: "unknown";
+    };
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
   }
-> = code((inputs) => {
-  const array = inputs.array;
-  if (!Array.isArray(array)) {
-    throw new Error(`array is of type ${typeof array} not array`);
-  }
-  const value = array.pop();
-  return { value, array };
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+  },
+  outputs: {
+    last: {
+      type: "unknown",
+    },
+    array: {
+      type: array("unknown"),
+    },
+  },
+  invoke: pop,
 });

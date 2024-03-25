@@ -1,27 +1,56 @@
-import { InputValues, Lambda, code } from "@google-labs/breadboard";
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
 
-export const concat: Lambda<
+export function concat<T>({
+  prepend = [],
+  array,
+  append = [],
+}: {
+  array: T[];
+  prepend?: T[];
+  append?: T[];
+}): {
+  array: unknown[];
+} {
+  return {
+    array: [...prepend, ...array, ...append],
+  };
+}
+
+export const concatNodeType: MonomorphicDefinition<
   {
-    arrayKeys?: string[];
-  } & InputValues,
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+    prepend: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+    append: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+  },
   {
-    array: unknown[];
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
   }
-> = code(
-  (
-    inputs: { arrayKeys?: string[]; [key: string]: unknown } = {
-      arrayKeys: ["arrayOne", "arrayTwo"],
-    }
-  ) => {
-    let arrayKeys = inputs.arrayKeys;
-
-    if (!Array.isArray(arrayKeys) || arrayKeys.length === 0) {
-      arrayKeys = Object.keys(inputs).filter((key) =>
-        Array.isArray(inputs[key])
-      );
-    }
-
-    const arrays = arrayKeys.map((key) => inputs[key]);
-    return { array: arrays.flat() };
-  }
-);
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+    prepend: {
+      type: array("unknown"),
+    },
+    append: {
+      type: array("unknown"),
+    },
+  },
+  outputs: {
+    array: {
+      type: array("unknown"),
+    },
+  },
+  invoke: concat,
+});

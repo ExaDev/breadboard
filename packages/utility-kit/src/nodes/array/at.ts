@@ -1,11 +1,41 @@
-import { code } from "@google-labs/breadboard";
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
 
-export const at = code(({ array, index }) => {
-  if (!Array.isArray(array)) {
-    throw new Error(`array is of type ${typeof array} not array`);
+export function at<T>(inputs: { array: T[]; index: number }): {
+  value: T | undefined;
+} {
+  const { array, index } = inputs;
+  return { value: array.at(index) };
+}
+
+export const atNodeType: MonomorphicDefinition<
+  {
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+    index: {
+      type: "number";
+    };
+  },
+  {
+    value: {
+      type: "unknown";
+    };
   }
-  if (typeof index !== "number") {
-    throw new Error(`index is of type ${typeof index} not number`);
-  }
-  return { value: array[index] };
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+    index: {
+      type: "number",
+    },
+  },
+  outputs: {
+    value: {
+      type: "unknown",
+    },
+  },
+  invoke: at,
 });
