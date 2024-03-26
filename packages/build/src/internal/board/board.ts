@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { InputPorts, OutputPorts } from "./instance.js";
 import {
   InputPort,
   OutputPort,
+  type InputPorts,
+  type OutputPorts,
   type PortConfig,
+  type PortConfigMap,
   type ValuesOrOutputPorts,
-} from "./port.js";
+} from "../common/port.js";
 
 // TODO(aomarks) Support primary ports in boards.
 // TODO(aomarks) Support adding descriptions to board ports.
@@ -29,7 +31,7 @@ import {
  * );
  * ```
  *
- * @param iports The input ports that should be exposed from nodes in the board
+ * @param inputs The input ports that should be exposed from nodes in the board
  * and under which name. An object that maps from an exposed port name to an
  * input port from a node in the board.
  * @param output The output ports that should be exposed from nodes in the board
@@ -42,15 +44,21 @@ import {
 export function board<
   IPORTS extends BoardInputPorts,
   OPORTS extends BoardOutputPorts,
->(iports: IPORTS, oports: OPORTS): BoardDefinition<IPORTS, OPORTS> {
-  const def = new BoardDefinitionImpl(iports, oports);
-  return def.instantiate.bind(def);
+>(inputs: IPORTS, outputs: OPORTS): BoardDefinition<IPORTS, OPORTS> {
+  const def = new BoardDefinitionImpl(inputs, outputs);
+  return Object.assign(def.instantiate.bind(def), {
+    inputs,
+    outputs,
+  });
 }
 
-type BoardDefinition<
+export type BoardDefinition<
   IPORTS extends BoardInputPorts,
   OPORTS extends BoardOutputPorts,
-> = BoardInstantiateFunction<IPORTS, OPORTS>;
+> = BoardInstantiateFunction<IPORTS, OPORTS> & {
+  readonly inputs: IPORTS;
+  readonly outputs: OPORTS;
+};
 
 type BoardInstantiateFunction<
   IPORTS extends BoardInputPorts,
@@ -100,31 +108,15 @@ class BoardInstance<
     outputs: OPORTS,
     values: ValuesOrOutputPorts<ExtractPortConfigs<IPORTS>>
   ) {
-    this.inputs = Object.fromEntries(
-      Object.entries(extractPortConfigs(inputs)).map(([name, config]) => [
-        name,
-        new InputPort(config),
-      ])
-    ) as InputPorts<ExtractPortConfigs<IPORTS>>;
-    this.outputs = Object.fromEntries(
-      Object.entries(extractPortConfigs(outputs)).map(([name, config]) => [
-        name,
-        new OutputPort(config),
-      ])
-    ) as OutputPorts<ExtractPortConfigs<OPORTS>>;
+    // TODO(aomarks) Shouldn't need these casts.
+    this.inputs = inputs as InputPorts<PortConfigMap> as InputPorts<
+      ExtractPortConfigs<IPORTS>
+    >;
+    this.outputs = outputs as OutputPorts<PortConfigMap> as OutputPorts<
+      ExtractPortConfigs<OPORTS>
+    >;
     this.#values = values;
   }
-}
-
-function extractPortConfigs<IO extends BoardInputPorts | BoardOutputPorts>(
-  portMap: IO
-): ExtractPortConfigs<IO> {
-  return Object.fromEntries(
-    Object.entries(portMap).map(([name, config]) => [
-      name,
-      { type: config.type },
-    ])
-  ) as ExtractPortConfigs<IO>;
 }
 
 type ExtractPortConfigs<PORTS extends BoardInputPorts | BoardOutputPorts> = {
@@ -135,5 +127,5 @@ type ExtractPortConfigs<PORTS extends BoardInputPorts | BoardOutputPorts> = {
     : never;
 };
 
-type BoardInputPorts = Record<string, InputPort<PortConfig>>;
-type BoardOutputPorts = Record<string, OutputPort<PortConfig>>;
+export type BoardInputPorts = Record<string, InputPort<PortConfig>>;
+export type BoardOutputPorts = Record<string, OutputPort<PortConfig>>;

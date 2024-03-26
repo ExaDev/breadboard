@@ -15,8 +15,8 @@ import {
   type PolymorphicDefinition,
   type PolymorphicInvokeFunction,
 } from "./definition-polymorphic.js";
-import type { ForbidMultiplePrimaries } from "./definition.js";
-import type { PortConfigMap } from "./port.js";
+import type { PortConfigMap } from "../common/port.js";
+import type { CountUnion } from "../common/type-util.js";
 
 /**
  * Define a new Breadboard node type.
@@ -113,6 +113,7 @@ export function defineNodeType<
   INPUTS extends PortConfigMap,
   OUTPUTS extends PortConfigMap,
 >(params: {
+  name?: string;
   inputs: INPUTS;
   outputs: ForbidMultiplePrimaries<OUTPUTS>;
   invoke: IsPolymorphic<INPUTS> extends true
@@ -129,10 +130,11 @@ export function defineNodeType<
       >
     : never;
 }): NodeDefinition<INPUTS, OUTPUTS> {
-  const { inputs, outputs, invoke, describe } = params;
+  const { name, inputs, outputs, invoke, describe } = params;
   validateOutputs(outputs);
   const def = isPolymorphic(inputs, invoke)
     ? definePolymorphicNodeType(
+        name ?? "TODO_UNNAMED_POLY",
         omitDynamicPort(inputs),
         // TODO(aomarks) Remove !
         inputs["*"]!,
@@ -145,7 +147,12 @@ export function defineNodeType<
         >,
         describe
       )
-    : defineMonomorphicNodeType(inputs, outputs, invoke);
+    : defineMonomorphicNodeType(
+        name ?? "TODO_UNNAMED_MONO",
+        inputs,
+        outputs,
+        invoke
+      );
   return def as NodeDefinition<INPUTS, OUTPUTS>;
 }
 
@@ -207,4 +214,21 @@ type NodeDefinition<
 
 type IsPolymorphic<ISHAPE extends PortConfigMap> = ISHAPE["*"] extends object
   ? true
-  : false;
+  : false; // To get errors in the right place, we're going to test if there are multiple
+// primaries. If there are not, just return the type, everything is fine. If
+// there are, return a version of the type which disallows primary. That way,
+// the squiggly will appear on all the primaries.
+
+type ForbidMultiplePrimaries<M extends PortConfigMap> =
+  HasMultiplePrimaries<M> extends true
+    ? {
+        [K in keyof M]: Omit<M[K], "primary"> & { primary: false };
+      }
+    : M;
+
+type HasMultiplePrimaries<M extends PortConfigMap> =
+  CountUnion<PrimaryPortNames<M>> extends 0 | 1 ? false : true;
+
+type PrimaryPortNames<M extends PortConfigMap> = {
+  [K in keyof M]: M[K]["primary"] extends true ? K : never;
+}[keyof M];
