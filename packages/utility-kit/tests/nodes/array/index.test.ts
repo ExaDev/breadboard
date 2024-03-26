@@ -276,23 +276,23 @@ describe("push", () => {
     const array = [1, 2, 3];
     const value = 4;
     const nodePushResult = push({ array: [...array], value });
-    array.push(value);
-    assert.deepEqual(nodePushResult, { array });
+    const length = array.push(value);
+    assert.deepEqual(nodePushResult, { array, length });
   });
   test("an empty array", () => {
     const array: number[] = [];
     const value = 1;
-    const nodePushResult = push({ array, value });
-    array.push(value);
-    assert.deepEqual(nodePushResult, { array });
+    const nodePushResult = push({ array: [...array], value });
+    const length = array.push(value);
+    assert.deepEqual(nodePushResult, { array, length });
   });
   test("multiple values", () => {
     const array = [1, 2, 3];
     const value1 = 4;
     const value2 = 5;
-    const nodePushResult = push({ array, value: [value1, value2] });
-    array.push(value1, value2);
-    assert.deepEqual(nodePushResult, { array });
+    const nodePushResult = push({ array: [...array], value: [value1, value2] });
+    const length = array.push(value1, value2);
+    assert.deepEqual(nodePushResult, { array, length });
   });
 });
 

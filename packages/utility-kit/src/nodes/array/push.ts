@@ -13,8 +13,10 @@ import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-syste
  */
 export function push<T>({ array, value }: { array: T[]; value: T | T[] }): {
   array: T[];
+  length: number;
 } {
-  return { array: array.concat(value) };
+  const length = array.push(...(Array.isArray(value) ? value : [value]));
+  return { array, length };
 }
 
 export const pushNodeType: MonomorphicDefinition<
@@ -30,6 +32,9 @@ export const pushNodeType: MonomorphicDefinition<
     array: {
       type: AdvancedBreadboardType<unknown[]>;
     };
+    length: {
+      type: "number";
+    };
   }
 > = defineNodeType({
   inputs: {
@@ -43,6 +48,9 @@ export const pushNodeType: MonomorphicDefinition<
   outputs: {
     array: {
       type: array("unknown"),
+    },
+    length: {
+      type: "number",
     },
   },
   invoke: push,
