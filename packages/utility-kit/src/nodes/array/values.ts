@@ -1,14 +1,42 @@
-// - [`Array.prototype.values()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values)
-//   - Returns a new [_array iterator_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators) object that contains the values for each index in the array.
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
+
 /**
  * values
  * Returns a new array iterator object that contains the values for each index in the array.
- * @param array - The array to get the values from.
- * @returns values - The array iterator object.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to get the values from.
+ * @returns {IterableIterator<T>} A new array iterator object that contains the values for each index in the array.
  */
-
 export function values<T>({ array }: { array: T[] }): {
   values: IterableIterator<T>;
 } {
   return { values: array.values() };
 }
+
+export const valuesNodeType: MonomorphicDefinition<
+  {
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+  },
+  {
+    values: {
+      type: "unknown";
+    };
+  }
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+  },
+  outputs: {
+    values: {
+      type: "unknown",
+    },
+  },
+  invoke: values,
+});

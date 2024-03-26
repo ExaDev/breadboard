@@ -1,13 +1,12 @@
-// - [`Array.prototype.some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
-//   - Returns `true` if at least one element in the calling array satisfies the provided testing function.
 /**
  * some
  * Returns `true` if at least one element in the calling array satisfies the provided testing function.
- * @param array - The array to check.
- * @param callback - A predicate function to test each element of the array.
- * @returns `true` if at least one element in the calling array satisfies the testing function.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to check.
+ * @param {Function} inputs.callback The function to test for each element.
+ * @returns {boolean} `true` if at least one element in the calling array satisfies the provided testing function.
  */
-
 export function some<T>({
   array,
   callback: predicate, // TODO: add type for callback

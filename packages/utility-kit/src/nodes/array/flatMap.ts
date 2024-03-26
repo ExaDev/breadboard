@@ -1,13 +1,13 @@
-// - [`Array.prototype.flatMap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap)
-//   - Returns a new array formed by applying a given callback function to each element of the calling array, and then flattening the result by one level.
 /**
  * flatMap
  * Returns a new array formed by applying a given callback function to each element of the calling array, and then flattening the result by one level.
- * @param array - The array to map.
- * @param callback - A function that produces an element of the new array.
- * @returns array - The mapped array.
+ * @template T The type of the array items.
+ * @template U The type of the array items after applying the callback function.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to map.
+ * @param {Function} inputs.callbackFn The function to apply to each element of the array.
+ * @returns {Array<U>} A new array formed by applying a given callback function to each element of the calling array, and then flattening the result by one level.
  */
-
 export function flatMap<T, U>({
   array,
   callbackFn, // TODO: add type for callbackFn

@@ -1,13 +1,17 @@
-// - [`Array.prototype.copyWithin()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin)
-//   - Copies a sequence of array elements within an array.
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
+
 /**
  * copyWithin
  * Copies a sequence of array elements within an array.
- * @param array - The array to copy within.
- * @param target - The index at which to copy the sequence.
- * @param start - The index at which to start copying elements from.
- * @param end - The index at which to stop copying elements from.
- * @returns array - The array with the copied elements.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to copy elements within.
+ * @param {Number} inputs.target The index at which to copy the sequence to.
+ * @param {Number} [inputs.start=0] The index at which to start copying elements from.
+ * @param {Number} [inputs.end=array.length] The index at which to stop copying elements from.
+ * @returns {Array<T>} The array with the copied elements.
  */
 
 export function copyWithin<T>({
@@ -25,3 +29,46 @@ export function copyWithin<T>({
 } {
   return { array: array.copyWithin(target, start, end) };
 }
+
+export const copyWithinNodeType: MonomorphicDefinition<
+  {
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+    target: {
+      type: "number";
+    };
+    start: {
+      type: "number";
+    };
+    end: {
+      type: "number";
+    };
+  },
+  {
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+  }
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+    target: {
+      type: "number",
+    },
+    start: {
+      type: "number",
+    },
+    end: {
+      type: "number",
+    },
+  },
+  outputs: {
+    array: {
+      type: array("unknown"),
+    },
+  },
+  invoke: copyWithin,
+});

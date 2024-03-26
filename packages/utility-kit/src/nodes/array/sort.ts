@@ -1,13 +1,12 @@
-// - [`Array.prototype.sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
-//   - Sorts the elements of an array in place and returns the array.
 /**
  * sort
  * Sorts the elements of an array in place and returns the array.
- * @param array - The array to sort.
- * @param compareFunction - A function that defines the sort order.
- * @returns array - The sorted array.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to sort.
+ * @param {Function} [inputs.compareFunction] The function that defines the sort order.
+ * @returns {Array<T>} The sorted array.
  */
-
 export function sort<T>({
   array,
   compareFunction: compareFn,

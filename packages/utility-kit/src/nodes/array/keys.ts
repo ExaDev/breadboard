@@ -1,14 +1,44 @@
-// - [`Array.prototype.keys()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys)
-//   - Returns a new [_array iterator_](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators) that contains the keys for each index in the calling array.
+import { array, defineNodeType } from "@breadboard-ai/build";
+import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
+import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
+
 /**
  * keys
  * Returns a new array iterator that contains the keys for each index in the calling array.
- * @param array - The array to get the keys from.
- * @returns keys - The array iterator object.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to get the keys from.
+ * @returns {IterableIterator<number>} A new array iterator that contains the keys for each index in the calling array.
  */
-
-export function keys<T>({ array }: { array: T[] }): {
+export const keys = <T>({
+  array,
+}: {
+  array: T[];
+}): {
   keys: IterableIterator<number>;
-} {
-  return { keys: array.keys() };
-}
+} => ({ keys: array.keys() });
+
+export const keysNodeType: MonomorphicDefinition<
+  {
+    array: {
+      type: AdvancedBreadboardType<unknown[]>;
+    };
+  },
+  {
+    keys: {
+      type: "unknown";
+    };
+  }
+> = defineNodeType({
+  inputs: {
+    array: {
+      type: array("unknown"),
+    },
+  },
+  outputs: {
+    keys: {
+      type: "unknown",
+    },
+  },
+  invoke: keys,
+});

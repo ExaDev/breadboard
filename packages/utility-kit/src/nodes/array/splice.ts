@@ -1,15 +1,14 @@
-// - [`Array.prototype.splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
-//   - Adds and/or removes elements from an array.
 /**
  * splice
  * Adds and/or removes elements from an array.
- * @param array - The array to splice.
- * @param start - The index at which to start changing the array.
- * @param deleteCount - The number of elements to remove.
- * @param elements - The elements to add.
- * @returns array - The spliced array.
+ * @template T The type of the array items.
+ * @param {Object} inputs
+ * @param {Array<T>} inputs.array The array to splice.
+ * @param {Number} inputs.start The index at which to start changing the array.
+ * @param {Number} [inputs.deleteCount=0] The number of elements to remove.
+ * @param {Array<T>} [inputs.elements=[]] The elements to add to the array.
+ * @returns {Array<T>} The array with the elements added and/or removed.
  */
-
 export function splice<T>({
   array,
   start,
