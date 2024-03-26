@@ -11,13 +11,13 @@ import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-syste
  * @returns {Object} An object containing the first element of the array and the modified array.
  */
 export function shift<T>(inputs: { array: T[] }): {
-  first: T | undefined;
+  value: T | undefined;
   array: T[];
 } {
   const { array } = inputs;
-  const first = array.shift();
+  const value = array.shift();
   return {
-    first,
+    value,
     array,
   };
 }
@@ -29,7 +29,7 @@ export const shiftNodeType: MonomorphicDefinition<
     };
   },
   {
-    first: {
+    value: {
       type: "unknown";
     };
     array: {
@@ -43,7 +43,7 @@ export const shiftNodeType: MonomorphicDefinition<
     },
   },
   outputs: {
-    first: {
+    value: {
       type: "unknown",
     },
     array: {

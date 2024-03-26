@@ -30,9 +30,6 @@ const ArrayKit = new KitBuilder({
   url: "npm:@breadboard-ai/example-kit",
 }).build({
   at: atNodeType,
-  pop: popNodeType,
-  isArray: isArrayNodeType,
-  length: lengthNodeType,
   concat: concatNodeType,
   copyWithin: copyWithinNodeType,
   entries: entriesNodeType,
@@ -48,10 +45,13 @@ const ArrayKit = new KitBuilder({
   // forEach: forEachNodeType,
   includes: includesNodeType,
   indexOf: indexOfNodeType,
+  isArray: isArrayNodeType,
   // join: joinNodeType,
   keys: keysNodeType,
   lastIndexOf: lastIndexOfNodeType,
+  length: lengthNodeType,
   // map: mapNodeType,
+  pop: popNodeType,
   push: pushNodeType,
   // reduce: reduceNodeType,
   // reduceRight: reduceRightNodeType,
@@ -73,7 +73,6 @@ export default ArrayKit;
 export const ArrayKitNodes = addKit(ArrayKit) as {
   at: NodeFactoryFromDefinition<typeof atNodeType>;
   isArray: NodeFactoryFromDefinition<typeof isArrayNodeType>;
-  pop: NodeFactoryFromDefinition<typeof popNodeType>;
   length: NodeFactoryFromDefinition<typeof lengthNodeType>;
   concat: NodeFactoryFromDefinition<typeof concatNodeType>;
   copyWithin: NodeFactoryFromDefinition<typeof copyWithinNodeType>;
@@ -94,6 +93,7 @@ export const ArrayKitNodes = addKit(ArrayKit) as {
   keys: NodeFactoryFromDefinition<typeof keysNodeType>;
   lastIndexOf: NodeFactoryFromDefinition<typeof lastIndexOfNodeType>;
   // map: NodeFactoryFromDefinition<typeof mapNodeType>;
+  pop: NodeFactoryFromDefinition<typeof popNodeType>;
   push: NodeFactoryFromDefinition<typeof pushNodeType>;
   // reduce: NodeFactoryFromDefinition<typeof reduceNodeType>;
   // reduceRight: NodeFactoryFromDefinition<typeof reduceRightNodeType>;

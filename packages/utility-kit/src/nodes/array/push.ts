@@ -4,23 +4,17 @@ import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-syste
 
 /**
  * push
- * Adds one or more elements to the end of an array, and returns the new `length` of the array.
+ * Adds one or more value to the end of an array, and returns the new `length` of the array.
  * @template T The type of the array items.
  * @param {Object} inputs
  * @param {Array<T>} inputs.array The array to modify.
- * @param {T | Array<T>} inputs.elements The element(s) to add to the array.
+ * @param {T | Array<T>} inputs.value The element(s) to add to the array.
  * @returns {Array<T>} The modified array.
  */
-export function push<T>({
-  array,
-  elements,
-}: {
-  array: T[];
-  elements: T | T[];
-}): {
+export function push<T>({ array, value }: { array: T[]; value: T | T[] }): {
   array: T[];
 } {
-  return { array: array.concat(elements) };
+  return { array: array.concat(value) };
 }
 
 export const pushNodeType: MonomorphicDefinition<
@@ -28,7 +22,7 @@ export const pushNodeType: MonomorphicDefinition<
     array: {
       type: AdvancedBreadboardType<unknown[]>;
     };
-    elements: {
+    value: {
       type: AdvancedBreadboardType<unknown | unknown[]>;
     };
   },
@@ -42,7 +36,7 @@ export const pushNodeType: MonomorphicDefinition<
     array: {
       type: array("unknown"),
     },
-    elements: {
+    value: {
       type: anyOf("unknown", array("unknown")),
     },
   },

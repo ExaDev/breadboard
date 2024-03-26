@@ -1,6 +1,4 @@
-import { array, defineNodeType } from "@breadboard-ai/build";
-import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
-import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
+import { defineNodeType } from "@breadboard-ai/build";
 
 /**
  * isArray
@@ -10,7 +8,7 @@ import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-syste
  * @param {Array<T>} inputs.value The value to check.
  * @returns {boolean} `true` if the argument is an array, or `false` otherwise.
  */
-export function isArray<T>({ value }: { value: T[] }): {
+export function isArray({ value }: { value: unknown }): {
   isArray: boolean;
 } {
   return {
@@ -18,21 +16,10 @@ export function isArray<T>({ value }: { value: T[] }): {
   };
 }
 
-export const isArrayNodeType: MonomorphicDefinition<
-  {
-    value: {
-      type: AdvancedBreadboardType<unknown[]>;
-    };
-  },
-  {
-    isArray: {
-      type: "boolean";
-    };
-  }
-> = defineNodeType({
+export const isArrayNodeType = defineNodeType({
   inputs: {
     value: {
-      type: array("unknown"),
+      type: "unknown",
     },
   },
   outputs: {

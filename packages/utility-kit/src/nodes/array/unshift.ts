@@ -12,17 +12,13 @@ import { Lambda, code } from "@google-labs/breadboard";
  * @param {Array<T>} inputs.elements The elements to add to the front of the array.
  * @returns {Array<T>} The modified array.
  */
-export function unshift<T>({
-  array,
-  elements,
-}: {
+export function unshift<T>({ array, value }: { array: T[]; value: T[] | T }): {
   array: T[];
-  elements: T[];
-}): {
-  array: T[];
+  length: number;
 } {
-  array.unshift(...elements);
-  return { array };
+  value = Array.isArray(value) ? value : [value];
+  const length = array.unshift(...value);
+  return { array, length };
 }
 
 export const unshiftNodeType: MonomorphicDefinition<
@@ -30,13 +26,16 @@ export const unshiftNodeType: MonomorphicDefinition<
     array: {
       type: AdvancedBreadboardType<unknown[]>;
     };
-    elements: {
+    value: {
       type: AdvancedBreadboardType<unknown[]>;
     };
   },
   {
     array: {
       type: AdvancedBreadboardType<unknown[]>;
+    };
+    length: {
+      type: "number";
     };
   }
 > = defineNodeType({
@@ -44,7 +43,7 @@ export const unshiftNodeType: MonomorphicDefinition<
     array: {
       type: array("unknown"),
     },
-    elements: {
+    value: {
       type: array("unknown"),
     },
   },
@@ -52,15 +51,19 @@ export const unshiftNodeType: MonomorphicDefinition<
     array: {
       type: array("unknown"),
     },
+    length: {
+      type: "number",
+    },
   },
   invoke: unshift,
 });
 export const unshiftCode: Lambda<
   {
     array: unknown[];
-    elements: unknown[];
+    value: unknown[];
   },
   {
     array: unknown[];
+    length: number;
   }
-> = code(({ array, elements }) => unshift({ array, elements }));
+> = code(({ array, value }) => unshift({ array, value }));

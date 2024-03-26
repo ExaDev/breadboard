@@ -15,12 +15,12 @@ export const pop = <T>({
 }: {
   array: T[];
 }): {
-  last: T | undefined;
+  value: T | undefined;
   array: T[];
 } => {
-  const last = array.pop();
+  const value = array.pop();
   return {
-    last,
+    value,
     array,
   };
 };
@@ -32,7 +32,7 @@ export const popNodeType: MonomorphicDefinition<
     };
   },
   {
-    last: {
+    value: {
       type: "unknown";
     };
     array: {
@@ -46,7 +46,7 @@ export const popNodeType: MonomorphicDefinition<
     },
   },
   outputs: {
-    last: {
+    value: {
       type: "unknown",
     },
     array: {

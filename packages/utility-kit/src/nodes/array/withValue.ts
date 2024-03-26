@@ -1,6 +1,4 @@
-import { array } from "@breadboard-ai/build";
-import { MonomorphicDefinition } from "@breadboard-ai/build/internal/definition-monomorphic.js";
-import { AdvancedBreadboardType } from "@breadboard-ai/build/internal/type-system/type.js";
+import { array, defineNodeType } from "@breadboard-ai/build";
 
 /**
  * with
@@ -28,24 +26,7 @@ export function withValue<T>({
   return { array: newArray };
 }
 
-export const withValueNodeType: MonomorphicDefinition<
-  {
-    array: {
-      type: AdvancedBreadboardType<unknown[]>;
-    };
-    index: {
-      type: AdvancedBreadboardType<number>;
-    };
-    value: {
-      type: AdvancedBreadboardType<unknown>;
-    };
-  },
-  {
-    array: {
-      type: AdvancedBreadboardType<unknown[]>;
-    };
-  }
-> = defineNodeType({
+export const withValueNodeType = defineNodeType({
   inputs: {
     array: {
       type: array("unknown"),
