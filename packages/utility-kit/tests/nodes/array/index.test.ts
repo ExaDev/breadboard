@@ -356,6 +356,17 @@ describe("unshift", () => {
     const nativeUnshiftResult = array.unshift(value);
     assert.deepEqual(nodeUnshiftResult, { length: nativeUnshiftResult, array });
   });
+  test("multiple values", () => {
+    const array = [1, 2, 3];
+    const value1 = 0;
+    const value2 = -1;
+    const nodeUnshiftResult = unshift({
+      array: [...array],
+      value: [value1, value2],
+    });
+    const nativeUnshiftResult = array.unshift(value1, value2);
+    assert.deepEqual(nodeUnshiftResult, { length: nativeUnshiftResult, array });
+  });
 });
 
 describe("values", () => {
