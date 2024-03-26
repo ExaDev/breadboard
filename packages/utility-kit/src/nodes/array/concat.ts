@@ -23,7 +23,7 @@ export function concat<T>({
 }): {
   array: T[];
 } {
-  return { array: array.concat(prepend, append) };
+  return { array: [...prepend, ...array, ...append] };
 }
 
 export const concatNodeType: MonomorphicDefinition<

@@ -1,14 +1,12 @@
 import assert from "node:assert";
 
 import { describe, test } from "node:test";
-import {
-  arrayToEntries,
-  at,
-  concat,
-  copyWithin,
-  fill,
-  pop,
-} from "../../../src/nodes/array/index.js";
+import { at } from "../../../src/nodes/array/at.js";
+import { concat } from "../../../src/nodes/array/concat.js";
+import { copyWithin } from "../../../src/nodes/array/copyWithin.js";
+import { entries } from "../../../src/nodes/array/entries.js";
+import { fill } from "../../../src/nodes/array/fill.js";
+import { pop } from "../../../src/nodes/array/pop.js";
 
 test("at", async () => {
   const array = [1, 2, 3];
@@ -32,20 +30,21 @@ describe("concat", () => {
     assert.deepEqual(nodeConcatResult, { array: nativeConcatResult });
   });
   test("prepend and append", async () => {
-    const nativeConcatResult = array1.concat(array2, array3);
     const nodeConcatResult = concat({
       prepend: array1,
       array: array2,
       append: array3,
     });
-    assert.deepEqual(nodeConcatResult, { array: nativeConcatResult });
+    assert.deepEqual(nodeConcatResult, {
+      array: [...array1, ...array2, ...array3],
+    });
   });
 });
 
 test("copyWithin", async () => {
   const array = [1, 2, 3, 4, 5];
   const nativeCopyWithinResult = array.copyWithin(0, 3);
-  const nodeCopyWithinResult = await copyWithin().invoke({
+  const nodeCopyWithinResult = copyWithin({
     array,
     target: 0,
     start: 3,
@@ -56,7 +55,7 @@ test("copyWithin", async () => {
 test("fill", async () => {
   const array = [1, 2, 3, 4];
   const nativeFillResult = array.fill(0, 2, 4);
-  const nodeFillResult = await fill().invoke({
+  const nodeFillResult = fill({
     array,
     value: 0,
     start: 2,
@@ -82,6 +81,6 @@ test("pop", async () => {
 test("entries", async () => {
   const array = [1, 2, 3];
   const nativeEntriesResult = array.entries();
-  const nodeEntriesResult = await arrayToEntries().invoke({ array });
+  const nodeEntriesResult = entries({ array });
   assert.deepEqual(nodeEntriesResult, { entries: nativeEntriesResult });
 });
