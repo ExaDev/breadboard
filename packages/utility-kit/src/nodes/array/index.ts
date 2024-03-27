@@ -24,10 +24,9 @@ import { withValueNodeType } from "./withValue.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 const ArrayKit = new KitBuilder({
-  title: "Example Kit",
-  description: "An example kit",
-  version: "0.1.0",
-  url: "npm:@breadboard-ai/example-kit",
+  title: "Array Kit",
+  description: "A collection of nodes for working with arrays.",
+  url: "npm:@breadboard-ai/array-kit",
 }).build({
   at: atNodeType,
   concat: concatNodeType,
