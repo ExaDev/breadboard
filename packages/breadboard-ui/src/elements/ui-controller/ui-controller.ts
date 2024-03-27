@@ -58,6 +58,9 @@ export class UI extends LitElement {
   @property()
   run: InspectableRun | null = null;
 
+  @property({ reflect: true })
+  failedToLoad = false;
+
   @property()
   boardId = -1;
 
@@ -259,12 +262,12 @@ export class UI extends LitElement {
     const sidePanel = html`
       <bb-switcher
         slots="2"
+        .disabled=${this.failedToLoad}
         .selected=${this.#autoSwitchSidePanel !== null
           ? this.#autoSwitchSidePanel
           : nothing}
       >
         <bb-activity-log
-          .loadInfo=${this.loadInfo}
           .run=${this.run}
           .events=${events}
           .eventPosition=${eventPosition}
@@ -279,18 +282,21 @@ export class UI extends LitElement {
             }
 
             const [top] = evt.composedPath();
-            if (!(top instanceof HTMLElement) || !top.dataset.messageIdx) {
-              return;
-            }
-
-            const idx = Number.parseInt(top.dataset.messageIdx);
-            if (Number.isNaN(idx)) {
+            if (!(top instanceof HTMLElement) || !top.dataset.messageId) {
               return;
             }
 
             evt.stopImmediatePropagation();
 
-            const event = events[idx];
+            const id = top.dataset.messageId;
+            const event = this.run?.getEventById(id);
+
+            if (!event) {
+              // TODO: Offer the user more information.
+              console.warn(`Unable to find event with ID "${id}"`);
+              return;
+            }
+
             if (event.type !== "node") {
               return;
             }
@@ -368,14 +374,19 @@ export class UI extends LitElement {
     >
       <section id="diagram" slot="slot-0">
         <div id="breadcrumbs"></div>
-        ${editor}
+        ${this.loadInfo === null && this.failedToLoad
+          ? html`<div class="failed-to-load">
+              <h1>Unable to load board</h1>
+              <p>Please try again, or load a different board</p>
+            </div>`
+          : editor}
       </section>
 
       <section id="controls-activity" slot="slot-1">
         <div id="controls">
           <button
             id="run"
-            ?disabled=${this.status !== STATUS.STOPPED}
+            ?disabled=${this.status !== STATUS.STOPPED || this.failedToLoad}
             @click=${() => {
               this.#autoSwitchSidePanel = 0;
               this.dispatchEvent(new RunEvent());

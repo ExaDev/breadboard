@@ -168,17 +168,40 @@ export class SchemaEditor extends LitElement {
 
         case "string":
         default: {
-          // string
-          defaultValue = html`<input
-            type="text"
-            id="${id}-default"
-            name="${id}-default"
-            value="${value.default}"
-            ?readonly=${!this.editable}
-          />`;
+          if (value.enum) {
+            defaultValue = html`<select
+              type="text"
+              id="${id}-default"
+              name="${id}-default"
+              ?readonly=${!this.editable}
+            >
+              ${map(value.enum, (option) => {
+                return html`<option ?selected=${option === value.default}>
+                  ${option}
+                </option>`;
+              })}
+            </select>`;
+          } else {
+            defaultValue = html`<input
+              type="text"
+              id="${id}-default"
+              name="${id}-default"
+              value="${value.default}"
+              ?readonly=${!this.editable}
+            />`;
+          }
           break;
         }
       }
+
+      const enumerations = html` <label for="${id}-enum">User choices</label>
+        <bb-array-editor
+          id="${id}-enum"
+          name="${id}-enum"
+          ?readonly=${!this.editable}
+          .items=${value.enum || []}
+          .type=${"string"}
+        ></bb-array-editor>`;
 
       return html`<details open class=${classMap({ [valueType]: true })}>
         <summary>
@@ -236,8 +259,19 @@ export class SchemaEditor extends LitElement {
             </option>
           </select>
 
+          ${value.type === "string" ? enumerations : nothing}
+
           <label for="${id}-default">Default</label>
           ${defaultValue}
+
+          <label for="${id}-examples">Examples</label>
+          <bb-array-editor
+            id="${id}-examples"
+            name="${id}-examples"
+            ?readonly=${!this.editable}
+            .items=${value.examples || []}
+            .type=${"string"}
+          ></bb-array-editor>
 
           <label for="${id}-required">Required</label>
           <input
@@ -275,6 +309,12 @@ export class SchemaEditor extends LitElement {
         const inDefault = form.querySelector(
           `#${id}-default`
         ) as HTMLInputElement | null;
+        const inExamples = form.querySelector(
+          `#${id}-examples`
+        ) as HTMLInputElement | null;
+        const inEnum = form.querySelector(
+          `#${id}-enum`
+        ) as HTMLInputElement | null;
         const inRequired = form.querySelector(
           `#${id}-required`
         ) as HTMLInputElement | null;
@@ -288,6 +328,10 @@ export class SchemaEditor extends LitElement {
           inDefault?.type === "checkbox"
             ? inDefault.checked.toString()
             : inDefault?.value ?? property.default;
+        property.examples = JSON.parse(inExamples?.value || "[]") as string[];
+        const userChoices = JSON.parse(inEnum?.value || "[]") as string[];
+        property.enum =
+          userChoices && userChoices.length ? userChoices : undefined;
 
         // Going from boolean -> anything else with no default means removing
         // the value entirely.

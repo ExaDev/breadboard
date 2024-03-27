@@ -6,13 +6,10 @@
 
 import {
   InputPort,
-  OutputPort,
-  type InputPorts,
-  type OutputPorts,
-  type PortConfig,
-  type PortConfigMap,
+  type OutputPortReference,
   type ValuesOrOutputPorts,
 } from "../common/port.js";
+import type { JsonSerializable } from "../type-system/type.js";
 
 // TODO(aomarks) Support primary ports in boards.
 // TODO(aomarks) Support adding descriptions to board ports.
@@ -52,6 +49,13 @@ export function board<
   });
 }
 
+export type BoardInputPorts = Record<string, InputPort<JsonSerializable>>;
+
+export type BoardOutputPorts = Record<
+  string,
+  OutputPortReference<JsonSerializable>
+>;
+
 export type BoardDefinition<
   IPORTS extends BoardInputPorts,
   OPORTS extends BoardOutputPorts,
@@ -63,18 +67,9 @@ export type BoardDefinition<
 type BoardInstantiateFunction<
   IPORTS extends BoardInputPorts,
   OPORTS extends BoardOutputPorts,
-> = <VALUES extends Record<string, unknown>>(
-  values: BoardInputValues<IPORTS, VALUES>
+> = (
+  values: ValuesOrOutputPorts<ExtractPortTypes<IPORTS>>
 ) => BoardInstance<IPORTS, OPORTS>;
-
-type BoardInputValues<
-  IPORTS extends BoardInputPorts,
-  VALUES extends Record<string, unknown>,
-> = ValuesOrOutputPorts<ExtractPortConfigs<IPORTS>> & {
-  [PORT_NAME in keyof VALUES]: PORT_NAME extends keyof IPORTS
-    ? ValuesOrOutputPorts<ExtractPortConfigs<IPORTS>>[PORT_NAME]
-    : never;
-};
 
 class BoardDefinitionImpl<
   IPORTS extends BoardInputPorts,
@@ -88,8 +83,8 @@ class BoardDefinitionImpl<
     this.#outputs = outputs;
   }
 
-  instantiate<VALUES extends Record<string, unknown>>(
-    values: BoardInputValues<IPORTS, VALUES>
+  instantiate(
+    values: ValuesOrOutputPorts<ExtractPortTypes<IPORTS>>
   ): BoardInstance<IPORTS, OPORTS> {
     return new BoardInstance(this.#inputs, this.#outputs, values);
   }
@@ -99,33 +94,26 @@ class BoardInstance<
   IPORTS extends BoardInputPorts,
   OPORTS extends BoardOutputPorts,
 > {
-  readonly inputs: InputPorts<ExtractPortConfigs<IPORTS>>;
-  readonly outputs: OutputPorts<ExtractPortConfigs<OPORTS>>;
-  readonly #values: ValuesOrOutputPorts<ExtractPortConfigs<IPORTS>>;
+  readonly inputs: IPORTS;
+  readonly outputs: OPORTS;
+  // TODO(aomarks) This should get used somewhere.
+  readonly #values: ValuesOrOutputPorts<ExtractPortTypes<IPORTS>>;
 
   constructor(
     inputs: IPORTS,
     outputs: OPORTS,
-    values: ValuesOrOutputPorts<ExtractPortConfigs<IPORTS>>
+    values: ValuesOrOutputPorts<ExtractPortTypes<IPORTS>>
   ) {
-    // TODO(aomarks) Shouldn't need these casts.
-    this.inputs = inputs as InputPorts<PortConfigMap> as InputPorts<
-      ExtractPortConfigs<IPORTS>
-    >;
-    this.outputs = outputs as OutputPorts<PortConfigMap> as OutputPorts<
-      ExtractPortConfigs<OPORTS>
-    >;
+    this.inputs = inputs;
+    this.outputs = outputs;
     this.#values = values;
   }
 }
 
-type ExtractPortConfigs<PORTS extends BoardInputPorts | BoardOutputPorts> = {
+type ExtractPortTypes<PORTS extends BoardInputPorts | BoardOutputPorts> = {
   [PORT_NAME in keyof PORTS]: PORTS[PORT_NAME] extends
-    | InputPort<infer PORT_CONFIG>
-    | OutputPort<infer PORT_CONFIG>
-    ? { type: PORT_CONFIG["type"] }
+    | InputPort<infer TYPE>
+    | OutputPortReference<infer TYPE>
+    ? TYPE
     : never;
 };
-
-export type BoardInputPorts = Record<string, InputPort<PortConfig>>;
-export type BoardOutputPorts = Record<string, OutputPort<PortConfig>>;

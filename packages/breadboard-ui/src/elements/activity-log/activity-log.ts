@@ -18,14 +18,10 @@ import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { InputRequestedEvent } from "../../events/events.js";
 import { map } from "lit/directives/map.js";
 import { styleMap } from "lit/directives/style-map.js";
-import { LoadArgs } from "../../types/types.js";
 import { until } from "lit/directives/until.js";
 
 @customElement("bb-activity-log")
 export class ActivityLog extends LitElement {
-  @property()
-  loadInfo: LoadArgs | null = null;
-
   @property({ reflect: false })
   run: InspectableRun | null = null;
 
@@ -331,7 +327,7 @@ export class ActivityLog extends LitElement {
       opacity: 0;
     }
 
-    section h1[data-message-idx] {
+    h1[data-message-id] {
       cursor: pointer;
     }
 
@@ -551,7 +547,9 @@ export class ActivityLog extends LitElement {
 
           return html`<div class=${classMap(classes)}>
             <div class="content">
-              <h1>${event.node.description()}</h1>
+              <h1 data-message-id=${this.showExtendedInfo ? event.id : nothing}>
+                ${event.node.description()}
+              </h1>
               ${this.#createRunInfo(event.runs)}
             </div>
           </div>`;
@@ -709,7 +707,9 @@ export class ActivityLog extends LitElement {
 
                   content = html`<section>
                     <h1
-                      ?data-message-idx=${this.showExtendedInfo ? idx : nothing}
+                      data-message-id=${this.showExtendedInfo
+                        ? event.id
+                        : nothing}
                     >
                       ${node.title()}
                     </h1>
