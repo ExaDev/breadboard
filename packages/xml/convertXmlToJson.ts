@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 
-function convertXmlToJson(xml: string): string {
+export function convertXmlToJson(xml: string): string {
   const dom = new JSDOM(xml, { contentType: "text/xml" });
   const document = dom.window.document;
 
