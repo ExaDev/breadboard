@@ -1,0 +1,62 @@
+{
+  "name": "@google-labs/breadboard-xml",
+  "publishConfig": {
+    "registry": "https://wombat-dressing-room.appspot.com"
+  },
+  "version": "0.0.1",
+  "main": "./dist/src/index.js",
+  "exports": "./dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "prepack": "npm run build",
+    "build": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "dependencies": [
+        "../breadboard:build",
+        "../template-kit:build",
+        "build:tsc"
+      ]
+    },
+    "build:tsc": {
+      "command": "tsc -b",
+      "env": {
+        "FORCE_COLOR": "1"
+      },
+      "dependencies": [
+        "../breadboard:build:tsc",
+        "../template-kit:build:tsc"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tests/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
+      "output": [
+        "dist/"
+      ],
+      "clean": "if-file-deleted"
+    }
+  },
+  "files": [
+    "dist/src"
+  ],
+  "devDependencies": {
+    "@ava/typescript": "^4.0.0",
+    "@google-labs/template-kit": "^0.2.2",
+    "@google-labs/tsconfig": "^0.0.1",
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.11.30",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "ava": "^5.2.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@google-labs/breadboard": "^0.13.0",
+    "jsdom": "^24.0.0"
+  }
+}
