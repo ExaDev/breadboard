@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "composite": true,
-    "outDir": "./dist",
     "jsx": "react",
-    "jsxFactory": "BreadboardJSX.createBoard"
-
+    "jsxFactory": "BreadboardJSX.createBoard",
+    "outDir": "./dist",
+    "sourceMap": true
   },
   "extends": "@google-labs/tsconfig/base.json"
 }
