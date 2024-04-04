@@ -10,7 +10,8 @@
   "type": "module",
   "scripts": {
     "prepack": "npm run build",
-    "build": "tsc -b",
+    "build": "rm -rf dist ; tsc -b",
+    "test": "npm run build && node dist/index.js",
     "build:run": "rm -rf /dist && npm run build && node dist/index.js"
   },
   "wireit": {
