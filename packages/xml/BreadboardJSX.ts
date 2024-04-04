@@ -1,9 +1,19 @@
+
+type func = (...args: unknown[]) => unknown;
+
 export const BreadboardJSX = {
   createBoard: (
-		fun: (attrs?: unknown, children?: unknown[]) => unknown,
-    attrs: unknown,
+		fun: func,
+    attrs?: unknown,
     ...children: unknown[]
 	): unknown => {
-    return fun(attrs, children);
+    const attributeArray = [];
+    if (attrs) {
+      attributeArray.push(attrs);
+    }
+    if (children) {
+      attributeArray.push(children);
+    }
+    return fun(...attributeArray);
   },
 };
