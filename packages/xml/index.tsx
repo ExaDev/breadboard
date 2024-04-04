@@ -43,11 +43,10 @@ declare global {
 const Board = (
   { id }: { id: string },
   children: { nodes: Node[]; edges: Edge[] }[]
-): { id: string; nodes: Node[]; edges: Edge[] } => {
+): { nodes: Node[]; edges: Edge[] } => {
   const nodes = children[0].nodes;
   const edges = children[1].edges;
-  console.log(JSON.stringify(children, null, 2));
-  return { id, nodes, edges };
+  return { nodes, edges };
 };
 
 type Node = {
@@ -79,13 +78,13 @@ const Edge = (edge: Edge): Edge => {
 };
 
 const xmlData = (
-  <Board id="bar">
+  <Board id="test">
     <Nodes id="hello">
-      <Node id="foo" type="input" />
-      <Node id="baz" type="output" />
+      <Node id="input-1" type="input" />
+      <Node id="output-1" type="output" />
     </Nodes>
     <Edges id="world">
-      <Edge from="foo" to="baz" out="out1" in="in1" />
+      <Edge from="input-1" to="output-1" out="say" in="hear" />
     </Edges>
   </Board>
 );
