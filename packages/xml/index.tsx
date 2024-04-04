@@ -36,6 +36,7 @@ declare global {
 }
 
 const Board = (
+  attrs: object,
   children: { nodes: Node[]; edges: Edge[] }[]
 ): { nodes: Node[]; edges: Edge[] } => {
   const nodes = children.find((child) => "nodes" in child)?.nodes ?? [];
@@ -46,10 +47,6 @@ const Board = (
 type Node = {
   id: string;
   type: "input" | "output";
-};
-
-const Nodes = ({ id }: { id: string }, children: Node[]): { nodes: Node[] } => {
-  return { nodes: children };
 };
 
 const Node = ({ id, type }: { id: string; type: "input" | "output" }): Node => {
@@ -71,13 +68,16 @@ const Edge = (edge: Edge): Edge => {
   return edge;
 };
 
+const Nodes = (attrs: object, children: Node[]): { nodes: Node[] } => {
+  return { nodes: children };
+};
+
 const xmlData = (
-  // @ts-ignore
   <Board>
     <Edges id="world">
       <Edge from="input-1" to="output-1" out="say" in="hear" />
     </Edges>
-    <Nodes id="hello">
+    <Nodes>
       <Node id="input-1" type="input" />
       <Node id="output-1" type="output" />
     </Nodes>
