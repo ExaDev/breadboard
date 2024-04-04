@@ -40,22 +40,35 @@ declare global {
   }
 }
 
-const Board = ({ id }: { id: string }, children: Node | Node[]) => {
-  return { id, children };
+type Edge = { elementType: "edge" } & JSX.BreadboardElement;
+
+function isNode (child: Node | Edge): child is Node {
+  return child.elementType === "node"
+}
+
+function isEdge(child: Node | Edge): child is Edge {
+  return child.elementType === "edge";
+}
+
+const Board = ({ id }: { id: string }, children: (Node | Edge)[]): {id: string, nodes: Node[], edges: Edge[]} => {
+  const nodes = children.filter(isNode);
+  const edges = children.filter(isEdge);
+  return { id, nodes, edges};
 };
 
 type Node = {
   id: string;
   type: "input" | "output";
   children?: Node[];
+  elementType: "node";
 } & JSX.BreadboardElement;
 
-const Nodes = ({ id }: { id: string }, children: Node[]): Node[] => {
-  return children;
+const Nodes = ({ id }: { id: string }, children: Node[]): { nodes: Node[] } => {
+  return { nodes: children };
 };
 
 const Node = ({ id, type }: { id: string; type: "input" | "output" }): Node => {
-  return { id, type };
+  return { id, type, elementType: "node"};
 };
 
 const xmlData = (
