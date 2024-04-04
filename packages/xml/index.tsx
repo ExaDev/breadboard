@@ -44,8 +44,8 @@ const Board = (
   { id }: { id: string },
   children: { nodes: Node[]; edges: Edge[] }[]
 ): { nodes: Node[]; edges: Edge[] } => {
-  const nodes = children[0].nodes;
-  const edges = children[1].edges;
+  const nodes = children.find((child) => "nodes" in child)?.nodes ?? [];
+  const edges = children.find((child) => "edges" in child)?.edges ?? [];
   return { nodes, edges };
 };
 
@@ -79,13 +79,13 @@ const Edge = (edge: Edge): Edge => {
 
 const xmlData = (
   <Board id="test">
+    <Edges id="world">
+      <Edge from="input-1" to="output-1" out="say" in="hear" />
+    </Edges>
     <Nodes id="hello">
       <Node id="input-1" type="input" />
       <Node id="output-1" type="output" />
     </Nodes>
-    <Edges id="world">
-      <Edge from="input-1" to="output-1" out="say" in="hear" />
-    </Edges>
   </Board>
 );
 
