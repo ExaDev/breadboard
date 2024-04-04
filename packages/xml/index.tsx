@@ -50,10 +50,10 @@ function isEdge(child: Node | Edge): child is Edge {
   return child.elementType === "edge";
 }
 
-const Board = ({ id }: { id: string }, children: (Node | Edge)[]): {id: string, nodes: Node[], edges: Edge[]} => {
-  const nodes = children.filter(isNode);
-  const edges = children.filter(isEdge);
-  return { id, nodes, edges};
+const Board = ({ id }: { id: string }, children: { nodes: Node[] }[]): {id: string, nodes: Node[]} => {
+  const nodes = children[0].nodes;
+  console.log(JSON.stringify(children, null, 2));
+  return { id, nodes};
 };
 
 type Node = {
