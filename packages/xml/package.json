@@ -10,37 +10,26 @@
   "type": "module",
   "scripts": {
     "prepack": "npm run build",
-    "build": "rm -rf dist ; tsc -b",
-    "test": "npm run build && node dist/index.js",
-    "build:run": "rm -rf /dist && npm run build && node dist/index.js"
+    "build": "wireit",
+    "test": "wireit"
   },
   "wireit": {
     "build": {
       "dependencies": [
         "../breadboard:build",
-        "../template-kit:build",
-        "build:tsc"
-      ]
-    },
-    "build:tsc": {
-      "command": "tsc -b",
-      "env": {
-        "FORCE_COLOR": "1"
-      },
-      "dependencies": [
-        "../breadboard:build:tsc",
-        "../template-kit:build:tsc"
-      ],
-      "files": [
-        "src/**/*.ts",
-        "tests/**/*.ts",
-        "tsconfig.json",
-        "../../core/tsconfig/base.json"
+        "../template-kit:build"
       ],
       "output": [
         "dist/"
       ],
-      "clean": "if-file-deleted"
+      "command": "tsc -b",
+      "clean": true
+    },
+    "test": {
+      "files": [
+        "dist/**/*.js"
+      ],
+      "command": "node dist/index.js"
     }
   },
   "files": [
