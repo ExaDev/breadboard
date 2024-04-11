@@ -1,5 +1,5 @@
 {
-  "name": "breadboard-chrome-extension",
+  "name": "breadboard-chrome-extension-vite-react",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
