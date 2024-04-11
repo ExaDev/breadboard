@@ -14,5 +14,8 @@
     "host_permissions": [
         "https://*/*",
         "http://*/*"
-    ]
+    ],
+	"icons": {
+		"32": "images/icon-32.png"
+	}
   }
