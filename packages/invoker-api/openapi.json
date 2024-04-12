@@ -1,0 +1,145 @@
+{
+  "$schema": "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json",
+  "components": {
+    "parameters": {
+      "Inputs": {
+        "in": "query",
+        "name": "Inputs",
+        "schema": {
+          "$ref": "#/components/schemas/InputValues"
+        },
+        "style": "deepObject"
+      },
+      "URL": {
+        "in": "path",
+        "name": "url",
+        "required": true,
+        "schema": {
+          "format": "url",
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "2xx": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/OutputValues"
+            }
+          }
+        },
+        "description": "Success"
+      },
+      "4xx": {
+        "description": "Client Error"
+      },
+      "5xx": {
+        "description": "Server Error"
+      }
+    },
+    "schemas": {
+      "InputValue": {
+        "title": "Input Value",
+        "type": [
+          "object",
+          "array",
+          "integer",
+          "number",
+          "string",
+          "boolean"
+        ]
+      },
+      "InputValues": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/InputValue"
+        },
+        "examples": [
+          {
+            "message": "Hello World"
+          }
+        ],
+        "title": "Input Values",
+        "type": "object"
+      },
+      "OutputValue": {
+        "title": "Output Value",
+        "type": [
+          "object",
+          "array",
+          "integer",
+          "number",
+          "string",
+          "boolean"
+        ]
+      },
+      "OutputValues": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/OutputValue"
+        },
+        "examples": [
+          {
+            "message": "Hello World"
+          }
+        ],
+        "title": "Output Values",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "Breadboard API is a simple API that allows you to perform operations on Breadboards",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "title": "Breadboard API",
+    "version": "0.0.1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/{url}": {
+      "get": {
+        "operationId": "get_board",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/URL"
+          },
+          {
+            "$ref": "#/components/parameters/Inputs"
+          }
+        ],
+        "responses": {
+          "2XX": {
+            "$ref": "#/components/responses/2xx"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/4xx"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5xx"
+          },
+          "default": {
+            "description": "Default"
+          }
+        },
+        "summary": "Invoke Board",
+        "tags": []
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "description": "",
+      "url": "https://breadboard.run"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Request pertaining to a specific board",
+      "name": "board"
+    }
+  ]
+}
