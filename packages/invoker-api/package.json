@@ -1,3 +1,52 @@
 {
-  "name": "@google-labs/invoker-api"
+  "name": "@google-labs/invoker-api",
+  "description": "An API for invoking boards",
+  "type": "module",
+  "scripts": {
+    "build": "wireit",
+    "build:tsc": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "dependencies": [
+        "../breadboard:build",
+        "build:tsc"
+      ]
+    },
+    "build:tsc": {
+      "command": "tsc -b",
+      "env": {
+        "FORCE_COLOR": "1"
+      },
+      "dependencies": [
+        "../breadboard:build:tsc"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tests/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
+      "output": [
+        "dist/"
+      ],
+      "clean": "if-file-deleted"
+    }
+  },
+  "files": [
+    "dist/src"
+  ],
+  "devDependencies": {
+    "@google-labs/tsconfig": "^0.0.1",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "typia": "^5.4.9"
+  },
+  "dependencies": {
+    "@google-labs/breadboard": "^0.16.0",
+    "hono": "^4.2.3"
+  }
 }
