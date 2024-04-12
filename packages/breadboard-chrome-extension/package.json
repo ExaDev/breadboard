@@ -9,18 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@exadev/breadboard-kits": "^0.10.1",
     "@google-labs/breadboard": "^0.16.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-	"@google-labs/tsconfig": "^0.0.1",
+    "@google-labs/tsconfig": "^0.0.1",
     "@types/chrome": "0.0.195",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",

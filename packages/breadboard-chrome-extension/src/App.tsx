@@ -2,29 +2,14 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import myBoard from "./breadboard";
-import { useEffect, useState } from "react";
-import React from "react";
 import breadboardLogo from "/breadboard-logo.svg";
 
 function App() {
-  const [outputMessage, setOutputMessage] = useState<string | undefined>(
-    undefined
-  );
-  const [userMessage, setUserMessage] = useState<string | undefined>(undefined);
-  const userInput = React.createRef<HTMLInputElement>();
 
-  const onChange = (): void => {
-    setUserMessage(userInput.current?.value);
+  const onClick = async (): Promise<void> => {
+	const boardRun = await myBoard({ message: "ajsdhsakj", claudeKey: "" });
+	console.log(boardRun);
   };
-
-  const displayValue = async () => {
-    const boardRun = await myBoard({ message: userMessage });
-    setOutputMessage(JSON.stringify(boardRun["output"], null));
-  };
-
-  useEffect(() => {
-    displayValue();
-  }, [userMessage]);
 
   return (
     <>
@@ -45,17 +30,7 @@ function App() {
       </div>
       <h1>Vite + React + Breadboard</h1>
       <div className="card">
-        <label htmlFor="userInput">
-          You may enter a message for Breadboard!
-        </label>
-        <input
-          className="userInput"
-          id="userInput"
-          value={userMessage}
-          onChange={onChange}
-          ref={userInput}
-        />
-        <p>{outputMessage}</p>
+	  <button type="submit" onClick={onClick}>Run summarisation board</button>
       </div>
     </>
   );
