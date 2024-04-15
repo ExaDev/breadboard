@@ -1,33 +1,27 @@
-import { ClaudeKit } from "../kits/ClaudeKit";
-import { StringKit } from "../kits/StringKit";
-import { addKit, board } from "@google-labs/breadboard";
+import { board } from "@google-labs/breadboard";
+import { complete, template } from "./kits-as-code-node";
 
-const myBoard = board<{ message: string, claudeKey: string }>(({ message, claudeKey }, { output }) => {
-	const stringKit = addKit(StringKit);
-	const claudeKit = addKit(ClaudeKit);
+const myBoard = board<{ message: string; claudeKey: string }>(
+  ({ message, claudeKey }, { output }) => {
+    const instructionTemplate = template({
+      $id: "instructionTemplate",
+      template: message,
+    });
 
-	console.log(message)
-	console.log(claudeKey)
+    const claudePostSummarisation = complete({
+      $id: "claudePostSummarisation",
+      model: "claude-2",
+      url: "http://localhost:5173/anthropic/v1/complete",
+      apiKey: claudeKey,
+    });
 
-	const instructionTemplate = stringKit.template({
-			$id: "instructionTemplate",
-			template: message,
-		}); 
+    instructionTemplate.string.as("userQuestion").to(claudePostSummarisation);
 
-	const claudePostSummarisation = claudeKit.complete({
-		$id: "claudePostSummarisation",
-		model: "claude-2",
-		url: "http://localhost:5173/anthropic/v1/complete",
-		apiKey: claudeKey
-	});
+    const summaryOutput = claudePostSummarisation.completion.to(output());
 
-	instructionTemplate.string.as("userQuestion").to(claudePostSummarisation);
-
-	const summaryOutput = claudePostSummarisation.completion.to(output());
-	console.log(summaryOutput)
-	
-	return summaryOutput;
-});
+    return summaryOutput;
+  }
+);
 
 export { myBoard };
 export { myBoard as default };

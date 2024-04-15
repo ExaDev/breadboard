@@ -1,25 +1,30 @@
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import myBoard from "./breadboard";
 import breadboardLogo from "/breadboard-logo.svg";
+import { useState } from "react";
+import React from "react";
 
 function App() {
+  const [textToSummarise, setTextToSummarise] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>("");
+  const [summary, setSummary] = useState<React.ReactNode | undefined>(
+    undefined
+  );
+
+  const textInput = React.createRef<HTMLTextAreaElement>();
+  const keyInput = React.createRef<HTMLInputElement>();
 
   const onClick = async (): Promise<void> => {
-	const boardRun = await myBoard({ message: "ajsdhsakj", claudeKey: "" });
-	console.log(boardRun);
+    const boardRun = await myBoard({
+      message: textToSummarise,
+      claudeKey: apiKey,
+    });
+    setSummary(boardRun["completion"] as React.ReactNode);
   };
 
   return (
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
         <a href="https://github.com/breadboard-ai/breadboard" target="_blank">
           <img
             src={breadboardLogo}
@@ -28,9 +33,29 @@ function App() {
           />
         </a>
       </div>
-      <h1>Vite + React + Breadboard</h1>
+      <h4>Made with Vite, React, Breadboard</h4>
       <div className="card">
-	  <button type="submit" onClick={onClick}>Run summarisation board</button>
+        <label htmlFor="textInput">Enter your article to summarise</label>
+        <textarea
+          id="textInput"
+          ref={textInput}
+          onChange={(): void => {
+            if (textInput.current !== null)
+              setTextToSummarise(textInput.current.value); //TODO: create hook for setting the value of a ref
+          }}
+        ></textarea>
+        <label htmlFor="keyInput">Please enter your api key</label>
+        <input
+          id="keyInput"
+          ref={keyInput}
+          onChange={(): void => {
+            if (keyInput.current !== null) setApiKey(keyInput.current!.value);
+          }}
+        ></input>
+        <button type="submit" onClick={onClick}>
+          Run summarisation board
+        </button>
+        <p>{summary ? summary : "Loading"}</p>
       </div>
     </>
   );
