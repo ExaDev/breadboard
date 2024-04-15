@@ -2,5 +2,8 @@
   "name": "@google-labs/invoker-api",
   "scripts": {
     "deploy": "firebase deploy"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0"
   }
 }
