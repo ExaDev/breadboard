@@ -23,11 +23,10 @@
 // });
 // export default root;
 
+import { initializeApp } from "firebase-admin/app";
+import { https } from "firebase-functions/v2";
+import { expressApp } from "./app/index.js";
 
-import * as admin from "firebase-admin";
+initializeApp();
 
-admin.initializeApp();
-
-import { app } from "./app";
-
-export { app };
+export const api = https.onRequest(expressApp);

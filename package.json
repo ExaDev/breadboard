@@ -190,6 +190,7 @@
   "workspaces": [
     "./core/*",
     "./packages/*",
+    "./packages/invoker-api/*",
     "./packages/node-proxy-server/functions"
   ],
   "optionalDependencies": {

@@ -1,3 +1,6 @@
 {
-  "name": "@google-labs/invoker-api"
+  "name": "@google-labs/invoker-api",
+  "scripts": {
+    "deploy": "firebase deploy"
+  }
 }

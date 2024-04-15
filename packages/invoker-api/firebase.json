@@ -1,26 +1,15 @@
 {
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "target": "api",
-    "rewrites": [
-      {
-        "source": "",
-        "function": "app"
-      },
-      {
-        "source": "**",
-        "function": "app"
-      }
-    ]
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "singleProjectMode": true,
+    "ui": {
+      "enabled": true
+    }
   },
   "functions": [
     {
-      "source": "functions",
       "codebase": "default",
       "ignore": [
         "node_modules",
@@ -31,16 +20,24 @@
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
-      ]
+      ],
+      "source": "functions"
     }
   ],
-  "emulators": {
-    "functions": {
-      "port": 5001
-    },
-    "ui": {
-      "enabled": true
-    },
-    "singleProjectMode": true
+  "hosting": {
+    "ignore": [
+      "**",
+      "public",
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "public": "public",
+    "rewrites": [
+      {
+        "function": "app",
+        "source": "**"
+      }
+    ]
   }
 }
