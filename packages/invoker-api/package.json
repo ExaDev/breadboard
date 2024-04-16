@@ -1,3 +1,21 @@
 {
-  "name": "@google-labs/invoker-api"
+  "devDependencies": {
+    "firebase-tools": "^13.7.2",
+    "wireit": "^0.14.4"
+  },
+  "name": "@google-labs/invoker-api",
+  "scripts": {
+    "start": "wireit"
+  },
+  "wireit": {
+    "start": {
+      "command": "firebase emulators:start",
+      "dependencies": [
+        "./functions:build"
+      ]
+    }
+  },
+  "workspaces": [
+    "./functions"
+  ]
 }
