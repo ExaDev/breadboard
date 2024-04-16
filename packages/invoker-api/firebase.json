@@ -4,14 +4,15 @@
       "port": 8080
     },
     "functions": {
-      "port": 5550
+      "port": 5001
     },
     "hosting": {
-      "port": 5500
+      "port": 5002
     },
     "singleProjectMode": true,
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "port": 4000
     }
   },
   "firestore": {
@@ -30,8 +31,7 @@
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
-      "source": "functions"
+      ]
     }
   ],
   "hosting": {
