@@ -3,6 +3,7 @@ import myBoard from "./breadboard";
 import breadboardLogo from "/breadboard-logo.svg";
 import { useState } from "react";
 import React from "react";
+//import { Readability } from "@mozilla/readability";
 
 function App() {
   const [textToSummarise, setTextToSummarise] = useState<string>("");
@@ -13,6 +14,20 @@ function App() {
 
   const textInput = React.createRef<HTMLTextAreaElement>();
   const keyInput = React.createRef<HTMLInputElement>();
+
+  /*  useEffect(() => {
+    chrome.tabs.query(
+      { active: true, currentWindow: true },
+      async function (tabs) {
+        const activeTab = tabs[0];
+        const activeUrl = activeTab.url;
+        // const tabDom = activeTab.highlighted;
+
+        const res = await (await fetch(activeUrl ?? "")).json();
+        const article = new Readability(document).parse();
+      }
+    );
+  }, []); */
 
   const onClick = async (): Promise<void> => {
     const boardRun = await myBoard({

@@ -17,7 +17,9 @@
   "devDependencies": {
     "@anthropic-ai/tokenizer": "^0.0.4",
     "@google-labs/tsconfig": "^0.0.1",
+    "@mozilla/readability": "^0.5.0",
     "@types/chrome": "0.0.195",
+    "@types/jsdom": "^21.1.6",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -28,6 +30,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "js-tiktoken": "^1.0.11",
+    "jsdom": "^24.0.0",
+    "npm": "^10.5.2",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

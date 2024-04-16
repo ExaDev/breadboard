@@ -75,7 +75,6 @@ export const postClaudeCompletion = code<ClaudeParams>(
     if (!userQuestion) throw new Error("Missing userQuestion");
     model = model || "claude-2";
     // Endpoint URL
-    // const url = "https://api.anthropic.com/v1/complete";
     url = url || "https://api.anthropic.com/v1/complete";
     // Request headers
     const headers = {
