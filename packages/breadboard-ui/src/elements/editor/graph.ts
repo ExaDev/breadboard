@@ -282,6 +282,8 @@ export class Graph extends PIXI.Container {
         return;
       }
 
+      targetEdge.overrideColor = null;
+
       const existingEdge = this.#edgeGraphics.get(edgeKey);
       if (existingEdge) {
         return;
@@ -615,6 +617,10 @@ export class Graph extends PIXI.Container {
         graphNode.editable = this.editable;
 
         this.#nodeById.set(id, graphNode);
+      }
+
+      if (graphNode.nodeTitle !== node.title()) {
+        graphNode.nodeTitle = node.title();
       }
 
       if (node.descriptor.metadata?.visual) {

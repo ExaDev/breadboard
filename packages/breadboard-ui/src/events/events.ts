@@ -8,6 +8,7 @@ import type {
   GraphDescriptor,
   InspectableEdge,
   NodeConfiguration,
+  NodeDescriptor,
 } from "@google-labs/breadboard";
 import type { Settings } from "../types/types.js";
 
@@ -92,7 +93,7 @@ export class SubGraphDeleteEvent extends Event {
 export class SubGraphCreateEvent extends Event {
   static eventName = "breadboardsubgraphcreate";
 
-  constructor(public subGraphId: string) {
+  constructor(public subGraphTitle: string) {
     super(SubGraphCreateEvent.eventName, {
       bubbles: true,
       cancelable: true,
@@ -113,13 +114,31 @@ export class BreadboardOverlayDismissedEvent extends Event {
   }
 }
 
+export class BoardInfoUpdateRequestEvent extends Event {
+  static eventName = "breadboardboardinforequestupdate";
+
+  constructor(
+    public readonly title: string | undefined,
+    public readonly version: string | undefined,
+    public readonly description: string | undefined,
+    public readonly subGraphId: string | null = null
+  ) {
+    super(BoardInfoUpdateRequestEvent.eventName, {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+  }
+}
+
 export class BoardInfoUpdateEvent extends Event {
   static eventName = "breadboardboardinfoupdate";
 
   constructor(
     public readonly title: string,
     public readonly version: string,
-    public readonly description: string
+    public readonly description: string,
+    public readonly subGraphId: string | null = null
   ) {
     super(BoardInfoUpdateEvent.eventName, {
       bubbles: true,
@@ -418,6 +437,22 @@ export class NodeUpdateEvent extends Event {
     public readonly configuration: NodeConfiguration
   ) {
     super(NodeUpdateEvent.eventName, {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+  }
+}
+
+export class NodeMetadataUpdateEvent extends Event {
+  static eventName = "breadboardnodemetadataupdate";
+
+  constructor(
+    public readonly id: string,
+    public readonly subGraphId: string | null = null,
+    public readonly metadata: NodeDescriptor["metadata"]
+  ) {
+    super(NodeMetadataUpdateEvent.eventName, {
       bubbles: true,
       cancelable: true,
       composed: true,

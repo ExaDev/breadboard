@@ -16,7 +16,6 @@ import {
   createLoader,
   edit,
   EditableGraph,
-  EditResult,
   GraphDescriptor,
   GraphLoader,
   GraphProvider,
@@ -69,7 +68,12 @@ export class Main extends LitElement {
   showPreviewOverlay = false;
 
   @state()
-  showBoardEditOverlay = false;
+  boardEditOverlayInfo: {
+    title?: string;
+    version?: string;
+    description?: string;
+    subGraphId?: string | null;
+  } | null = null;
 
   @state()
   showSettingsOverlay = false;
@@ -138,11 +142,12 @@ export class Main extends LitElement {
       width: 20px;
       height: 20px;
       background: var(--bb-icon-edit) center center no-repeat;
-      background-size: 20px 20px;
-      border: none;
-      margin-left: calc(var(--bb-grid-size) * 3);
+      background-size: 16px 16px;
+      border: 2px solid transparent;
+      margin-left: calc(var(--bb-grid-size) * 2);
       opacity: 0.6;
       transition: opacity 0.3s cubic-bezier(0, 0, 0.3, 1);
+      border-radius: 50%;
     }
 
     #edit-board-info:not([disabled]) {
@@ -152,21 +157,12 @@ export class Main extends LitElement {
     #edit-board-info:not([disabled]):hover {
       transition-duration: 0.1s;
       opacity: 1;
+      background-color: var(--bb-neutral-300);
+      border: 2px solid var(--bb-neutral-300);
     }
 
     #new-board {
       font-size: var(--bb-text-nano);
-    }
-
-    #header-bar {
-      background: var(--bb-output-600);
-      display: flex;
-      align-items: center;
-      color: var(--bb-neutral-50);
-      border-bottom: 1px solid var(--bb-neutral-300);
-      z-index: 1;
-      height: calc(var(--bb-grid-size) * 12);
-      padding: calc(var(--bb-grid-size) * 2);
     }
 
     #save-board,
@@ -181,7 +177,7 @@ export class Main extends LitElement {
       cursor: pointer;
       background: 12px center var(--bb-icon-download);
       background-repeat: no-repeat;
-      height: 100%;
+      height: calc(100% - var(--bb-grid-size) * 4);
       display: flex;
       align-items: center;
       text-decoration: none;
@@ -251,28 +247,64 @@ export class Main extends LitElement {
       grid-column: 1 / 3;
     }
 
-    #header-bar a#back {
-      font-size: 0;
-      display: block;
-      width: 16px;
-      height: 16px;
-      background: var(--bb-icon-arrow-back) center center no-repeat;
-      margin: 0 calc(var(--bb-grid-size) * 3);
+    #header-bar {
+      background: var(--bb-output-600);
+      display: flex;
+      align-items: center;
+      color: var(--bb-neutral-50);
+      z-index: 1;
+      height: calc(var(--bb-grid-size) * 12);
+      padding: 0 calc(var(--bb-grid-size) * 2);
     }
 
-    #header-bar h1 {
-      font-size: var(--bb-text-default);
-      font-weight: normal;
+    #header-bar #tab-container {
       flex: 1;
+      display: flex;
+      align-items: flex-end;
+      margin: 0;
+      height: 100%;
+    }
+
+    #tab-container h1 {
+      font-size: var(--bb-label-medium);
+      font-weight: normal;
+      background: var(--bb-neutral-100);
+      color: var(--bb-neutral-800);
+      margin: 0;
+      height: calc(100% - var(--bb-grid-size) * 2);
+      border-radius: calc(var(--bb-grid-size) * 2) calc(var(--bb-grid-size) * 2)
+        0 0;
+      padding: 0 calc(var(--bb-grid-size) * 4);
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+
+    #tab-container #back-to-main-board {
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--bb-neutral-800);
+    }
+
+    #tab-container #back-to-main-board:disabled {
+      cursor: auto;
+      color: var(--bb-neutral-800);
+    }
+
+    #tab-container .subgraph-name {
       display: flex;
       align-items: center;
     }
 
-    #title {
-      font: var(--bb-text-baseline) var(--bb-font-family-header);
-      color: rgb(90, 64, 119);
-      margin: 0;
-      display: inline;
+    #tab-container .subgraph-name::before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: var(--bb-icon-next) center center no-repeat;
+      background-size: 12px 12px;
     }
 
     #content {
@@ -524,6 +556,13 @@ export class Main extends LitElement {
       this.graph = evt.graph;
       this.#boardPendingSave = !evt.visualOnly;
     });
+    this.#editor.addEventListener("graphchangereject", (evt) => {
+      this.graph = evt.graph;
+      const { reason } = evt;
+      if (reason.type === "error") {
+        this.toast(reason.error, BreadboardUI.Events.ToastType.ERROR);
+      }
+    });
     return this.#editor;
   }
 
@@ -672,10 +711,16 @@ export class Main extends LitElement {
       }
     }
 
-    const settings = this.#settings ? this.#settings.values : null;
     const title = this.graph?.title;
+    let subGraphTitle: string | undefined | null = null;
+    if (this.graph && this.graph.graphs && this.subGraphId) {
+      subGraphTitle =
+        this.graph.graphs[this.subGraphId].title || "Untitled Subgraph";
+    }
+
+    const settings = this.#settings ? this.#settings.values : null;
     const showingOverlay =
-      this.showBoardEditOverlay ||
+      this.boardEditOverlayInfo !== null ||
       this.showPreviewOverlay ||
       this.showSettingsOverlay;
     tmpl = html`<div id="header-bar" ?inert=${showingOverlay}>
@@ -692,19 +737,43 @@ export class Main extends LitElement {
             );
           }}
         ></button>
-        <h1>
-          ${title}
-          <button
-            @click=${() => {
-              this.showBoardEditOverlay = true;
-            }}
-            ?disabled=${this.graph === null}
-            id="edit-board-info"
-            title="Edit Board Information"
-          >
-            Edit
-          </button>
-        </h1>
+        <div id="tab-container">
+          <h1>
+            <span
+              ><button
+                id="back-to-main-board"
+                @click=${() => {
+                  this.subGraphId = null;
+                }}
+                ?disabled=${this.subGraphId === null}
+              >
+                ${title}
+              </button></span
+            >${subGraphTitle
+              ? html`<span class="subgraph-name">${subGraphTitle}</span>`
+              : nothing}
+            <button
+              @click=${() => {
+                let graph = this.graph;
+                if (graph && graph.graphs && this.subGraphId) {
+                  graph = graph.graphs[this.subGraphId];
+                }
+
+                this.boardEditOverlayInfo = {
+                  title: graph?.title,
+                  version: graph?.version,
+                  description: graph?.description,
+                  subGraphId: this.subGraphId,
+                };
+              }}
+              ?disabled=${this.graph === null}
+              id="edit-board-info"
+              title="Edit Board Information"
+            >
+              Edit
+            </button>
+          </h1>
+        </div>
         ${saveButton}
         <a
           id="get-board"
@@ -749,6 +818,16 @@ export class Main extends LitElement {
           .settings=${settings}
           .providers=${this.#providers}
           .providerOps=${this.providerOps}
+          @breadboardboardinforequestupdate=${(
+            evt: BreadboardUI.Events.BoardInfoUpdateRequestEvent
+          ) => {
+            this.boardEditOverlayInfo = {
+              title: evt.title,
+              version: evt.version,
+              description: evt.description,
+              subGraphId: evt.subGraphId,
+            };
+          }}
           @breadboardsubgraphcreate=${async (
             evt: BreadboardUI.Events.SubGraphCreateEvent
           ) => {
@@ -759,7 +838,11 @@ export class Main extends LitElement {
               return;
             }
 
-            const editResult = editableGraph.addGraph(evt.subGraphId, blank());
+            const id = globalThis.crypto.randomUUID();
+            const board = blank();
+            board.title = evt.subGraphTitle;
+
+            const editResult = editableGraph.addGraph(id, board);
             if (!editResult) {
               this.toast(
                 "Unable to create sub board",
@@ -768,7 +851,7 @@ export class Main extends LitElement {
               return;
             }
 
-            this.subGraphId = evt.subGraphId;
+            this.subGraphId = id;
             this.requestUpdate();
           }}
           @breadboardsubgraphdelete=${async (
@@ -851,15 +934,14 @@ export class Main extends LitElement {
               return;
             }
 
-            let editResult: Promise<EditResult>;
             switch (evt.changeType) {
               case "add": {
-                editResult = editableGraph.addEdge(evt.from);
+                editableGraph.addEdge(evt.from);
                 break;
               }
 
               case "remove": {
-                editResult = editableGraph.removeEdge(evt.from);
+                editableGraph.removeEdge(evt.from);
                 break;
               }
 
@@ -868,16 +950,34 @@ export class Main extends LitElement {
                   throw new Error("Unable to move edge - no `to` provided");
                 }
 
-                editResult = editableGraph.changeEdge(evt.from, evt.to);
+                editableGraph.changeEdge(evt.from, evt.to);
                 break;
               }
             }
+          }}
+          @breadboardnodemetadataupdate=${(
+            evt: BreadboardUI.Events.NodeMetadataUpdateEvent
+          ) => {
+            let editableGraph = this.#getEditor();
+            if (editableGraph && evt.subGraphId) {
+              editableGraph = editableGraph.getGraph(evt.subGraphId);
+            }
 
-            editResult.then((result) => {
-              if (!result.success) {
-                this.toast(result.error, BreadboardUI.Events.ToastType.ERROR);
-              }
-            });
+            if (!editableGraph) {
+              console.warn("Unable to update node metadata; no active graph");
+              return;
+            }
+
+            const inspectableGraph = editableGraph.inspect();
+            const { id, metadata } = evt;
+            const existingNode = inspectableGraph.nodeById(id);
+            const existingMetadata = existingNode?.metadata() || {};
+            const newMetadata = {
+              ...existingMetadata,
+              ...metadata,
+            };
+
+            editableGraph.changeMetadata(id, newMetadata);
           }}
           @breadboardnodemove=${(evt: BreadboardUI.Events.NodeMoveEvent) => {
             let editableGraph = this.#getEditor();
@@ -900,16 +1000,10 @@ export class Main extends LitElement {
               visual = {};
             }
 
-            editableGraph
-              .changeMetadata(id, {
-                ...metadata,
-                visual: { ...visual, x, y },
-              })
-              .then((result) => {
-                if (!result.success) {
-                  this.toast(result.error, BreadboardUI.Events.ToastType.ERROR);
-                }
-              });
+            editableGraph.changeMetadata(id, {
+              ...metadata,
+              visual: { ...visual, x, y },
+            });
           }}
           @breadboardnodemultilayout=${(
             evt: BreadboardUI.Events.NodeMultiLayoutEvent
@@ -963,14 +1057,7 @@ export class Main extends LitElement {
               return;
             }
 
-            editableGraph.addNode(newNode).then((result) => {
-              if (!result.success) {
-                this.toast(
-                  `Unable to create node: ${result.error}`,
-                  BreadboardUI.Events.ToastType.ERROR
-                );
-              }
-            });
+            editableGraph.addNode(newNode);
           }}
           @breadboardnodeupdate=${(
             evt: BreadboardUI.Events.NodeUpdateEvent
@@ -985,16 +1072,7 @@ export class Main extends LitElement {
               return;
             }
 
-            editableGraph
-              .changeConfiguration(evt.id, evt.configuration)
-              .then((result) => {
-                if (!result.success) {
-                  this.toast(
-                    "Unable to update configuration",
-                    BreadboardUI.Events.ToastType.ERROR
-                  );
-                }
-              });
+            editableGraph.changeConfiguration(evt.id, evt.configuration);
           }}
           @breadboardnodedelete=${(
             evt: BreadboardUI.Events.NodeDeleteEvent
@@ -1009,14 +1087,7 @@ export class Main extends LitElement {
               return;
             }
 
-            editableGraph.removeNode(evt.id).then((result) => {
-              if (!result.success) {
-                this.toast(
-                  `Unable to remove node: ${result.error}`,
-                  BreadboardUI.Events.ToastType.ERROR
-                );
-              }
-            });
+            editableGraph.removeNode(evt.id);
           }}
           @breadboardmessagetraversal=${() => {
             if (this.status !== BreadboardUI.Types.STATUS.RUNNING) {
@@ -1259,25 +1330,51 @@ export class Main extends LitElement {
     }
 
     let boardOverlay: HTMLTemplateResult | symbol = nothing;
-    if (this.showBoardEditOverlay && this.graph) {
+    if (this.boardEditOverlayInfo) {
       boardOverlay = html`<bb-board-edit-overlay
-        .boardTitle=${title}
-        .boardVersion=${this.graph?.version}
-        .boardDescription=${this.graph?.description}
+        .boardTitle=${this.boardEditOverlayInfo.title}
+        .boardVersion=${this.boardEditOverlayInfo.version}
+        .boardDescription=${this.boardEditOverlayInfo.description}
+        .subGraphId=${this.boardEditOverlayInfo.subGraphId}
         @breadboardboardoverlaydismissed=${() => {
-          this.showBoardEditOverlay = false;
+          this.boardEditOverlayInfo = null;
         }}
         @breadboardboardinfoupdate=${(
           evt: BreadboardUI.Events.BoardInfoUpdateEvent
         ) => {
-          if (!this.graph) {
-            return;
-          }
+          if (evt.subGraphId) {
+            const editableGraph = this.#getEditor();
+            if (!editableGraph) {
+              console.warn(
+                "Unable to update board information; no active graph"
+              );
+              return;
+            }
 
-          if (this.graph) {
+            const subGraph = editableGraph.getGraph(evt.subGraphId);
+            if (!subGraph) {
+              console.warn(
+                "Unable to update board information; no active graph"
+              );
+              return;
+            }
+
+            const subGraphDescriptor = subGraph.raw();
+            subGraphDescriptor.title = evt.title;
+            subGraphDescriptor.version = evt.version;
+            subGraphDescriptor.description = evt.description;
+
+            editableGraph.replaceGraph(evt.subGraphId, subGraphDescriptor);
+          } else if (this.graph) {
             this.graph.title = evt.title;
             this.graph.version = evt.version;
             this.graph.description = evt.description;
+          } else {
+            this.toast(
+              "Unable to update sub board information - board not found",
+              BreadboardUI.Events.ToastType.INFORMATION
+            );
+            return;
           }
 
           this.toast(
@@ -1285,7 +1382,7 @@ export class Main extends LitElement {
             BreadboardUI.Events.ToastType.INFORMATION
           );
 
-          this.showBoardEditOverlay = false;
+          this.boardEditOverlayInfo = null;
           this.requestUpdate();
         }}
       ></bb-board-edit-overlay>`;

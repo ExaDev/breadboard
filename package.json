@@ -182,9 +182,9 @@
     "eslint": "^8.57.0",
     "npm-ci": "^0.0.2",
     "rimraf": "^5.0.5",
-    "rollup": "^4.14.1",
+    "rollup": "^4.14.3",
     "syncpack": "^12.3.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.5",
     "wireit": "^0.14.4"
   },
   "workspaces": [
@@ -193,7 +193,7 @@
     "./packages/node-proxy-server/functions"
   ],
   "optionalDependencies": {
-    "@rollup/rollup-darwin-arm64": "^4.13.2",
+    "@rollup/rollup-darwin-arm64": "^4.14.3",
     "@rollup/rollup-linux-x64-gnu": "^4.13.1"
   },
   "dependencies": {

@@ -3,7 +3,7 @@
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "The UI components for @google-labs/breadboard",
   "main": "./dist/src/index.js",
   "exports": {
@@ -131,17 +131,17 @@
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "rollup": "^4.14.1",
+    "rollup": "^4.14.3",
     "typedoc": "^0.25.12",
     "typedoc-plugin-markdown": "^3.16.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": ">=19.0.0"
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.1",
-    "@google-labs/breadboard": "^0.16.0",
+    "@google-labs/breadboard": "^0.17.0",
     "@lit/task": "^1.0.0",
     "jsonschema": "^1.4.1",
     "lit": "^3.1.1",

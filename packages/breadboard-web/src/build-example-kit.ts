@@ -6,12 +6,12 @@
 
 import {
   defineNodeType,
-  anyOf,
   type Value,
   type NodeFactoryFromDefinition,
 } from "@breadboard-ai/build";
 import { addKit } from "@google-labs/breadboard";
 import { KitBuilder } from "@google-labs/breadboard/kits";
+import { promptTemplate } from "@google-labs/template-kit";
 
 export const reverseString = defineNodeType({
   name: "reverseString",
@@ -34,64 +34,6 @@ export const reverseString = defineNodeType({
     };
   },
 });
-
-export const templater = defineNodeType({
-  name: "templater",
-  inputs: {
-    template: {
-      type: "string",
-      description: "A template with {{placeholders}}.",
-    },
-    "*": {
-      type: anyOf("string", "number"),
-      description: "Values to fill into template's {{placeholders}}.",
-    },
-  },
-  outputs: {
-    result: {
-      type: "string",
-      description: "The template with {{placeholders}} substituted.",
-      primary: true,
-    },
-  },
-  describe: ({ template }) => {
-    return {
-      inputs: Object.fromEntries(
-        extractPlaceholders(template ?? "").map((name) => [
-          name,
-          {
-            type: anyOf("string", "number"),
-            description: `A value for the ${name} placeholder`,
-          },
-        ])
-      ),
-    };
-  },
-  invoke: ({ template }, placeholders) => {
-    return {
-      result: substituteTemplatePlaceholders(template, placeholders),
-    };
-  },
-});
-
-function extractPlaceholders(template: string): string[] {
-  const matches = template.matchAll(/{{(?<name>[\w-]+)}}/g);
-  const parameters = Array.from(matches).map(
-    (match) => match.groups?.name || ""
-  );
-  const unique = Array.from(new Set(parameters));
-  return unique;
-}
-
-function substituteTemplatePlaceholders(
-  template: string,
-  values: Record<string, string | number>
-) {
-  return Object.entries(values).reduce(
-    (acc, [key, value]) => acc.replace(`{{${key}}}`, String(value)),
-    template
-  );
-}
 
 /**
  * An example of a sugar function which wraps instantiation of a node (in this
@@ -116,7 +58,7 @@ export function prompt(
       placeholders[name] = values[i]!;
     }
   }
-  return templater({ template, ...placeholders });
+  return promptTemplate({ template, ...placeholders });
 }
 
 const BuildExampleKit = new KitBuilder({
@@ -124,10 +66,9 @@ const BuildExampleKit = new KitBuilder({
   description: "An example kit",
   version: "0.1.0",
   url: "npm:@breadboard-ai/example-kit",
-}).build({ reverseString, templater });
+}).build({ reverseString });
 export default BuildExampleKit;
 
 export const buildExampleKit = addKit(BuildExampleKit) as {
   reverseString: NodeFactoryFromDefinition<typeof reverseString>;
-  templater: NodeFactoryFromDefinition<typeof templater>;
 };
