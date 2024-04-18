@@ -1,61 +1,75 @@
 #root {
-	max-width: 1280px;
-	margin: 0 auto;
-	padding: 2rem;
-	text-align: center;
+  width: 100%;
+  text-align: center;
+}
+
+.logo {
+  height: 1.5em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+.logo.breadboard:hover {
+  filter: drop-shadow(0 0 2em #ffac03);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .logo {
-	height: 6em;
-	padding: 1.5em;
-	will-change: filter;
-	transition: filter 300ms;
+  to {
+    transform: rotate(360deg);
   }
-  .logo:hover {
-	filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
   }
-  .logo.react:hover {
-	filter: drop-shadow(0 0 2em #61dafbaa);
-  }
-  .logo.breadboard:hover {
-	  filter: drop-shadow(0 0 2em #ffac03);
-	}
-  
-  @keyframes logo-spin {
-	from {
-	  transform: rotate(0deg);
-	}
-	to {
-	  transform: rotate(360deg);
-	}
-  }
-  
-  @media (prefers-reduced-motion: no-preference) {
-	a:nth-of-type(2) .logo {
-	  animation: logo-spin infinite 20s linear;
-	}
-  }
-  
-  .card {
-	padding: 2em;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 1em;
-  }
-  
-  .read-the-docs {
-	color: #888;
-  }
-  
-  .userInput {
-	  line-height: 1.8em;
-	  border-radius: .3em;
-	  padding: 1em 1.6em;
-	   margin: 8px 0;
-		box-sizing: border-box;
-	  border-style: unset;
-	  color: #e3e3e3;
-	  border: .1em solid#e3e3e3;
-  }
-  
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #feeac6;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+main {
+  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+input {
+  line-height: 1.5em;
+  border-radius: 0.3em;
+  padding: 0.5em 1em;
+  box-sizing: border-box;
+  border-style: unset;
+  color: #e3e3e3;
+  border: 0.1em solid#feeac6;
+  width: 100%;
+}
+
+button {
+  background-color: #feeac6 !important;
+}
+
+footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  border-top: 1px solid #feeac6;
+  padding-left: 1.5em;
+}

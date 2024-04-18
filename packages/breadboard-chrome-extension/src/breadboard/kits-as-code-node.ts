@@ -107,7 +107,9 @@ export const postClaudeCompletion = code<ClaudeParams>(
       ...(stream !== undefined && { metadata: { stream } }),
     };
 
+    let claudeResponse = {} as ClaudeResponse;
     try {
+      claudeResponse.status = "pending";
       const response = await fetch(url, {
         method: "POST",
         headers: headers,
@@ -118,12 +120,13 @@ export const postClaudeCompletion = code<ClaudeParams>(
         throw new Error(
           `HTTP error! status: ${response.status}:${response.statusText}`
         );
-
-      return (await response.json()) as ClaudeResponse;
+      claudeResponse = (await response.json()) as ClaudeResponse;
+      claudeResponse.status = "finished";
     } catch (error) {
       console.error("Error:", error);
       throw error;
     }
+    return claudeResponse;
   }
 );
 
