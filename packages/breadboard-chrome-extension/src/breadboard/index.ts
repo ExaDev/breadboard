@@ -20,6 +20,7 @@ const myBoard = board<{
   instructionTemplate.string.as("userQuestion").to(claudePostSummarisation);
 
   const summaryOutput = claudePostSummarisation.completion.to(output());
+  claudePostSummarisation.status.to(summaryOutput);
 
   return summaryOutput;
 });
