@@ -9,7 +9,7 @@
   },
   "wireit": {
     "start": {
-      "command": "firebase emulators:start",
+      "command": "firebase emulators:start --inspect-functions",
       "dependencies": [
         "./functions:build"
       ]
