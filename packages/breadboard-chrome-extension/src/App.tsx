@@ -3,35 +3,28 @@ import myBoard from "./breadboard";
 import breadboardLogo from "/breadboard-logo.svg";
 import { useState } from "react";
 import React from "react";
-//import { Readability } from "@mozilla/readability";
 
 function App() {
-  const [textToSummarise, setTextToSummarise] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
   const [summary, setSummary] = useState<React.ReactNode | undefined>(
     undefined
   );
 
-  const textInput = React.createRef<HTMLTextAreaElement>();
-  const keyInput = React.createRef<HTMLInputElement>();
-
-  /*  useEffect(() => {
-    chrome.tabs.query(
-      { active: true, currentWindow: true },
-      async function (tabs) {
-        const activeTab = tabs[0];
-        const activeUrl = activeTab.url;
-        // const tabDom = activeTab.highlighted;
-
-        const res = await (await fetch(activeUrl ?? "")).json();
-        const article = new Readability(document).parse();
-      }
-    );
-  }, []); */
+  const keyInput = React.createRef<HTMLInputElement>(); //TODO: use local storage for api key
 
   const onClick = async (): Promise<void> => {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const callback = await chrome.scripting.executeScript({
+      target: { tabId: tab.id ? tab.id : 0 },
+      func: () => document.body.innerText,
+    });
+    console.log(callback[0]);
     const boardRun = await myBoard({
-      message: textToSummarise,
+      //TODO: move board runner into its own separate class
+      message: callback[0].result,
       claudeKey: apiKey,
     });
     setSummary(boardRun["completion"] as React.ReactNode);
@@ -50,15 +43,6 @@ function App() {
       </div>
       <h4>Made with Vite, React, Breadboard</h4>
       <div className="card">
-        <label htmlFor="textInput">Enter your article to summarise</label>
-        <textarea
-          id="textInput"
-          ref={textInput}
-          onChange={(): void => {
-            if (textInput.current !== null)
-              setTextToSummarise(textInput.current.value); //TODO: create hook for setting the value of a ref
-          }}
-        ></textarea>
         <label htmlFor="keyInput">Please enter your api key</label>
         <input
           id="keyInput"
