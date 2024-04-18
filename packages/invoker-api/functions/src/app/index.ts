@@ -72,9 +72,9 @@ async function saveState(state: RunResult) {
   const key = sessions.doc(sessionId);
   const entity = {
     key: key,
-    data: state,
+    data: JSON.parse(JSON.stringify(state)),
+    stringified: JSON.stringify(state),
   };
-  // await datastore.save(entity);
   await key.set(entity);
   return sessionId;
 }
@@ -150,16 +150,13 @@ expressApp.get(
       //   board: graph,
       // });
       for await (const runResult of runner.run(context)) {
-        if (runResult.type === "input") {
-          //  prompt for input
-        } else if (runResult.type === "output") {
-          // return output
+        if (runResult.type === "input" || runResult.type === "output") {
+          const sessionId = await saveState(runResult);
+          return res.json({
+            sessionId,
+            result: runResult,
+          });
         }
-        const sessionId = await saveState(runResult);
-        return res.json({
-          sessionId,
-          result: runResult,
-        });
       }
       return res.json();
     } catch (e: any) {
