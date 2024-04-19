@@ -1,9 +1,13 @@
 import "./App.css";
 import myBoard from "./breadboard";
 import breadboardLogo from "/breadboard-logo.svg";
+import viteLogo from "/vite.svg";
+import reactLogo from "./assets/react.svg";
 import { useState } from "react";
 import React from "react";
-import { PuffLoader } from "react-spinners";
+import { PacmanLoader } from "react-spinners";
+import useActiveTab from "./chrome-api-hooks/use-active-tab";
+import useCurrentTabText from "./chrome-api-hooks/use-current-tab-text";
 
 function App() {
   const [apiKey, setApiKey] = useState<string>("");
@@ -15,24 +19,28 @@ function App() {
   const keyInput = React.createRef<HTMLInputElement>(); //TODO: use local storage for api key
 
   const onClick = async (): Promise<void> => {
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    const callback = await chrome.scripting.executeScript({
-      target: { tabId: tab.id ? tab.id : 0 },
-      func: () => document.body.innerText,
-    });
-    console.log(callback[0]);
+    //setAlarm();
+    const activeTab = await useActiveTab();
+    const activeTabText = await useCurrentTabText(activeTab.id ?? 0);
     setLoading(true); //TODO: use the "status" property on the boardRun to set loading
     const boardRun = await myBoard({
       //TODO: move board runner into its own separate class
-      message: callback[0].result,
+      message: activeTabText,
       claudeKey: apiKey,
     });
     setSummary(boardRun["completion"] as React.ReactNode);
     setLoading(false);
+    //clearAlarm();
   };
+
+  /* const setAlarm = () => {
+    chrome.action.setBadgeText({ text: "ON" });
+  };
+
+  const clearAlarm = () => {
+    chrome.action.setBadgeText({ text: "DONE" });
+    chrome.alarms.clearAll();
+  }; */
 
   return (
     <>
@@ -43,23 +51,39 @@ function App() {
         <h4>Breadboard Summariser</h4>
       </header>
       <main>
-        <label htmlFor="keyInput">Please enter your API Key</label>
-        <input
-          id="keyInput"
-          ref={keyInput}
-          onChange={(): void => {
-            if (keyInput.current !== null) setApiKey(keyInput.current!.value);
-          }}
-        ></input>
-        <button type="submit" onClick={onClick}>
-          Generate summary!
-        </button>
-        <p>
-          {loading ? <PuffLoader loading={loading} color="#ef7900" /> : summary}
-        </p>
+        <section className="summarisationForm">
+          <label htmlFor="keyInput">Please enter your API Key</label>
+          <input
+            id="keyInput"
+            ref={keyInput}
+            type="password"
+            onChange={(): void => {
+              if (keyInput.current !== null) setApiKey(keyInput.current!.value);
+            }}
+          ></input>
+          <button type="submit" onClick={onClick}>
+            Generate summary!
+          </button>
+        </section>
+        <section className="summary">
+          <p>
+            {loading ? (
+              <PacmanLoader loading={loading} color="#ef7900" />
+            ) : (
+              summary
+            )}
+          </p>
+        </section>
       </main>
       <footer>
-        <p>Made with Vite, React, Breadboard</p>
+        <p>Made with</p>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        +
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
       </footer>
     </>
   );
