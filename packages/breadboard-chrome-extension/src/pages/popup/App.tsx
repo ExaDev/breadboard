@@ -1,13 +1,13 @@
 import "./App.css";
-import myBoard from "./breadboard";
+import myBoard from "../../breadboard/index";
 import breadboardLogo from "/breadboard-logo.svg";
 import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
+import reactLogo from "../../assets/react.svg";
 import { useState } from "react";
 import React from "react";
 import { PacmanLoader } from "react-spinners";
-import useActiveTab from "./chrome-api-hooks/use-active-tab";
-import useCurrentTabText from "./chrome-api-hooks/use-current-tab-text";
+import useActiveTab from "../../chrome-api-hooks/use-active-tab";
+import useCurrentTabText from "../../chrome-api-hooks/use-current-tab-text";
 
 function App() {
   const [apiKey, setApiKey] = useState<string>("");
