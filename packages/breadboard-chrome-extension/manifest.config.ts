@@ -14,12 +14,13 @@ export default defineManifest(async () => ({
   version: `${major}.${minor}.${patch}.${label}`,
   version_name: version,
   description: "Basic Chrome extension for running Breadboard.",
+  options_page: 'src/pages/options/index.html',
   action: {
-    default_popup: "index.html",
+    default_popup: "src/pages/popup/index.html",
     default_title: "Breadboard Summarisation",
   },
   background: {
-    service_worker: "src/background.ts",
+    service_worker: "src/pages/background/index.ts",
     type: "module",
   },
   content_scripts: [
