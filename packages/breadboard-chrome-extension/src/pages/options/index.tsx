@@ -1,28 +1,27 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import "./index.css";
 
 const boardSettings = (): React.JSX.Element => {
-	const dropdownRef = React.createRef<HTMLSelectElement>();
-	const statusRef = React.createRef<HTMLDivElement>();
+  const inputRef = React.createRef<HTMLInputElement>();
+  const statusRef = React.createRef<HTMLDivElement>();
 
-	const saveOptions = () => {
-		const chosenBoard = dropdownRef.current?.value;
-		chrome.storage.sync.set(
-			{ board: chosenBoard },
-			() => {
-				// Update status to let user know options were saved.
-				const status = statusRef.current;
-				if(status) {
-					status.textContent = 'Options saved.';
-					setTimeout(() => {
-						status.textContent = '';
-					}, 750);
-				}
-			}
-		);
-	};
-	
-	/* const restoreOptions = () => {
+  const saveOptions = () => {
+    const apiKey = inputRef.current?.value;
+    chrome.storage.sync.set({ apiKey: apiKey }, () => {
+      // Update status to let user know options were saved.
+      console.log("Value is set");
+      const status = statusRef.current;
+      if (status) {
+        status.textContent = "API key saved.";
+        setTimeout(() => {
+          status.textContent = "";
+        }, 750);
+      }
+    });
+  };
+
+  /* const restoreOptions = () => {
 		chrome.storage.sync.get(
 			{ board: 'blank' },
 			(items) => {
@@ -31,19 +30,24 @@ const boardSettings = (): React.JSX.Element => {
 		);
 	}; */
 
-	return (
-		<>
-		<select id="board" ref={dropdownRef}>
-			<option value="summarise">Claude Summarisation Board</option>
-			<option value="blank">Blank Board</option>
-		</select>
-		<div id="status" ref={statusRef}></div>
-		<button id="save" onClick={saveOptions}>Save</button>
-	</>
-	)
-}
+  return (
+    <div className="settingsPage">
+      <aside>
+        <ul>
+          <li>Board settings</li>
+        </ul>
+      </aside>
+      <section className="container">
+        <label htmlFor="inputRef">Please enter your API Key</label>
+        <input ref={inputRef} type="password" />
+        <button onClick={saveOptions}>Save</button>
+        <div ref={statusRef}></div>
+      </section>
+    </div>
+  );
+};
 
-const container = document.createElement('main');
+const container = document.createElement("main");
 document.body.appendChild(container);
 const root = createRoot(container);
 root.render(boardSettings());

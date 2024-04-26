@@ -3,20 +3,25 @@ import myBoard from "../../breadboard/index";
 import breadboardLogo from "/breadboard-logo.svg";
 import viteLogo from "/vite.svg";
 import reactLogo from "../../assets/react.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { PacmanLoader } from "react-spinners";
 import useActiveTab from "../../chrome-api-hooks/use-active-tab";
 import useCurrentTabText from "../../chrome-api-hooks/use-current-tab-text";
 
 function App() {
-  const [apiKey, setApiKey] = useState<string>("");
   const [summary, setSummary] = useState<React.ReactNode | undefined>(
     undefined
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const [key, setKey] = useState<string>("");
 
-  const keyInput = React.createRef<HTMLInputElement>(); //TODO: use local storage for api key
+  useEffect(() => {
+    chrome.storage.sync.get(["apiKey"], (result) => {
+      console.log(result["apiKey"]);
+      setKey(result["apiKey"]);
+    });
+  }, [key]);
 
   const onClick = async (): Promise<void> => {
     //setAlarm();
@@ -26,21 +31,11 @@ function App() {
     const boardRun = await myBoard({
       //TODO: move board runner into its own separate class
       message: activeTabText,
-      claudeKey: apiKey,
+      claudeKey: key,
     });
     setSummary(boardRun["completion"] as React.ReactNode);
     setLoading(false);
-    //clearAlarm();
   };
-
-  /* const setAlarm = () => {
-    chrome.action.setBadgeText({ text: "ON" });
-  };
-
-  const clearAlarm = () => {
-    chrome.action.setBadgeText({ text: "DONE" });
-    chrome.alarms.clearAll();
-  }; */
 
   return (
     <>
@@ -52,15 +47,6 @@ function App() {
       </header>
       <main>
         <section className="summarisationForm">
-          <label htmlFor="keyInput">Please enter your API Key</label>
-          <input
-            id="keyInput"
-            ref={keyInput}
-            type="password"
-            onChange={(): void => {
-              if (keyInput.current !== null) setApiKey(keyInput.current!.value);
-            }}
-          ></input>
           <button type="submit" onClick={onClick}>
             Generate summary!
           </button>
