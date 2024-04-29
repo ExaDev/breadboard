@@ -1,3 +1,4 @@
+import { Firestore } from "@google-cloud/firestore";
 import {
   BoardRunner,
   NodeHandlerContext,
@@ -10,6 +11,11 @@ import { TemplateKit } from "@google-labs/template-kit";
 import { randomUUID } from "crypto";
 import express from "express";
 import { ParamsDictionary, Request, Response } from "express-serve-static-core";
+import { initializeApp } from "firebase-admin/app";
+import { getFunctions } from "firebase-admin/functions";
+import { getFunctionUrl } from "./getFunctionUrl.js";
+import { isBGL } from "./isBGL.js";
+import { isValidURL } from "./isValidURL.js";
 
 export function returnTimestamp(
   res: Response<any, Record<string, any>, number>,
@@ -50,6 +56,28 @@ expressApp.get("/status", async (req, res) => {
   res.json({
     status: "ok",
   });
+});
+
+/*
+ * see: https://github.com/firebase/functions-samples/blob/main/Node/taskqueues-backup-images/functions/index.js
+ */
+expressApp.get("/enqueue", async (req, res) => {
+  console.log("Enqueueing a task");
+  const queue = getFunctions().taskQueue("task");
+  const targetUri = await getFunctionUrl("task");
+  const task = {
+    httpRequest: {
+      httpMethod: "POST",
+      url: targetUri,
+      body: Buffer.from(JSON.stringify({ data: "bar" })).toString("base64"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  };
+  await queue.enqueue(task);
+  console.log("Task enqueued");
+  return res.json({ status: "ok" });
 });
 
 expressApp.get("/", (req: any, res: { send: (arg0: string) => any }) =>

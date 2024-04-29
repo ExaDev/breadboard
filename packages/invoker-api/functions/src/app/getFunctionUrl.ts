@@ -1,6 +1,6 @@
 import { GoogleAuth } from "google-auth-library";
-import { auth } from "./index.js";
 
+let auth: GoogleAuth;
 export async function getFunctionUrl(
   name: string,
   location: string = "us-central1"
@@ -11,7 +11,8 @@ export async function getFunctionUrl(
     });
   }
   const projectId = await auth.getProjectId();
-  const url = "https://cloudfunctions.googleapis.com/v2beta/" +
+  const url =
+    "https://cloudfunctions.googleapis.com/v2beta/" +
     `projects/${projectId}/locations/${location}/functions/${name}`;
 
   const client = await auth.getClient();
