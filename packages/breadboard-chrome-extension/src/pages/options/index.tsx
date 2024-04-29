@@ -31,23 +31,24 @@ const boardSettings = (): React.JSX.Element => {
 	}; */
 
   return (
-    <div className="settingsPage">
+    <>
       <aside>
         <ul>
           <li>Board settings</li>
         </ul>
       </aside>
-      <section className="container">
+      <main>
         <label htmlFor="inputRef">Please enter your API Key</label>
         <input ref={inputRef} type="password" />
         <button onClick={saveOptions}>Save</button>
         <div ref={statusRef}></div>
-      </section>
-    </div>
+      </main>
+    </>
   );
 };
 
-const container = document.createElement("main");
+const container = document.createElement("div");
+container.setAttribute("class", "settings");
 document.body.appendChild(container);
 const root = createRoot(container);
 root.render(boardSettings());

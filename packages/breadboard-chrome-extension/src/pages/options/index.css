@@ -1,77 +1,25 @@
-main {
-  display: flex;
-  justify-content: center;
-  --buttonColor: #2f8be8;
-  --buttonLight: #7fafed;
-  --white: #ffffff;
-  padding-top: 2em;
-}
+@import "../../assets/styles/global.css";
 
-.settingsPage {
-  display: flex;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  justify-content: center;
-}
-
-label {
-  font-weight: bold;
-}
-
-input {
-  line-height: 1.5em;
-  border-radius: 0.3em;
-  padding: 0.5em 1em;
-  box-sizing: border-box;
-  border-style: unset;
-  color: #e3e3e3;
-  border: 0.1em solid var(--buttonLight);
-  width: 100%;
-}
-
-button {
-  background-color: var(--buttonColor) !important;
-  width: 100%;
-  color: var(--white);
-}
-
-button:hover,
-input:hover {
-  border-color: var(--buttonLight) !important;
-}
-
-button:focus,
-button:focus-visible,
-input:focus,
-input:focus-visible {
-  outline: auto var(--buttonLight) !important;
-}
-
-ul {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  font-size: small;
-  color: white;
-  font-weight: bold;
-}
-
-ul li {
+aside ul {
   list-style: none;
 }
 
-aside {
-  height: 100%; /* 100% Full-height */
-  width: 200px; /* 0 width - change this with JavaScript */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  left: 0;
-  background-color: var(--buttonColor); /* Black*/
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top: 60px; /* Place content 60px from the top */
+ul {
+  padding: 0 0.2em 0 1em;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  border-left: 1px solid var(--buttonColor);
+  padding: 12px;
+}
+
+.settings {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  justify-items: start;
+  align-items: start;
+  border: 1px solid var(--buttonColor);
 }

@@ -1,0 +1,46 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --buttonColor: #2f8be8;
+  --buttonLight: #7fafed;
+  --white: #ffffff;
+}
+
+ul,
+label {
+  font-weight: bold;
+}
+
+input {
+  line-height: 1.5em;
+  border-radius: 0.3em;
+  padding: 0.5em 1em;
+  box-sizing: border-box;
+  border-style: unset;
+  color: #e3e3e3;
+  border: 0.1em solid var(--buttonLight);
+  width: 100%;
+}
+
+button {
+  background-color: var(--buttonColor) !important;
+  width: 100%;
+  color: var(--white);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+button:hover,
+input:hover {
+  border-color: var(--buttonLight) !important;
+}
+
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible {
+  outline: auto var(--buttonLight) !important;
+}
