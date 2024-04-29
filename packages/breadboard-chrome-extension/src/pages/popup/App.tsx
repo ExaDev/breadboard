@@ -10,9 +10,7 @@ import useActiveTab from "../../chrome-api-hooks/use-active-tab";
 import useCurrentTabText from "../../chrome-api-hooks/use-current-tab-text";
 
 function App() {
-  const [summary, setSummary] = useState<React.ReactNode | undefined>(
-    undefined
-  );
+  const [output, setOutput] = useState<React.ReactNode | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [key, setKey] = useState<string>("");
 
@@ -23,17 +21,41 @@ function App() {
     });
   }, [key]);
 
+  const runBoard = async (message: string, key: string) => {
+    const board = await myBoard({
+      message: message,
+      claudeKey: key,
+    });
+    return board;
+  };
+
   const onClick = async (): Promise<void> => {
     //setAlarm();
     const activeTab = await useActiveTab();
     const activeTabText = await useCurrentTabText(activeTab.id ?? 0);
     setLoading(true); //TODO: use the "status" property on the boardRun to set loading
-    const boardRun = await myBoard({
-      //TODO: move board runner into its own separate class
-      message: activeTabText,
-      claudeKey: key,
+    const boardRun = await runBoard(activeTabText, key);
+    setOutput(boardRun["completion"] as React.ReactNode);
+    setLoading(false);
+  };
+
+  const onSaveClick = async () => {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
     });
-    setSummary(boardRun["completion"] as React.ReactNode);
+    let result;
+    setLoading(true);
+    try {
+      [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id ?? 0 },
+        func: () => getSelection()?.toString(),
+      });
+    } catch (e) {
+      return; // ignoring an unsupported page like chrome://extensions
+    }
+    const boardRun = await runBoard(result ?? "", key);
+    setOutput(boardRun["completion"] as React.ReactNode);
     setLoading(false);
   };
 
@@ -48,7 +70,10 @@ function App() {
       <main>
         <section className="summarisationForm">
           <button type="submit" onClick={onClick}>
-            Generate summary!
+            Summarise this page
+          </button>
+          <button className="submitSelected" onClick={onSaveClick}>
+            Summarise selected text
           </button>
         </section>
         <section className="summary">
@@ -56,7 +81,7 @@ function App() {
             {loading ? (
               <PacmanLoader loading={loading} color="#ef7900" />
             ) : (
-              summary
+              output
             )}
           </p>
         </section>

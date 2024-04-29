@@ -10,11 +10,14 @@ const [major, minor, patch, label = "0"] = version
 
 export default defineManifest(async () => ({
   manifest_version: 3,
-  name: "breadboard-chrome-extension",
+  name: "Breadboard Runner",
   version: `${major}.${minor}.${patch}.${label}`,
   version_name: version,
   description: "Basic Chrome extension for running Breadboard.",
-  options_page: 'src/pages/options/index.html',
+  options_ui: {
+    page: "src/pages/options/index.html",
+    open_in_tab: false,
+  },
   action: {
     default_popup: "src/pages/popup/index.html",
     default_title: "Breadboard Summarisation",
@@ -29,9 +32,10 @@ export default defineManifest(async () => ({
       matches: ["https://www.google.com/*"],
     },
   ],
-  permissions: ["scripting", "tabs", "activeTab", "storage"],
+  permissions: ["scripting", "tabs", "activeTab", "storage", "contextMenus"],
   host_permissions: ["https://*/*", "http://*/*"],
   icons: {
+    "16": "images/icon-32.png",
     "32": "images/icon-32.png",
   },
 }));

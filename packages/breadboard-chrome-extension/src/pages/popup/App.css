@@ -1,9 +1,8 @@
+@import "../../assets/styles/global.css";
+
 #root {
   width: 100%;
   text-align: center;
-  --buttonColor: #2f8be8;
-  --buttonLight: #7fafed;
-  --white: #ffffff;
 }
 
 .logo {
@@ -50,39 +49,6 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-}
-
-label {
-  font-weight: bold;
-}
-
-input {
-  line-height: 1.5em;
-  border-radius: 0.3em;
-  padding: 0.5em 1em;
-  box-sizing: border-box;
-  border-style: unset;
-  color: #e3e3e3;
-  border: 0.1em solid var(--buttonLight);
-  width: 100%;
-}
-
-button {
-  background-color: var(--buttonColor) !important;
-  width: 100%;
-  color: var(--white);
-}
-
-button:hover,
-input:hover {
-  border-color: var(--buttonLight) !important;
-}
-
-button:focus,
-button:focus-visible,
-input:focus,
-input:focus-visible {
-  outline: auto var(--buttonLight) !important;
 }
 
 footer {
