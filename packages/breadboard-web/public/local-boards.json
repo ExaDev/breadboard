@@ -242,6 +242,11 @@
     "version": "0.0.3"
   },
   {
+    "title": "Translation",
+    "url": "/graphs/translation-RU-ENG.json",
+    "version": "0.0.1"
+  },
+  {
     "title": "Webcam",
     "url": "/graphs/webcam.json",
     "version": "0.0.2"
