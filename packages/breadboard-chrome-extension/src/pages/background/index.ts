@@ -1,4 +1,4 @@
-import myBoard from "../../breadboard";
+import claudeSummarisationBoard from "../../breadboard/summarise";
 
 let apiKey = "";
 
@@ -37,7 +37,7 @@ chrome.contextMenus.onClicked.addListener(async () => {
   } catch (e) {
     return; // ignoring an unsupported page like chrome://extensions
   }
-  const boardRun = await myBoard({
+  const boardRun = await claudeSummarisationBoard({
     message: result,
     claudeKey: apiKey,
   });

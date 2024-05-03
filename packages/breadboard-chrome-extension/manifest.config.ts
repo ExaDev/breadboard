@@ -34,6 +34,9 @@ export default defineManifest(async () => ({
   ],
   permissions: ["scripting", "tabs", "activeTab", "storage", "contextMenus"],
   host_permissions: ["https://*/*", "http://*/*"],
+  content_security_policy: {
+    extension_pages: "script-src 'self' 'wasm-unsafe-eval'",
+  },
   icons: {
     "16": "images/icon-32.png",
     "32": "images/icon-32.png",
