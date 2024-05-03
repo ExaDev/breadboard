@@ -1,7 +1,7 @@
 import { board } from "@google-labs/breadboard";
 import { complete, template } from "./kits-as-code-node";
 
-const myBoard = board<{
+const claudeSummarisationBoard = board<{
   message: string;
   claudeKey: string;
 }>(({ message, claudeKey }, { output }) => {
@@ -25,5 +25,5 @@ const myBoard = board<{
   return summaryOutput;
 });
 
-export { myBoard };
-export { myBoard as default };
+export { claudeSummarisationBoard };
+export { claudeSummarisationBoard as default };
