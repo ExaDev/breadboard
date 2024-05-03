@@ -14,6 +14,12 @@ chrome.contextMenus.create({
   contexts: ["selection"],
 });
 
+chrome.contextMenus.create({
+  id: "bb-context-menu-sub-1",
+  title: "Summarise",
+  parentId: "bb-context-menu",
+  contexts: ["selection"],
+});
 /* chrome.contextMenus.create({
   id: "bb-context-menu",
   title: "Send page to Breadboard",
@@ -21,26 +27,28 @@ chrome.contextMenus.create({
   contexts: [""],
 }); */
 
-chrome.contextMenus.onClicked.addListener(async () => {
-  getApiKey();
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  let result;
-  chrome.action.setBadgeText({ text: "ON" });
-  try {
-    [{ result }] = await chrome.scripting.executeScript({
-      target: { tabId: tab.id ?? 0 },
-      func: () => getSelection()?.toString(),
+chrome.contextMenus.onClicked.addListener(async (info) => {
+  if (info.menuItemId === "bb-context-menu-sub-1") {
+    getApiKey();
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
     });
-  } catch (e) {
-    return; // ignoring an unsupported page like chrome://extensions
+    let result;
+    chrome.action.setBadgeText({ text: "ON" });
+    try {
+      [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id ?? 0 },
+        func: () => getSelection()?.toString(),
+      });
+    } catch (e) {
+      return; // ignoring an unsupported page like chrome://extensions
+    }
+    const boardRun = await claudeSummarisationBoard({
+      message: result,
+      claudeKey: apiKey,
+    });
+    chrome.action.setBadgeText({ text: "DONE" });
+    console.log(boardRun["completion"]);
   }
-  const boardRun = await claudeSummarisationBoard({
-    message: result,
-    claudeKey: apiKey,
-  });
-  chrome.action.setBadgeText({ text: "DONE" });
-  console.log(boardRun["completion"]);
 });
