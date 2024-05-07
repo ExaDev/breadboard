@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { PacmanLoader } from "react-spinners";
 import { sentimentAnalysisBoard } from "../../../breadboard/sentiment-analysis";
+import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
+import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 
 const SentimentAnalysis = (): React.JSX.Element => {
   const [output, setOutput] = useState<React.ReactNode | undefined>(undefined);
@@ -13,24 +15,11 @@ const SentimentAnalysis = (): React.JSX.Element => {
     return board;
   };
 
-  const handleSelection = async () => {
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    let result;
-    setLoading(true);
-    try {
-      [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id ?? 0 },
-        func: () => getSelection()?.toString(),
-      });
-    } catch (e) {
-      return;
-    }
-    const boardRun = await runBoard(result);
-    console.log(boardRun);
-    //console.log("output code node only", JSON.stringify(boardRun, null, 2));
+  const handlePageText = async () => {
+    const activeTab = await useActiveTab();
+    const activeTabText = await useCurrentTabText(activeTab.id ?? 0);
+    setLoading(true); //TODO: use the "status" property on the boardRun to set loading
+    const boardRun = await runBoard(activeTabText);
     setOutput(boardRun["output"] as React.ReactNode);
     setLoading(false);
   };
@@ -38,8 +27,8 @@ const SentimentAnalysis = (): React.JSX.Element => {
   return (
     <main>
       <section className="summarisationForm">
-        <button className="submitSelected" onClick={handleSelection}>
-          Get sentiment for selected text
+        <button className="submitSelected" onClick={handlePageText}>
+          Get sentiment of page
         </button>
       </section>
       <section className="summary">
