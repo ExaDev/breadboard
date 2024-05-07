@@ -113,13 +113,23 @@ expressApp.get("/enqueue", async (req, res) => {
     });
   }
 
+  let data: {
+    url: string;
+    board: object;
+    sessionId?: string;
+    createdAt?: Date;
+  } = { url, board: json, createdAt: new Date() };
+
+  const sessionId = await createSession(data);
+  data["sessionId"] = sessionId;
+
   const queue = getFunctions(app).taskQueue("task");
   const targetUri = await getFunctionUrl("task");
   const task = {
     httpRequest: {
       httpMethod: "POST",
       url: targetUri,
-      body: Buffer.from(JSON.stringify({ data: "bar" })).toString("base64"),
+      body: Buffer.from(JSON.stringify(data)).toString("base64"),
       headers: {
         "Content-Type": "application/json",
       },
@@ -130,6 +140,7 @@ expressApp.get("/enqueue", async (req, res) => {
   return res.json({
     status: "ok",
     request: requestJson,
+    data: data,
   });
   // const queueName =
   //   "projects/academic-works-403310/locations/us-central1/queues/task";
@@ -197,6 +208,35 @@ type ExpressResponse = Response<any, Record<string, any>, number>;
 //         return object;
 //     }
 // }
+
+// const db = new Firestore();
+// const sessions = db.collection("SessionState");
+export async function createSession<T extends { [x: string]: any }>(
+  data: T
+): Promise<string> {
+  const sessionId = randomUUID();
+  const key = sessions.doc(sessionId);
+  await key.set(data);
+  return sessionId;
+}
+export async function updateSession<T extends { [x: string]: any }>(
+  sessionId: string,
+  data: T
+): Promise<void> {
+  const db = new Firestore();
+  const sessions = db.collection("SessionState");
+  const key = sessions.doc(sessionId);
+  await key.update(data);
+}
+export async function getSession<T extends { [x: string]: any }>(
+  sessionId: string
+): Promise<T> {
+  const db = new Firestore();
+  const sessions = db.collection("SessionState");
+  const key = sessions.doc(sessionId);
+  const entity = await key.get();
+  return entity.data() as T;
+}
 
 // Helper function to save state to Google Cloud Datastore
 async function saveState(state: RunResult) {
