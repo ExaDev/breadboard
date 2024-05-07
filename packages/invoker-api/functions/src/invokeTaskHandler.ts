@@ -4,7 +4,7 @@ import {
   Request as TaskRequest,
   onTaskDispatched,
 } from "firebase-functions/v2/tasks";
-
+import util from "util";
 export function invokeTaskHandler(): TaskQueueFunction {
   const options: TaskQueueOptions = {
     retryConfig: {
@@ -21,6 +21,18 @@ export function invokeTaskHandler(): TaskQueueFunction {
   ): void => {
     console.log(`Task strating at ${new Date().toISOString()}`);
     console.log(`request: ${JSON.stringify(r)}`);
+    console.log({ request: r });
+    const requestBodyBase64 = r.data.httpRequest.body!;
+    // decode base64
+    const requestBody = Buffer.from(requestBodyBase64, "base64").toString(
+      "utf-8"
+    );
+    console.log({ requestBody });
+    const json = JSON.parse(requestBody);
+    console.log(
+      util.inspect({ json }, { showHidden: false, depth: null, colors: true })
+    );
+
     // sleep for 10 seconds
     const start = Date.now();
     const durationMs = 10000;
