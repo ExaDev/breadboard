@@ -7,25 +7,23 @@ const getApiKey = () =>
     apiKey = await result["apiKey"];
   });
 
-chrome.contextMenus.create({
-  id: "bb-context-menu",
-  title: "Send selection to Breadboard",
-  type: "normal",
-  contexts: ["selection"],
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "bb-context-menu",
+    title: "Send selection to Breadboard",
+    type: "normal",
+    contexts: ["selection"],
+  });
 });
 
-chrome.contextMenus.create({
-  id: "bb-context-menu-sub-1",
-  title: "Summarise",
-  parentId: "bb-context-menu",
-  contexts: ["selection"],
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "bb-context-menu-sub-1",
+    title: "Summarise",
+    parentId: "bb-context-menu",
+    contexts: ["selection"],
+  });
 });
-/* chrome.contextMenus.create({
-  id: "bb-context-menu",
-  title: "Send page to Breadboard",
-  type: "normal",
-  contexts: [""],
-}); */
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId === "bb-context-menu-sub-1") {
@@ -51,4 +49,8 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
     chrome.action.setBadgeText({ text: "DONE" });
     console.log(boardRun["completion"]);
   }
+});
+
+chrome.tabs.onUpdated.addListener(() => {
+  chrome.action.setBadgeText({ text: "" });
 });

@@ -15,15 +15,15 @@ const Summariser = (): React.JSX.Element => {
     });
   }, [key]);
 
-  const runBoard = async (message: string, key: string) => {
+  const runBoard = async (message: string, apiKey: string) => {
     const board = await claudeSummarisationBoard({
       message: message,
-      claudeKey: key,
+      claudeKey: apiKey,
     });
     return board;
   };
 
-  const onClick = async (): Promise<void> => {
+  const handlePageSummarisation = async (): Promise<void> => {
     const activeTab = await useActiveTab();
     const activeTabText = await useCurrentTabText(activeTab.id ?? 0);
     setLoading(true); //TODO: use the "status" property on the boardRun to set loading
@@ -32,16 +32,13 @@ const Summariser = (): React.JSX.Element => {
     setLoading(false);
   };
 
-  const onSaveClick = async () => {
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
+  const handleSelectionSummarisation = async () => {
+    const activeTab = await useActiveTab();
     let result;
     setLoading(true);
     try {
       [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id ?? 0 },
+        target: { tabId: activeTab.id ?? 0 },
         func: () => getSelection()?.toString(),
       });
     } catch (e) {
@@ -55,10 +52,13 @@ const Summariser = (): React.JSX.Element => {
   return (
     <main>
       <section className="summarisationForm">
-        <button type="submit" onClick={onClick}>
+        <button type="submit" onClick={handlePageSummarisation}>
           Summarise this page
         </button>
-        <button className="submitSelected" onClick={onSaveClick}>
+        <button
+          className="submitSelected"
+          onClick={handleSelectionSummarisation}
+        >
           Summarise selected text
         </button>
       </section>
