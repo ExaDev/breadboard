@@ -12,7 +12,6 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  border-left: 1px solid var(--buttonColor);
   padding: 12px;
 }
 
@@ -21,5 +20,4 @@ main {
   grid-template-columns: 1fr 2fr;
   justify-items: start;
   align-items: start;
-  border: 1px solid var(--buttonColor);
 }

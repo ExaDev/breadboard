@@ -1,12 +1,17 @@
 import claudeSummarisationBoard from "../../breadboard/summarise";
+import useActiveTab from "../../chrome-api-hooks/use-active-tab";
 
+/** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
+
+//Get api key from local storage
 let apiKey = "";
-
-const getApiKey = () =>
+const getApiKey = () => {
   chrome.storage.sync.get(["apiKey"], async (result) => {
     apiKey = await result["apiKey"];
   });
+};
 
+//Define context menu for sending current selection to Breadboard
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "bb-context-menu",
@@ -16,6 +21,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+//Define submenu for menu with id of "bb-context-menu-sub-1"
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "bb-context-menu-sub-1",
@@ -25,32 +31,32 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+//Add onClicked event listener if the menu item id matches that of the submenu created previously
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId === "bb-context-menu-sub-1") {
-    getApiKey();
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
+    getApiKey(); //Get Claude API key from storage
+    const activeTabId = (await useActiveTab()).id;
     let result;
     chrome.action.setBadgeText({ text: "ON" });
     try {
       [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id ?? 0 },
+        target: { tabId: activeTabId ?? 0 },
         func: () => getSelection()?.toString(),
       });
     } catch (e) {
-      return; // ignoring an unsupported page like chrome://extensions
+      return;
     }
     const boardRun = await claudeSummarisationBoard({
       message: result,
       claudeKey: apiKey,
     });
+
     chrome.action.setBadgeText({ text: "DONE" });
     console.log(boardRun["completion"]);
   }
 });
 
+//Set the badge text back to " " when the current tab is updated (on page refresh)
 chrome.tabs.onUpdated.addListener(() => {
   chrome.action.setBadgeText({ text: "" });
 });
