@@ -23,6 +23,13 @@ const SentimentAnalysis = (): React.JSX.Element => {
     console.log(JSON.stringify(boardRun["output"], null, 2));
     setOutput(JSON.stringify(boardRun["output"], null, 2));
     setLoading(false);
+    /* const message = {
+      text: boardRun["output"],
+    };
+    chrome.runtime.sendMessage(message, async (response) => {
+      console.log(response);
+      setOutput(JSON.stringify(await response, null, 2) as React.ReactNode);
+    }); */
   };
 
   return (

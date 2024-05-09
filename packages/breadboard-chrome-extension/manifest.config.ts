@@ -42,6 +42,5 @@ export default defineManifest(async () => ({
   },
   icons: {
     "16": "images/icon-32.png",
-    "32": "images/icon-32.png",
   },
 }));

@@ -1,10 +1,23 @@
+//import sentimentAnalysisBoard from "../../breadboard/sentiment-analysis";
+import { env } from "@xenova/transformers";
+import sentimentAnalysisBoard from "@/breadboard/sentiment-analysis";
 import useDownloads from "@/chrome-api-hooks/use-downloads";
-import sentimentAnalysisBoard from "@breadboard/boards/sentiment-analysis";
-import claudeSummarisationBoard from "@breadboard/boards/summarise";
-import "@settings/background-scripts/settings";
-/** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
+import claudeSummarisationBoard from "@/breadboard/boards/summarise";
 
-//Get api key from local storage
+env.allowLocalModels = false;
+env.backends.onnx.wasm.numThreads = 1;
+
+/* SENTIMENT ANALYSIS BOARD MESSAGE PASSING */
+/* chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("sender", sender);
+  (async function () {
+    let result = await sentimentAnalysisBoard({ message: message.text });
+    sendResponse(result);
+  })();
+  return true;
+}); */
+
+/* CREATING CONTEXT MENU */
 let apiKey = "";
 const getApiKey = () => {
   chrome.storage.sync.get(["CLAUDE_API_KEY"], async (result) => {
