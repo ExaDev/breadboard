@@ -3,6 +3,7 @@ import { claudeSummarisationBoard } from "../../../breadboard/summarise";
 import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
 import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 import { PacmanLoader } from "react-spinners";
+import useTextSelection from "../../../chrome-api-hooks/use-text-selection";
 
 const Summariser = (): React.JSX.Element => {
   const [output, setOutput] = useState<React.ReactNode | undefined>(undefined);
@@ -34,16 +35,8 @@ const Summariser = (): React.JSX.Element => {
 
   const handleSelectionSummarisation = async () => {
     const activeTab = await useActiveTab();
-    let result;
+    const result = await useTextSelection(activeTab.id ?? 0);
     setLoading(true);
-    try {
-      [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: activeTab.id ?? 0 },
-        func: () => getSelection()?.toString(),
-      });
-    } catch (e) {
-      return;
-    }
     const boardRun = await runBoard(result ?? "", key);
     setOutput(boardRun["completion"] as React.ReactNode);
     setLoading(false);
