@@ -85,8 +85,7 @@ export const postClaudeCompletion = code<ClaudeParams>(
     };
 
     // Constructing the prompt
-    const prompt = `\n\nHuman: ${userQuestion}\n\nAssistant:`;
-
+    const prompt = `\n\nHuman: Summarise the discussion regarding this post in less than ${userQuestion.length} words: ${userQuestion}\n\nAssistant:`;
     const inputTokenCount = countTokens(prompt);
     const TOKEN_LIMIT = 100000;
     maxTokens = maxTokens || TOKEN_LIMIT - inputTokenCount;
