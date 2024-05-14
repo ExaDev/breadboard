@@ -4,8 +4,9 @@ const BoardSettings = (): React.JSX.Element => {
   //References to inputs created below as JSX
   const inputRef = React.createRef<HTMLInputElement>();
   const statusRef = React.createRef<HTMLDivElement>();
+  const taskRef = React.createRef<HTMLSelectElement>();
 
-  const saveOptions = () => {
+  const saveKey = () => {
     const apiKey = inputRef.current?.value;
     chrome.storage.sync.set({ apiKey: apiKey }, () => {
       // Update status to let user know options were saved.
@@ -19,19 +20,40 @@ const BoardSettings = (): React.JSX.Element => {
     });
   };
 
+  const saveModel = () => {
+    const model = taskRef.current?.value;
+    chrome.storage.sync.set({ model: model }, () => {
+      // Update status to let user know options were saved.
+      const status = statusRef.current;
+      if (status) {
+        status.textContent = "Claude summarisation model saved.";
+        setTimeout(() => {
+          status.textContent = "";
+        }, 750);
+      }
+    });
+  };
+
   return (
     <>
       <aside>
         <ul>
-          <li>Board settings</li>
+          <li>Integrations</li>
         </ul>
       </aside>
-      <main>
-        <label htmlFor="inputRef">Please enter your API Key</label>
+      <section>
+        <h4>Anthropic Claude</h4>
+        <label htmlFor="inputRef">API Key</label>
         <input ref={inputRef} type="password" />
-        <button onClick={saveOptions}>Save</button>
+        <button onClick={saveKey}>Save</button>
         <div ref={statusRef}></div>
-      </main>
+        <label htmlFor="inputRef">Model</label>
+        <select ref={taskRef}>
+          <option>claude-2</option>
+          <option>claude-3</option>
+        </select>
+        <button onClick={saveModel}>Save</button>
+      </section>
     </>
   );
 };
