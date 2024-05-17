@@ -1,32 +1,32 @@
 import claude from "@anthropic-ai/tokenizer/claude.json" assert { type: "json" };
 import { code, InputValues } from "@google-labs/breadboard";
 import { Tiktoken, TiktokenBPE } from "js-tiktoken";
-import { ClaudeParams, ClaudeResponse } from "../kits/types/claude";
+import { ClaudeParams, ClaudeResponse } from "../../kits/types/claude";
 
 type TemplateInputValues = InputValues & { template: string };
 
-function getTokenizer(): Tiktoken {
+const getTokenizer = (): Tiktoken => {
   const tiktokenBPE: TiktokenBPE = {
     pat_str: claude.pat_str,
     special_tokens: claude.special_tokens,
     bpe_ranks: claude.bpe_ranks,
   };
   return new Tiktoken(tiktokenBPE);
-}
+};
 
-function countTokens(text: string): number {
+const countTokens = (text: string): number => {
   const tokenizer = getTokenizer();
   const encoded = tokenizer.encode(text.normalize("NFKC"));
   return encoded.length;
-}
+};
 
-function parametersFromTemplate(template: string): string[] {
+const parametersFromTemplate = (template: string): string[] => {
   const matches = template.matchAll(/{{(?<name>[\w-]+)}}/g);
   const parameters = Array.from(matches).map(
     (match) => match.groups?.name || ""
   );
   return Array.from(new Set(parameters));
-}
+};
 
 const stringify = (value: unknown): string => {
   if (typeof value === "string") return value;
@@ -34,12 +34,13 @@ const stringify = (value: unknown): string => {
   return JSON.stringify(value, null, 2);
 };
 
-function substitute(template: string, values: InputValues) {
-  return Object.entries(values).reduce(
+const substitute = (template: string, values: InputValues) => {
+  const reduced = Object.entries(values).reduce(
     (acc, [key, value]) => acc.replace(`{{${key}}}`, stringify(value)),
     template
   );
-}
+  return { reduced };
+};
 
 export const template = code<TemplateInputValues>((inputs) => {
   const template = inputs.template;
@@ -58,7 +59,7 @@ export const template = code<TemplateInputValues>((inputs) => {
   return Promise.resolve({ string });
 });
 
-export const postClaudeCompletion = code<ClaudeParams>(
+const postClaudeCompletion = code<ClaudeParams>(
   async ({
     apiKey,
     model,

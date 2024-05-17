@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { claudeSummarisationBoard } from "../../../breadboard/summarise";
+import { claudeSummarisationBoard } from "../../../breadboard/boards/summarise";
 import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
 import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 import { PacmanLoader } from "react-spinners";
