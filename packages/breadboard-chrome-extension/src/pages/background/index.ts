@@ -1,5 +1,6 @@
 import sentimentAnalysisBoard from "../../breadboard/boards/sentiment-analysis";
 import claudeSummarisationBoard from "../../breadboard/boards/summarise";
+import "./settings";
 /** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
 
 //Get api key from local storage
