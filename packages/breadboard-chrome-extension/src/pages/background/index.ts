@@ -1,6 +1,5 @@
-import sentimentAnalysisBoard from "../../breadboard/sentiment-analysis";
-import claudeSummarisationBoard from "../../breadboard/summarise";
-
+import sentimentAnalysisBoard from "../../breadboard/boards/sentiment-analysis";
+import claudeSummarisationBoard from "../../breadboard/boards/summarise";
 /** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
 
 //Get api key from local storage
@@ -41,6 +40,16 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+/* //Define submenu for menu with id of "bb-sub-context-menu-translate"
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "bb-sub-context-menu-translate",
+    title: "Get translation",
+    parentId: "bb-context-menu",
+    contexts: ["selection"],
+  });
+});
+ */
 //Add onClicked event listener if the menu item id matches that of the submenu created previously
 chrome.contextMenus.onClicked.addListener(async (info) => {
   switch (info.menuItemId) {
@@ -50,6 +59,9 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
     case "bb-sub-context-menu-sentiment":
       handleSentimentClick(info);
       break;
+    /* case "bb-sub-context-menu-translate":
+      handleTranslateClick(info);
+      break; */
     default:
       console.log("default case");
       break;
@@ -84,3 +96,16 @@ const handleSentimentClick = async (info: chrome.contextMenus.OnClickData) => {
   console.log(JSON.stringify(boardRun["output"], null, 2));
   chrome.action.setBadgeText({ text: "DONE" });
 };
+
+//Handle click for the Get sentiment sub menu option
+/* const handleTranslateClick = async (info: chrome.contextMenus.OnClickData) => {
+  console.log(info);
+  const message =
+    "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world, a title it held for 41 years until the Chrysler Building in New York City was finished in 1930. It was the first structure to reach a height of 300 metres. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct.";
+
+  const extensionRunner = new ExtensionBoardRunner(serializedBoard);
+  extensionRunner.runBoard({
+    message: message,
+    claudeKey: apiKey,
+  });
+}; */

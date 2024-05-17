@@ -1,0 +1,188 @@
+{
+	"title": "Summarisation board with claude",
+	"edges": [
+		{
+			"from": "output",
+			"to": "output-2",
+			"out": "output",
+			"in": "output"
+		},
+		{
+			"from": "claudePostSummarisation",
+			"to": "output",
+			"out": "completion",
+			"in": "completion"
+		},
+		{
+			"from": "claudePostSummarisation",
+			"to": "output",
+			"out": "status",
+			"in": "status"
+		},
+		{
+			"from": "inputs",
+			"to": "claudePostSummarisation",
+			"out": "claudeKey",
+			"in": "apiKey"
+		},
+		{
+			"from": "inputs",
+			"to": "instructionTemplate",
+			"out": "message",
+			"in": "template"
+		},
+		{
+			"from": "instructionTemplate",
+			"to": "claudePostSummarisation",
+			"out": "string",
+			"in": "userQuestion"
+		}
+	],
+	"nodes": [
+		{
+			"id": "output-2",
+			"type": "output",
+			"configuration": {
+				"schema": {
+					"type": "object",
+					"properties": {
+						"output": {
+							"type": "string",
+							"title": "output"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "output",
+			"type": "output",
+			"configuration": {
+				"schema": {
+					"type": "object",
+					"properties": {
+						"completion": {
+							"type": "string",
+							"title": "completion"
+						},
+						"status": {
+							"type": "string",
+							"title": "status"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "claudePostSummarisation",
+			"type": "invoke",
+			"configuration": {
+				"model": "claude-2",
+				"url": "https://api.anthropic.com/v1/complete",
+				"$board": "#claudePostSummarisation"
+			}
+		},
+		{
+			"id": "inputs",
+			"type": "input",
+			"configuration": {
+				"schema": {
+					"title": "Claude summarisation",
+					"properties": {
+						"message": {
+							"type": "string",
+							"title": "Message",
+							"description": "The text to summarise"
+						},
+						"claudeKey": {
+							"type": "string",
+							"title": "apiKey",
+							"default": "",
+							"description": "The claude api key"
+						}
+					}
+				},
+				"type": "string"
+			}
+		},
+		{
+			"id": "instructionTemplate",
+			"type": "invoke",
+			"configuration": {
+				"$board": "#instructionTemplate"
+			}
+		}
+	],
+	"graphs": {
+		"claudePostSummarisation": {
+			"edges": [
+				{
+					"from": "claudePostSummarisation-input",
+					"to": "claudePostSummarisation-run",
+					"out": "*"
+				},
+				{
+					"from": "claudePostSummarisation-run",
+					"to": "claudePostSummarisation-output",
+					"out": "*"
+				}
+			],
+			"nodes": [
+				{
+					"id": "claudePostSummarisation-input",
+					"type": "input",
+					"configuration": {}
+				},
+				{
+					"id": "claudePostSummarisation-run",
+					"type": "runJavascript",
+					"configuration": {
+						"code": "function claudePostSummarisation(input) {return postClaudeCompletion(input)}",
+						"name": "claudePostSummarisation",
+						"raw": true
+					}
+				},
+				{
+					"id": "claudePostSummarisation-output",
+					"type": "output",
+					"configuration": {}
+				}
+			]
+		},
+		"instructionTemplate": {
+			"edges": [
+				{
+					"from": "instructionTemplate-input",
+					"to": "instructionTemplate-run",
+					"out": "*"
+				},
+				{
+					"from": "instructionTemplate-run",
+					"to": "instructionTemplate-output",
+					"out": "*"
+				}
+			],
+			"nodes": [
+				{
+					"id": "instructionTemplate-input",
+					"type": "input",
+					"configuration": {}
+				},
+				{
+					"id": "instructionTemplate-run",
+					"type": "runJavascript",
+					"configuration": {
+						"code": "function instructionTemplate(inputs) {const template2=inputs.template;const parameters=parametersFromTemplate(template2);if(!parameters.length)return{string:template2};const substitutes=parameters.reduce((acc,parameter)=>{if(inputs[parameter]===void 0)throw new Error(`Input is missing parameter \"${parameter}\"`);return{...acc,[parameter]:inputs[parameter]}},{});const string=substitute(template2,substitutes);return Promise.resolve({string})}",
+						"name": "instructionTemplate",
+						"raw": true
+					}
+				},
+				{
+					"id": "instructionTemplate-output",
+					"type": "output",
+					"configuration": {}
+				}
+			]
+		}
+	}
+}

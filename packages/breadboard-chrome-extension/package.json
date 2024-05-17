@@ -6,12 +6,22 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:graphs": "wireit"
+  },
+  "wireit": {
+    "generate:graphs": {
+      "command": "npx tsx src/breadboard",
+      "files": [],
+      "output": [
+        "public/graphs/**/*.json"
+      ]
+    }
   },
   "dependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
     "@exadev/breadboard-kits": "^0.10.1",
-    "@google-labs/breadboard": "^0.16.0",
+    "@google-labs/breadboard": "^0.11.2",
     "@xenova/transformers": "^2.17.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -19,6 +29,7 @@
   },
   "devDependencies": {
     "@anthropic-ai/tokenizer": "^0.0.4",
+    "@google-labs/core-kit": "^0.4.0",
     "@google-labs/tsconfig": "^0.0.1",
     "@mozilla/readability": "^0.5.0",
     "@types/chrome": "0.0.195",
@@ -35,7 +46,8 @@
     "js-tiktoken": "^1.0.11",
     "jsdom": "^24.0.0",
     "npm": "^10.5.2",
-    "typescript": "^5.2.2",
+    "tsx": "^4.10.2",
+    "typescript": "^5.3.3",
     "vite": "^5.2.0"
   }
 }

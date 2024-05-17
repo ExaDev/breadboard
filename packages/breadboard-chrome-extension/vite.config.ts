@@ -5,8 +5,8 @@ import manifest from "./manifest.config";
 import { resolve } from "path";
 
 const rootDir = resolve(__dirname);
-const srcDir = resolve(rootDir, 'src');
-const pagesDir = resolve(srcDir, 'pages');
+const srcDir = resolve(rootDir, "src");
+const pagesDir = resolve(srcDir, "pages");
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,13 +14,19 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: resolve(pagesDir, 'popup', 'index.html'),
-        options: resolve(pagesDir, 'options', 'index.html'),
+        popup: resolve(pagesDir, "popup", "index.html"),
+        options: resolve(pagesDir, "options", "index.html"),
       },
-	  output: {
-        entryFileNames: 'src/pages/[name]/index.js'
+      output: {
+        entryFileNames: "src/pages/[name]/index.js",
+      },
     },
-  }},
+  },
+  esbuild: {
+    supported: {
+      "top-level-await": true, //browsers can handle top-level-await features
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,
