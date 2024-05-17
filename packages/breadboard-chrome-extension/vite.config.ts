@@ -15,7 +15,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(pagesDir, "popup", "index.html"),
-        options: resolve(pagesDir, "options", "index.html"),
+        settings: resolve(pagesDir, "settings", "index.html"),
       },
       output: {
         entryFileNames: "src/pages/[name]/index.js",
