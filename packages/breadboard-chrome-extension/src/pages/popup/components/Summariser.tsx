@@ -4,6 +4,10 @@ import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
 import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 import { PacmanLoader } from "react-spinners";
 import useTextSelection from "../../../chrome-api-hooks/use-text-selection";
+import { ExtensionBoardRunner } from "../../../breadboard/classes/ExtensionBoardRunner";
+import { serializedClaudeBoard } from "../../../breadboard/boards/serialized/summarisation";
+import { asRuntimeKit } from "@google-labs/breadboard";
+import { ClaudeKit } from "../../../breadboard/kits/kits-as-code-node";
 
 const Summariser = (): React.JSX.Element => {
   const [output, setOutput] = useState<React.ReactNode | undefined>(undefined);
@@ -28,8 +32,15 @@ const Summariser = (): React.JSX.Element => {
     const activeTab = await useActiveTab();
     const activeTabText = await useCurrentTabText(activeTab.id ?? 0);
     setLoading(true); //TODO: use the "status" property on the boardRun to set loading
-    const boardRun = await runBoard(activeTabText, key);
-    setOutput(boardRun["completion"] as React.ReactNode);
+    const extensionRunner = new ExtensionBoardRunner(
+      serializedClaudeBoard,
+      asRuntimeKit(ClaudeKit)
+    );
+    const boardRun = await extensionRunner.runBoard({
+      message: activeTabText,
+      claudeKey: key,
+    });
+    if (boardRun) setOutput(boardRun["completion"] as React.ReactNode);
     setLoading(false);
   };
 

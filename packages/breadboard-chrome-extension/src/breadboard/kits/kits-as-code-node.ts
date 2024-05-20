@@ -1,50 +1,16 @@
 import claude from "@anthropic-ai/tokenizer/claude.json" assert { type: "json" };
-import { code, InputValues } from "@google-labs/breadboard";
+import { code, InputValues, OutputValues } from "@google-labs/breadboard";
 import { Tiktoken, TiktokenBPE } from "js-tiktoken";
 import { ClaudeParams, ClaudeResponse } from "../../kits/types/claude";
+import { KitBuilder } from "@google-labs/breadboard/kits";
 
 type TemplateInputValues = InputValues & { template: string };
 
-const getTokenizer = (): Tiktoken => {
-  const tiktokenBPE: TiktokenBPE = {
-    pat_str: claude.pat_str,
-    special_tokens: claude.special_tokens,
-    bpe_ranks: claude.bpe_ranks,
-  };
-  return new Tiktoken(tiktokenBPE);
-};
-
-const countTokens = (text: string): number => {
-  const tokenizer = getTokenizer();
-  const encoded = tokenizer.encode(text.normalize("NFKC"));
-  return encoded.length;
-};
-
-const parametersFromTemplate = (template: string): string[] => {
-  const matches = template.matchAll(/{{(?<name>[\w-]+)}}/g);
-  const parameters = Array.from(matches).map(
-    (match) => match.groups?.name || ""
-  );
-  return Array.from(new Set(parameters));
-};
-
-const stringify = (value: unknown): string => {
-  if (typeof value === "string") return value;
-  if (value === undefined) return "undefined";
-  return JSON.stringify(value, null, 2);
-};
-
-const substitute = (template: string, values: InputValues) => {
-  const reduced = Object.entries(values).reduce(
-    (acc, [key, value]) => acc.replace(`{{${key}}}`, stringify(value)),
-    template
-  );
-  return { reduced };
-};
-
 export const template = code<TemplateInputValues>((inputs) => {
   const template = inputs.template;
-  const parameters = parametersFromTemplate(template);
+  const matches = template.matchAll(/{{(?<name>[\w-]+)}}/g);
+  const params = Array.from(matches).map((match) => match.groups?.name || "");
+  const parameters = Array.from(new Set(params));
 
   if (!parameters.length) return { string: template };
 
@@ -53,6 +19,20 @@ export const template = code<TemplateInputValues>((inputs) => {
       throw new Error(`Input is missing parameter "${parameter}"`);
     return { ...acc, [parameter]: inputs[parameter] };
   }, {});
+
+  const stringify = (value: unknown): string => {
+    if (typeof value === "string") return value;
+    if (value === undefined) return "undefined";
+    return JSON.stringify(value, null, 2);
+  };
+
+  const substitute = (template: string, values: InputValues) => {
+    const reduced = Object.entries(values).reduce(
+      (acc, [key, value]) => acc.replace(`{{${key}}}`, stringify(value)),
+      template
+    );
+    return { reduced };
+  };
 
   const string = substitute(template, substitutes);
 
@@ -87,7 +67,14 @@ const postClaudeCompletion = code<ClaudeParams>(
 
     // Constructing the prompt
     const prompt = `\n\nHuman: Shorten the discussion regarding this post in less than the original number of words: ${userQuestion}\n\nAssistant:`; //make this bit as user input and allow users to tell claude what they'd like to do with the selected text
-    const inputTokenCount = countTokens(prompt);
+    const tiktokenBPE: TiktokenBPE = {
+      pat_str: claude.pat_str,
+      special_tokens: claude.special_tokens,
+      bpe_ranks: claude.bpe_ranks,
+    };
+    const tokenizer = new Tiktoken(tiktokenBPE);
+    const encoded = tokenizer.encode(prompt.normalize("NFKC"));
+    const inputTokenCount = encoded.length;
     const TOKEN_LIMIT = 100000;
     maxTokens = maxTokens || TOKEN_LIMIT - inputTokenCount;
     if (maxTokens < 0)
@@ -130,6 +117,12 @@ const postClaudeCompletion = code<ClaudeParams>(
   }
 );
 
-export const complete = code<InputValues>((input) => {
-  return postClaudeCompletion(input as ClaudeParams);
+export const ClaudeKit = new KitBuilder({
+  url: "npm:@exadev/breadboard-kits/Claude",
+}).build({
+  async complete(input: InputValues): Promise<OutputValues> {
+    return postClaudeCompletion(
+      input as ClaudeParams
+    ) as unknown as OutputValues;
+  },
 });
