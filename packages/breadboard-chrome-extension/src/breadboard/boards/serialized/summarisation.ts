@@ -1,7 +1,7 @@
-import { base, board } from "@google-labs/breadboard";
-import { complete, template } from "../../kits/kits-as-code-node";
-import fs from "fs";
-import path from "path";
+import { addKit, base, board } from "@google-labs/breadboard";
+import { ClaudeKit, template } from "../../kits/kits-as-code-node";
+//import fs from "fs";
+//import path from "path";
 
 const messageSchema = {
   type: "string",
@@ -17,6 +17,7 @@ const claudeKeySchema = {
 };
 
 export const serializedClaudeBoard = await board(() => {
+  const claudeKit = addKit(ClaudeKit);
   const inputs = base.input({
     $id: "inputs",
     schema: {
@@ -29,7 +30,7 @@ export const serializedClaudeBoard = await board(() => {
     type: "string",
   });
 
-  const claudePostSummarisation = complete({
+  const claudePostSummarisation = claudeKit.complete({
     $id: "claudePostSummarisation",
     model: "claude-2",
     url: "https://api.anthropic.com/v1/complete",
@@ -50,7 +51,7 @@ export const serializedClaudeBoard = await board(() => {
   return { output };
 }).serialize({ title: "Summarisation board with claude" });
 
-fs.writeFileSync(
+/* fs.writeFileSync(
   path.join(".", "/src/breadboard/graphs/claudeBoard.json"),
   JSON.stringify(serializedClaudeBoard, null, "\t")
-);
+); */

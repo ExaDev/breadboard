@@ -1,5 +1,5 @@
-import { base, board, OutputValues } from "@google-labs/breadboard";
-import { complete, template } from "../kits/kits-as-code-node";
+import { addKit, base, board, OutputValues } from "@google-labs/breadboard";
+import { ClaudeKit, template } from "../kits/kits-as-code-node";
 
 const claudeSummarisationBoard = board<
   {
@@ -8,12 +8,13 @@ const claudeSummarisationBoard = board<
   },
   OutputValues
 >(({ message, claudeKey }) => {
+  const claudeKit = addKit(ClaudeKit);
   const instructionTemplate = template({
     $id: "instructionTemplate",
     template: message,
   });
 
-  const claudePostSummarisation = complete({
+  const claudePostSummarisation = claudeKit.complete({
     $id: "claudePostSummarisation",
     model: "claude-2",
     url: "https://api.anthropic.com/v1/complete",

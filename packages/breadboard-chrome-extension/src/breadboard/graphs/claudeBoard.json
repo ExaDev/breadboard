@@ -172,7 +172,7 @@
 					"id": "instructionTemplate-run",
 					"type": "runJavascript",
 					"configuration": {
-						"code": "function instructionTemplate(inputs) {const template2=inputs.template;const parameters=parametersFromTemplate(template2);if(!parameters.length)return{string:template2};const substitutes=parameters.reduce((acc,parameter)=>{if(inputs[parameter]===void 0)throw new Error(`Input is missing parameter \"${parameter}\"`);return{...acc,[parameter]:inputs[parameter]}},{});const string=substitute(template2,substitutes);return Promise.resolve({string})}",
+						"code": "function instructionTemplate(inputs) {const template2=inputs.template;const matches=template2.matchAll(/{{(?<name>[\\w-]+)}}/g);const params=Array.from(matches).map(match=>match.groups?.name||\"\");const parameters=Array.from(new Set(params));if(!parameters.length)return{string:template2};const substitutes=parameters.reduce((acc,parameter)=>{if(inputs[parameter]===void 0)throw new Error(`Input is missing parameter \"${parameter}\"`);return{...acc,[parameter]:inputs[parameter]}},{});const stringify=__name(value=>{if(typeof value===\"string\")return value;if(value===void 0)return\"undefined\";return JSON.stringify(value,null,2)},\"stringify\");const substitute=__name((template3,values)=>{const reduced=Object.entries(values).reduce((acc,[key,value])=>acc.replace(`{{${key}}}`,stringify(value)),template3);return{reduced}},\"substitute\");const string=substitute(template2,substitutes);return Promise.resolve({string})}",
 						"name": "instructionTemplate",
 						"raw": true
 					}

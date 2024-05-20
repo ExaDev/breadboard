@@ -1,7 +1,7 @@
 import { board, base, code } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
-import fs from "fs";
-import path from "path";
+//import fs from "fs";
+//import path from "path";
 
 const inputsSchema = {
   type: "string",
@@ -73,7 +73,7 @@ const handleParams = code<{
   return { payload };
 });
 
-export const serialized = await board(() => {
+export const serialisedTranslation = await board(() => {
   const inputs = base.input({
     $id: "query",
     schema: {
@@ -114,10 +114,10 @@ export const serialized = await board(() => {
   description: "Board which calls the Hugging Face Translation Endpoint",
 });
 
-fs.writeFileSync(
+/* fs.writeFileSync(
   path.join(".", "/src/breadboard/graphs/translationBoard.json"),
-  JSON.stringify(serialized, null, "\t")
-);
+  JSON.stringify(serialisedTranslation, null, "\t")
+); */
 
 /* const extensionRunner = new ExtensionBoardRunner(serialized);
 extensionRunner.runBoard({
