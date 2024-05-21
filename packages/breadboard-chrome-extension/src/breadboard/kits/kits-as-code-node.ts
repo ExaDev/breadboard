@@ -1,7 +1,7 @@
 import claude from "@anthropic-ai/tokenizer/claude.json" assert { type: "json" };
 import { code, InputValues, OutputValues } from "@google-labs/breadboard";
 import { Tiktoken, TiktokenBPE } from "js-tiktoken";
-import { ClaudeParams, ClaudeResponse } from "../../kits/types/claude";
+import { ClaudeParams, ClaudeResponse } from "./types/claude";
 import { KitBuilder } from "@google-labs/breadboard/kits";
 
 type TemplateInputValues = InputValues & { template: string };

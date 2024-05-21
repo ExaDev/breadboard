@@ -1,5 +1,5 @@
 import { addKit, base, board, OutputValues } from "@google-labs/breadboard";
-import { ClaudeKit, template } from "../kits/kits-as-code-node";
+import { ClaudeKit, template } from "@breadboard/kits/kits-as-code-node";
 
 const claudeSummarisationBoard = board<
   {

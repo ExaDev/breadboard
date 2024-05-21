@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PacmanLoader } from "react-spinners";
-import sentimentAnalysisBoard from "../../../breadboard/boards/sentiment-analysis";
+import sentimentAnalysisBoard from "@breadboard/boards/sentiment-analysis";
 import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
 import useTextSelection from "../../../chrome-api-hooks/use-text-selection";
 
