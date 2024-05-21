@@ -8,6 +8,17 @@
     "skipLibCheck": true,
 	"esModuleInterop": false,
 
+	/* Paths */
+	"baseUrl": ".",
+	"paths": {
+		"@/*": ["./src/*"],
+		"@breadboard/*": ["./src/breadboard/*"],
+		"@pages/*": ["./src/breadboard/pages/*"],
+		"@background/*": ["./src/breadboard/pages/background/*"],
+		"@popup/*": ["./src/breadboard/pages/popup/*"],
+		"@settings/*": ["./src/breadboard/pages/settings/*"],
+	  },
+
     /* Bundler mode */
 	"allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,

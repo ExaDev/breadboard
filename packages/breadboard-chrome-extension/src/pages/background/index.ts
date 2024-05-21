@@ -1,6 +1,6 @@
-import sentimentAnalysisBoard from "../../breadboard/boards/sentiment-analysis";
-import claudeSummarisationBoard from "../../breadboard/boards/summarise";
-import "./settings";
+import sentimentAnalysisBoard from "@breadboard/boards/sentiment-analysis";
+import claudeSummarisationBoard from "@breadboard/boards/summarise";
+import "@settings/background-scripts/settings";
 /** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
 
 //Get api key from local storage

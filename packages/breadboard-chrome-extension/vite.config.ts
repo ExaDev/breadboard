@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { crx } from "@crxjs/vite-plugin";
 import manifest from "./manifest.config";
 import { resolve } from "path";
+import path from "path";
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, "src");
@@ -10,6 +11,16 @@ const pagesDir = resolve(srcDir, "pages");
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@breadboard": path.resolve(__dirname, "./src/breadboard"),
+      "@pages": path.resolve(__dirname, "./src/pages"),
+      "@background": path.resolve(__dirname, "./src/pages/background"),
+      "@popup": path.resolve(__dirname, "./src/pages/popup"),
+      "@settings": path.resolve(__dirname, "./src/pages/settings"),
+    },
+  },
   plugins: [react(), crx({ manifest })],
   build: {
     rollupOptions: {

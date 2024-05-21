@@ -1,5 +1,5 @@
 import { addKit, base, board } from "@google-labs/breadboard";
-import { ClaudeKit, template } from "../../kits/kits-as-code-node";
+import { ClaudeKit, template } from "@breadboard/kits/kits-as-code-node";
 import fs from "fs";
 import path from "path";
 
