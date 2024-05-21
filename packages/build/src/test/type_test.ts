@@ -4,16 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { anyOf, array, object, unsafeType } from "@breadboard-ai/build";
-
+import {
+  annotate,
+  anyOf,
+  array,
+  object,
+  optional,
+  unsafeType,
+} from "@breadboard-ai/build";
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
 import {
   toJSONSchema,
   type BreadboardType,
   type ConvertBreadboardType,
 } from "../internal/type-system/type.js";
-
-import assert from "node:assert/strict";
-import { describe, test } from "node:test";
 
 test("string", () => {
   "string" satisfies BreadboardType;
@@ -52,7 +57,9 @@ test("unknown", () => {
   "unknown" satisfies BreadboardType;
   // @ts-expect-error not a valid basic type
   "xunknown" satisfies BreadboardType;
-  assert.deepEqual(toJSONSchema("unknown"), {});
+  assert.deepEqual(toJSONSchema("unknown"), {
+    type: ["array", "boolean", "null", "number", "object", "string"],
+  });
   /* eslint-disable @typescript-eslint/no-unused-vars */
   // $ExpectType JsonSerializable
   type t = ConvertBreadboardType<"unknown">;
@@ -102,6 +109,9 @@ describe("object", () => {
     type t1 = ConvertBreadboardType<typeof obj1>;
     assert.deepEqual(toJSONSchema(obj1), {
       type: "object",
+      properties: {},
+      required: [],
+      additionalProperties: false,
     });
   });
 
@@ -120,6 +130,7 @@ describe("object", () => {
         },
       },
       required: ["foo", "bar"],
+      additionalProperties: false,
     });
   });
 
@@ -138,9 +149,11 @@ describe("object", () => {
             },
           },
           required: ["bar"],
+          additionalProperties: false,
         },
       },
       required: ["foo"],
+      additionalProperties: false,
     });
   });
 
@@ -154,6 +167,7 @@ describe("object", () => {
         foo: { type: ["string", "number"] },
       },
       required: ["foo"],
+      additionalProperties: false,
     });
   });
 
@@ -171,11 +185,13 @@ describe("object", () => {
               type: "object",
               properties: { bar: { type: "string" } },
               required: ["bar"],
+              additionalProperties: false,
             },
           ],
         },
       },
       required: ["foo"],
+      additionalProperties: false,
     });
   });
 
@@ -186,9 +202,12 @@ describe("object", () => {
     assert.deepEqual(toJSONSchema(obj), {
       type: "object",
       properties: {
-        foo: {},
+        foo: {
+          type: ["array", "boolean", "null", "number", "object", "string"],
+        },
       },
       required: ["foo"],
+      additionalProperties: false,
     });
   });
 
@@ -198,6 +217,67 @@ describe("object", () => {
     type objType = ConvertBreadboardType<typeof obj>;
     assert.deepEqual(toJSONSchema(obj), {
       type: "object",
+      properties: {},
+      required: [],
+      additionalProperties: false,
+    });
+  });
+
+  test("empty object with additional string properties", () => {
+    const obj = object({}, "string");
+    // $ExpectType { [x: string]: string; }
+    type objType = ConvertBreadboardType<typeof obj>;
+    assert.deepEqual(toJSONSchema(obj), {
+      type: "object",
+      properties: {},
+      required: [],
+      additionalProperties: { type: "string" },
+    });
+  });
+
+  test("non-empty object with additional string|number properties", () => {
+    const obj = object({ foo: "string" }, anyOf("string", "number"));
+    // $ExpectType { [x: string]: string | number; foo: string; }
+    type objType = ConvertBreadboardType<typeof obj>;
+    assert.deepEqual(toJSONSchema(obj), {
+      type: "object",
+      properties: {
+        foo: {
+          type: "string",
+        },
+      },
+      required: ["foo"],
+      additionalProperties: { type: ["string", "number"] },
+    });
+  });
+
+  test("empty object with additional unknown properties", () => {
+    const obj = object({}, "unknown");
+    // $ExpectType { [x: string]: JsonSerializable; }
+    type objType = ConvertBreadboardType<typeof obj>;
+    assert.deepEqual(toJSONSchema(obj), {
+      type: "object",
+      properties: {},
+      required: [],
+      additionalProperties: true,
+    });
+  });
+
+  test("object with optional property", () => {
+    const obj = object({
+      req: "number",
+      opt: optional("number"),
+    });
+    // $ExpectType { req: number; opt?: number | undefined; }
+    type objType = ConvertBreadboardType<typeof obj>;
+    assert.deepEqual(toJSONSchema(obj), {
+      type: "object",
+      properties: {
+        opt: { type: "number" },
+        req: { type: "number" },
+      },
+      required: ["req"],
+      additionalProperties: false,
     });
   });
 
@@ -254,6 +334,7 @@ describe("array", () => {
         type: "object",
         properties: { foo: { type: "string" } },
         required: ["foo"],
+        additionalProperties: false,
       },
     });
   });
@@ -273,9 +354,51 @@ describe("array", () => {
     // $ExpectType JsonSerializable[]
     type arrayType = ConvertBreadboardType<typeof arr>;
     assert.deepEqual(toJSONSchema(arr), {
-      items: {},
+      items: {
+        type: ["array", "boolean", "null", "number", "object", "string"],
+      },
       type: "array",
     });
   });
   /* eslint-enable @typescript-eslint/no-unused-vars */
+});
+
+test("can annotate a nested object with a behavior", () => {
+  assert.deepEqual(
+    toJSONSchema(
+      // $ExpectType AdvancedBreadboardType<{ foo: number; }[]>
+      array(
+        annotate(object({ foo: "number" }), {
+          behavior: ["llm-content"],
+        })
+      )
+    ),
+    {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          foo: { type: "number" },
+        },
+        required: ["foo"],
+        additionalProperties: false,
+        behavior: ["llm-content"],
+      },
+    }
+  );
+});
+
+test("can annotate basic type with behavior", () => {
+  assert.deepEqual(
+    toJSONSchema(
+      // $ExpectType "string"
+      annotate("string", {
+        behavior: ["llm-content"],
+      })
+    ),
+    {
+      type: "string",
+      behavior: ["llm-content"],
+    }
+  );
 });

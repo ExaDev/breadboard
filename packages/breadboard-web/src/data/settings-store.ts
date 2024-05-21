@@ -10,7 +10,7 @@ import * as BreadboardUI from "@google-labs/breadboard-ui";
 interface SettingsDB extends BreadboardUI.Types.SettingsList, idb.DBSchema {}
 
 const SETTINGS_NAME = "settings";
-const SETTINGS_VERSION = 1;
+const SETTINGS_VERSION = 3;
 
 export class SettingsStore {
   static #instance: SettingsStore;
@@ -37,12 +37,82 @@ export class SettingsStore {
             value: true,
           },
         ],
+        [
+          "Collapse Nodes by Default",
+          {
+            name: "Collapse Nodes by Default",
+            description:
+              "Whether you wish to have nodes in the graph collapsed by default",
+            value: false,
+          },
+        ],
+        [
+          "Hide Embedded Board Selector When Empty",
+          {
+            name: "Hide Embedded Board Selector When Empty",
+            description:
+              "If there are no embedded boards in the current one, hide the selector",
+            value: false,
+          },
+        ],
+        [
+          "Hide Advanced Ports on Nodes",
+          {
+            name: "Hide Advanced Ports on Nodes",
+            description:
+              "Toggles the visibility of $error, star (*), and control ports on nodes (unless connected)",
+            value: false,
+          },
+        ],
+        [
+          "Show Node Shortcuts",
+          {
+            name: "Show Node Shortcuts",
+            description:
+              "Toggles the visibility of common nodes next to the node selector",
+            value: false,
+          },
+        ],
+        [
+          "Show Node Type Descriptions",
+          {
+            name: "Show Node Type Descriptions",
+            description:
+              "Toggles the visibility of node type descriptions in the properties panel",
+            value: true,
+          },
+        ],
+        [
+          "Invert Zoom Scroll Direction",
+          {
+            name: "Invert Zoom Scroll Direction",
+            description: "Inverts the board zoom scroll direction",
+            value: false,
+          },
+        ],
       ]),
     },
     [BreadboardUI.Types.SETTINGS_TYPE.SECRETS]: {
       configuration: {
         extensible: true,
         description: `Secrets that you want to store locally, such as API keys. Please note that items in this list should have unique names.`,
+        nameEditable: true,
+      },
+      items: new Map([]),
+    },
+    [BreadboardUI.Types.SETTINGS_TYPE.INPUTS]: {
+      configuration: {
+        extensible: true,
+        description: `Inputs that the boards ask for in the middle of the run (also known as "bubbled inputs"), such as model names`,
+        nameEditable: true,
+      },
+      items: new Map([]),
+    },
+    [BreadboardUI.Types.SETTINGS_TYPE.NODE_PROXY_SERVERS]: {
+      configuration: {
+        extensible: true,
+        description:
+          "Node proxy servers to use when running boards. Put the URL of the node proxy server in the first field and a comma-separated list of nodes to proxy in the second field.",
         nameEditable: true,
       },
       items: new Map([]),
@@ -71,7 +141,9 @@ export class SettingsStore {
 
     for (const [store, data] of Object.entries(settings)) {
       const settingsStore = store as BreadboardUI.Types.SETTINGS_TYPE;
-      await settingsDb.clear(settingsStore);
+      if (settingsDb.objectStoreNames.contains(settingsStore)) {
+        await settingsDb.clear(settingsStore);
+      }
 
       const tx = settingsDb.transaction(settingsStore, "readwrite");
       await Promise.all([
@@ -96,6 +168,7 @@ export class SettingsStore {
           settingsFound = false;
           for (const groupName of Object.keys(settings)) {
             const name = groupName as BreadboardUI.Types.SETTINGS_TYPE;
+            if (db.objectStoreNames.contains(name)) continue;
             db.createObjectStore(name, {
               keyPath: "id",
               autoIncrement: true,

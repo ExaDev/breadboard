@@ -4,19 +4,59 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { GenericSpecialInput } from "../board/input.js";
-import type { Placeholder } from "../board/placeholder.js";
+import type { Convergence } from "../board/converge.js";
+import type {
+  GenericSpecialInput,
+  Input,
+  InputWithDefault,
+} from "../board/input.js";
+import type { Output } from "../board/output.js";
+import type { Loopback } from "../board/loopback.js";
 import type { BreadboardType, JsonSerializable } from "../type-system/type.js";
-import type { OutputPortGetter } from "./port.js";
+import type { DefaultValue, OutputPortGetter } from "./port.js";
 
 export interface SerializableBoard {
-  inputs: Record<string, SerializableInputPort | GenericSpecialInput>;
-  outputs: Record<string, SerializableOutputPortReference>;
+  inputs: Record<
+    string,
+    | SerializableInputPort
+    | Input<JsonSerializable | undefined>
+    | InputWithDefault<JsonSerializable | undefined>
+  >;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputsForSerialization: any;
+  //   | Record<
+  //       string,
+  //       | SerializableInputPort
+  //       | Input<JsonSerializable | undefined>
+  //       | InputWithDefault<JsonSerializable | undefined>
+  //     >
+  //   | Array<
+  //       | SerializableInputPort
+  //       | Input<JsonSerializable | undefined>
+  //       | InputWithDefault<JsonSerializable | undefined>
+  //     >;
+  outputs: Record<
+    string,
+    SerializableOutputPortReference | Output<JsonSerializable>
+  >;
+  outputsForSerialization:
+    | Record<string, SerializableOutputPortReference | Output<JsonSerializable>>
+    | Array<
+        Record<
+          string,
+          SerializableOutputPortReference | Output<JsonSerializable>
+        >
+      >;
+  title?: string;
+  description?: string;
+  version?: string;
 }
 
 export interface SerializableNode {
+  id?: string;
   type: string;
   inputs: Record<string, SerializableInputPort>;
+  metadata?: { title?: string; description?: string };
 }
 
 export interface SerializableInputPort {
@@ -27,7 +67,9 @@ export interface SerializableInputPort {
     | JsonSerializable
     | SerializableOutputPortReference
     | GenericSpecialInput
-    | Placeholder<JsonSerializable>;
+    | Loopback<JsonSerializable>
+    | Convergence<JsonSerializable>
+    | typeof DefaultValue;
 }
 
 export interface SerializableOutputPort {

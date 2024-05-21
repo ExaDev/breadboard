@@ -4,17 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NewNodeFactory, base, board, code } from "@google-labs/breadboard";
+import { NewNodeFactory, base, board } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
-import { json } from "@google-labs/json-kit";
 
-import { contextAssembler, contextBuilder } from "../context.js";
+import {
+  contextAssembler,
+  contextBuilderWithoutSystemInstruction,
+} from "../context.js";
 import { gemini } from "@google-labs/gemini-kit";
 import {
   boardInvokeAssembler,
   boardResponseExtractor,
-  functionCallOrText,
+  functionOrTextRouter,
   functionResponseFormatter,
+  boardToFunction,
+  functionDeclarationsFormatter,
 } from "../function-calling.js";
 
 export type ToolWorkerType = NewNodeFactory<
@@ -159,85 +163,36 @@ const sampleTools = JSON.stringify([
   },
 ]);
 
-type FunctionSignatureItem = {
-  function: { name: string };
-  boardURL: string;
-};
-
-const formatResults = code(({ list }) => {
-  const tools: unknown[] = [];
-  const urlMap: Record<string, string> = {};
-  (list as FunctionSignatureItem[]).forEach((item) => {
-    tools.push(item.function);
-    urlMap[item.function.name] = item.boardURL;
-  });
-  return { tools, urlMap };
-});
-
-const boardToFunction = await board(({ item }) => {
-  const url = item.isString();
-
-  const importBoard = core.curry({
-    $board: url,
-  });
-
-  // TODO: Convert to `code`.
-  const getFunctionSignature = json.jsonata({
-    $id: "getFunctionSignature",
-    expression: `
-      (
-        $adjustType := function ($type) {
-            $type = "object" or $type = "array" ? "string" : $type
-        };
-
-        {
-        "function": {
-            "name": $replace(title, /\\W/, "_"),
-            "description": description,
-            "parameters": {
-                "type": "object",
-                "properties": nodes[type="input"][0].configuration.schema.properties ~> $each(function($v, $k) {
-                { $k: {
-                    "type": $v.type ~> $adjustType,
-                    "description": $v.description
-                } }
-                }) ~> $merge
-            }
-        },
-        "returns": nodes[type="output"][0].configuration.schema ~> | ** | {}, 'title' |
-        }
-    )`,
-    json: importBoard.board,
-    raw: true,
-  });
-
-  return { function: getFunctionSignature.function, boardURL: url };
-}).serialize({
-  title: "Board to functions",
-  description:
-    "Use this board to convert specified boards into function-calling signatures",
-});
-
-const toolWorker = await board(({ context, instruction, tools }) => {
+const toolWorker = await board(({ context, instruction, tools, retry }) => {
   context
-    .title("Context")
+    .title("Context In")
     .isArray()
     .behavior("llm-content")
     .optional()
     .default(sampleContext);
   instruction
     .title("Instruction")
+    .description(
+      "Describe the worker persona and the task given: the skills and various capabilities, the mindset, the thinking process, etc. The ideal task is a call to action with the necessary details on how to best complete this action."
+    )
     .format("multiline")
     .examples(sampleInstruction);
   tools
     .title("Tools")
+    .description("The boards to use as tools")
     .isArray()
     .behavior("board")
     .optional()
     .examples(sampleTools)
     .default("[]");
+  retry
+    .title("Retry Count")
+    .description("How many times to retry in case of LLM error")
+    .isNumber()
+    .optional()
+    .default("5");
 
-  const buildContext = contextBuilder({
+  const buildContext = contextBuilderWithoutSystemInstruction({
     $id: "buildContext",
     $metadata: {
       title: "Build Context",
@@ -258,7 +213,7 @@ const toolWorker = await board(({ context, instruction, tools }) => {
     list: tools.isArray(),
   });
 
-  const formatFunctionDeclarations = formatResults({
+  const formatFunctionDeclarations = functionDeclarationsFormatter({
     $id: "formatFunctionDeclarations",
     $metadata: {
       title: "Format Function Declarations",
@@ -272,10 +227,10 @@ const toolWorker = await board(({ context, instruction, tools }) => {
     $metadata: { title: "Do Work", description: "Using Gemini to do the work" },
     tools: formatFunctionDeclarations.tools,
     context: buildContext.context,
-    text: "unused", // A gross hack (see TODO in gemini-generator.ts)
+    systemInstruction: instruction,
   });
 
-  const router = functionCallOrText({
+  const router = functionOrTextRouter({
     $id: "router",
     $metadata: {
       title: "Router",
@@ -330,7 +285,7 @@ const toolWorker = await board(({ context, instruction, tools }) => {
     },
     tools: formatFunctionDeclarations.tools,
     context: formatFunctionResponse.context,
-    text: "unused", // A gross hack (see TODO in gemini-generator.ts)
+    retry,
   });
 
   const assembleContext = contextAssembler({
@@ -370,6 +325,9 @@ const toolWorker = await board(({ context, instruction, tools }) => {
   title: "Tool Worker",
   description: "A worker that can use tools to accomplish tasks.",
   version: "0.0.1",
+  metadata: {
+    deprecated: true,
+  },
 });
 
 toolWorker.graphs = {

@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies [8097177]
+- Updated dependencies [cec6d54]
+- Updated dependencies [3397974]
+- Updated dependencies [ab9a4ce]
+- Updated dependencies [a35406c]
+- Updated dependencies [477e6e6]
+  - @google-labs/breadboard@0.20.0
+
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies [63eb779]
+  - @google-labs/breadboard@0.19.0
+
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies [cef20ca]
+- Updated dependencies [fbf7a83]
+- Updated dependencies [54baba8]
+- Updated dependencies [49c3aa1]
+- Updated dependencies [cdc23bb]
+- Updated dependencies [416aed2]
+- Updated dependencies [a1fcaea]
+- Updated dependencies [c3ed6a7]
+- Updated dependencies [3d48482]
+- Updated dependencies [f2eda0b]
+- Updated dependencies [626139b]
+- Updated dependencies [bd44e29]
+- Updated dependencies [43da00a]
+- Updated dependencies [c3587e1]
+- Updated dependencies [3f9507d]
+  - @google-labs/breadboard@0.18.0
+
 ## 0.1.13
 
 ### Patch Changes

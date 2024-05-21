@@ -25,7 +25,7 @@
       ]
     },
     "build:tsc": {
-      "command": "tsc -b",
+      "command": "tsc -b --pretty",
       "env": {
         "FORCE_COLOR": "1"
       },
@@ -60,6 +60,7 @@
       "files": [
         "src/**/*.ts",
         "tests/**/*.ts",
+        ".eslintrc",
         "../../.eslintrc.json"
       ],
       "output": []
@@ -123,9 +124,9 @@
   "devDependencies": {
     "@ava/typescript": "^4.0.0",
     "@google-labs/tsconfig": "^0.0.1",
-    "@types/node": "^20.12.7",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@types/node": "^20.12.11",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.9.0",
     "ava": "^5.2.0",
     "jsonschema": "^1.4.1",
     "typedoc": "^0.25.12",

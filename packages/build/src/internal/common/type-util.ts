@@ -42,3 +42,25 @@ type PermuteUnion<U, T = U> = [U] extends [never]
  * https://github.com/microsoft/TypeScript/issues/47980#issuecomment-1049304607
  */
 export type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
+
+/**
+ * Some type, or a promise of it.
+ */
+export type MaybePromise<T> = T | Promise<T>;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Defined = {} | null;
+
+export type BroadenBasicType<T extends string | number | boolean> =
+  T extends string
+    ? string
+    : T extends number
+      ? number
+      : T extends boolean
+        ? boolean
+        : never;
+
+/**
+ * See https://github.com/microsoft/TypeScript/issues/31751#issuecomment-498526919
+ */
+export type IsNever<T> = [T] extends [never] ? true : false;

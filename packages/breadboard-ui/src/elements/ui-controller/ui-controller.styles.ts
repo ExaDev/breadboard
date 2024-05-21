@@ -28,7 +28,16 @@ export const styles = css`
 
   #controls-activity {
     display: grid;
-    grid-template-rows: auto calc(var(--bb-grid-size) * 14);
+    grid-auto-rows: 1fr calc(var(--bb-grid-size) * 14);
+    background: #fff;
+  }
+
+  #controls-activity-content {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 
   #diagram {
@@ -41,11 +50,29 @@ export const styles = css`
     border-radius: 20px;
     border: none;
     font-size: var(--bb-label-large);
-    padding: calc(var(--bb-grid-size) * 2) calc(var(--bb-grid-size) * 8);
+    padding: var(--bb-grid-size-2) var(--bb-grid-size-8);
+    margin-right: var(--bb-grid-size-2);
+    cursor: pointer;
   }
 
   #run[disabled] {
     opacity: 0.4;
+    cursor: auto;
+  }
+
+  #stop {
+    background: #fff var(--bb-icon-stop-circle) center center / 24px 24px
+      no-repeat;
+    height: 32px;
+    width: 32px;
+    font-size: 0;
+    border: none;
+    cursor: pointer;
+  }
+
+  #stop[disabled] {
+    opacity: 0.4;
+    cursor: auto;
   }
 
   #controls {
@@ -120,28 +147,31 @@ export const styles = css`
   }
 
   #details {
-    display: none;
-    position: fixed;
+    display: block;
+    position: absolute;
     z-index: 100;
     background: #fff;
     padding: 10px;
-    width: auto;
-    height: calc(100% - var(--top));
-    max-height: 50vh;
-    top: var(--top, 0);
-    left: var(--left, 0);
+    width: 90%;
+    max-width: 35vw;
+    height: calc(100svh - 220px);
+    top: 90px;
+    right: 10px;
     border: 1px solid #d9d9d9;
     border-radius: calc(var(--bb-grid-size) * 2);
     overflow-y: scroll;
     box-shadow:
       0px 1px 2px rgba(0, 0, 0, 0.3),
       0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-    margin-bottom: 40px;
-    margin-right: 40px;
   }
 
-  #details.active {
-    display: block;
+  #details.portrait {
+    bottom: 10px;
+    max-width: 55vw;
+    right: auto;
+    height: calc(100% - 20px);
+    top: auto;
+    left: 10px;
   }
 
   .failed-to-load {

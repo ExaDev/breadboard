@@ -12,7 +12,7 @@ import {
   NewNodeFactory,
   NewNodeValue,
 } from "@google-labs/breadboard";
-import { Context } from "vm";
+import { LlmContent, Context, TextPart, skipIfDone } from "../context.js";
 
 const voteRequestContent = {
   adCampaign: {
@@ -116,27 +116,27 @@ export const contextAppender = code<AppenderInputs, AppenderOutputs>(
   }
 );
 
-type Part = { text: string };
 type WithFeedback = Record<string, unknown> & { voteRequest?: string };
-type ContextItem = { parts: Part | Part[] };
 
 const maybeOutput = code(({ context }) => {
   const action: Action = { action: "none" };
   if (Array.isArray(context) && context.length > 0) {
-    const lastItem = context[context.length - 1];
-    if (lastItem.role === "model") {
-      const parts = lastItem.parts;
-      const text = Array.isArray(parts)
-        ? (parts as Part[]).map((item) => item.text).join("/n")
-        : (parts as Part).text;
-      const output = text;
+    let lastItem = context[context.length - 1] as Context;
+    if (lastItem.role === "$metadata") {
+      lastItem = context[context.length - 2];
+    }
+    if (lastItem && lastItem.role !== "user") {
+      const output = lastItem;
       try {
-        const data = JSON.parse(output) as WithFeedback;
-        if (data.voteRequest) {
-          const feedback = structuredClone(data);
-          delete feedback["voteRequest"];
-          const action: Action = { action: "vote", title: data.voteRequest };
-          return { feedback, action, context };
+        if ("parts" in output && "text" in output.parts[0]) {
+          const json = output.parts[0]?.text;
+          const data = JSON.parse(json) as WithFeedback;
+          if (data.voteRequest) {
+            const feedback = structuredClone(data);
+            delete feedback["voteRequest"];
+            const action: Action = { action: "vote", title: data.voteRequest };
+            return { feedback, action, context };
+          }
         }
       } catch {
         // it's okay to fail here.
@@ -157,12 +157,12 @@ const actionRecognizer = code(({ text, context, action }) => {
       return { text, again: context };
     }
     // Clip out the `votingRequest`.
-    const c = structuredClone(context) as ContextItem[];
+    const c = structuredClone(context) as LlmContent[];
     const lastItem = c[c.length - 1];
     const parts = lastItem.parts;
     const t = Array.isArray(parts)
-      ? (parts as Part[]).map((item) => item.text).join("/n")
-      : (parts as Part).text;
+      ? (parts as TextPart[]).map((item) => item.text).join("/n")
+      : (parts as TextPart).text;
     const output = t;
     const data = JSON.parse(output) as WithFeedback;
     delete data["voteRequest"];
@@ -176,7 +176,7 @@ const actionRecognizer = code(({ text, context, action }) => {
 
 export default await board(({ context, title, description }) => {
   context
-    .title("Context")
+    .title("Context in")
     .description("Incoming conversation context")
     .isArray()
     .behavior("llm-content")
@@ -196,14 +196,16 @@ export default await board(({ context, title, description }) => {
     .default("[]");
   title
     .title("Title")
-    .description("The title to ask")
+    .description("The user label")
     .optional()
+    .behavior("config")
     .default("User");
   description
     .title("Description")
-    .description("The description of what to ask")
+    .description("The user's input")
     .optional()
-    .default("User's question or request");
+    .behavior("config")
+    .default("A request or response");
 
   const maybeOutputRouter = maybeOutput({
     $id: "maybeOutputRouter",
@@ -214,6 +216,19 @@ export default await board(({ context, title, description }) => {
     context,
   });
 
+  const areWeDoneChecker = skipIfDone({
+    $metadata: {
+      title: "Done Check",
+      description: "Checking to see if we can skip work altogether",
+    },
+    context: maybeOutputRouter.context,
+  });
+
+  base.output({
+    $metadata: { title: "Done", description: "Skipping because we're done" },
+    context: areWeDoneChecker.done.title("Context out"),
+  });
+
   const createSchema = schema({
     $id: "createSchema",
     $metadata: {
@@ -222,7 +237,7 @@ export default await board(({ context, title, description }) => {
     },
     title: title.isString(),
     description: description.isString(),
-    context: maybeOutputRouter.context,
+    context: areWeDoneChecker.context,
     action: maybeOutputRouter.action,
   });
 
@@ -257,7 +272,8 @@ export default await board(({ context, title, description }) => {
       behavior: ["bubble"],
       properties: {
         output: {
-          type: "string",
+          type: "object",
+          behavior: ["llm-content"],
           title: "Output",
           description: "The output to display",
         },
@@ -290,7 +306,7 @@ export default await board(({ context, title, description }) => {
       title: "Rejection",
       description: "Rejecting latest agent work per user action",
     },
-    again: recognizeAction.again,
+    again: recognizeAction.again.behavior("deprecated"),
   });
 
   const appendContext = contextAppender({
@@ -307,11 +323,14 @@ export default await board(({ context, title, description }) => {
     context: appendContext.context
       .isArray()
       .behavior("llm-content")
-      .title("Context"),
-    text: input.text.title("Text"),
+      .title("Context out"),
+    text: input.text.title("Text").behavior("deprecated"),
   };
 }).serialize({
   title: "Human",
+  metadata: {
+    icon: "human",
+  },
   description:
     "A human in the loop. Use this node to insert a real person (user input) into your team of synthetic workers.",
   version: "0.0.1",

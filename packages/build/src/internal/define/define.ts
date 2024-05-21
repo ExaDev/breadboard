@@ -1,11 +1,21 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /**
  * @license
  * Copyright 2024 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { CountUnion, Expand } from "../common/type-util.js";
+/* eslint-disable @typescript-eslint/ban-types */
+
+import type {
+  NodeHandlerContext,
+  NodeHandlerMetadata,
+} from "@google-labs/breadboard";
+import type {
+  CountUnion,
+  Expand,
+  IsNever,
+  MaybePromise,
+} from "../common/type-util.js";
 import type {
   ConvertBreadboardType,
   JsonSerializable,
@@ -21,6 +31,8 @@ import type {
   StaticOutputPortConfig,
 } from "./config.js";
 import { DefinitionImpl, type Definition } from "./definition.js";
+import type { LooseDescribeFn, StrictDescribeFn } from "./describe.js";
+import type { UnsafeSchema } from "./unsafe-schema.js";
 
 /**
  * Define a new Breadboard node type.
@@ -119,7 +131,7 @@ export function defineNodeType<
   I extends Record<string, InputPortConfig>,
   O extends Record<string, OutputPortConfig>,
   F extends LooseInvokeFn<I>,
-  D extends LooseDescribeFn,
+  D extends VeryLooseDescribeFn,
 >(
   params: {
     // Start with a loose type to help TypeScript bind the generics.
@@ -128,6 +140,7 @@ export function defineNodeType<
     outputs: O;
     invoke: F;
     describe?: D;
+    metadata?: NodeHandlerMetadata;
   } & {
     // Then narrow down the types with further constraints. This 2-step
     // approach lets us generate additional and more precise errors.
@@ -140,9 +153,10 @@ export function defineNodeType<
   Expand<GetStaticTypes<O>>,
   GetDynamicTypes<I>,
   GetDynamicTypes<O>,
+  GetOptionalInputs<I> & keyof Expand<GetStaticTypes<I>>,
   GetReflective<O>,
-  GetPrimary<I>,
-  GetPrimary<O>
+  Expand<GetPrimary<I>>,
+  Expand<GetPrimary<O>>
 > {
   if (!params.name) {
     throw new Error("params.name is required");
@@ -161,9 +175,10 @@ export function defineNodeType<
     Expand<GetStaticTypes<O>>,
     GetDynamicTypes<I>,
     GetDynamicTypes<O>,
+    GetOptionalInputs<I> & keyof Expand<GetStaticTypes<I>>,
     GetReflective<O>,
-    GetPrimary<I>,
-    GetPrimary<O>
+    Expand<GetPrimary<I>>,
+    Expand<GetPrimary<O>>
   >(
     params.name,
     omitDynamic(params.inputs),
@@ -172,21 +187,13 @@ export function defineNodeType<
     params.outputs["*"],
     primary(params.inputs),
     primary(params.outputs),
-    params.invoke as Function as (
-      staticParams: Record<string, JsonSerializable>,
-      dynamicParams: Record<string, JsonSerializable>
-    ) => { [K: string]: JsonSerializable },
-    params.describe as Function as (
-      staticParams: Record<string, JsonSerializable>,
-      dynamicParams: Record<string, JsonSerializable>
-    ) => {
-      inputs?: string[];
-      outputs?: string[];
-    }
+    params.invoke as Function as VeryLooseInvokeFn,
+    params.describe as LooseDescribeFn
   );
   return Object.assign(impl.instantiate.bind(impl), {
     invoke: impl.invoke.bind(impl),
     describe: impl.describe.bind(impl),
+    metadata: params.metadata || {},
   });
 }
 
@@ -207,16 +214,32 @@ function primary(configs: PortConfigs): keyof typeof configs | undefined {
 }
 
 type StrictInputs<I extends Record<string, InputPortConfig>> = {
-  [K in keyof I]: K extends "*"
-    ? StrictMatch<I[K], DynamicInputPortConfig>
-    : StrictMatch<I[K], StaticInputPortConfig>;
+  [K in keyof I]: K extends "$id" | "$metadata"
+    ? never
+    : K extends "*"
+      ? StrictMatch<I[K], DynamicInputPortConfig>
+      : StrictMatch<
+          I[K],
+          GetDefault<I[K]> extends JsonSerializable
+            ? StaticInputPortConfig & {
+                default: Convert<I[K]>;
+                optional: never;
+              }
+            : StaticInputPortConfig
+        >;
 } & ForbidMultiplePrimaries<I>;
 
 type StrictOutputs<O extends Record<string, OutputPortConfig>> = {
-  [K in keyof O]: K extends "*"
-    ? StrictMatch<O[K], DynamicOutputPortConfig>
-    : StrictMatch<O[K], StaticOutputPortConfig>;
+  [K in keyof O]: K extends "$error"
+    ? never
+    : K extends "*"
+      ? StrictMatch<O[K], DynamicOutputPortConfig>
+      : StrictMatch<O[K], StaticOutputPortConfig>;
 } & ForbidMultiplePrimaries<O>;
+
+type GetDefault<I extends PortConfig> = I extends StaticInputPortConfig
+  ? I["default"]
+  : undefined;
 
 /**
  * Check that ACTUAL is assignable to EXPECTED and that there are no excess
@@ -243,10 +266,14 @@ type LooseInvokeFn<I extends Record<string, InputPortConfig>> = Expand<
   (
     staticParams: Expand<StaticInvokeParams<I>>,
     dynamicParams: Expand<DynamicInvokeParams<I>>
-  ) =>
-    | { [K: string]: JsonSerializable }
-    | Promise<{ [K: string]: JsonSerializable }>
+  ) => MaybePromise<{ [K: string]: JsonSerializable }>
 >;
+
+export type VeryLooseInvokeFn = (
+  staticParams: Record<string, JsonSerializable>,
+  dynamicParams: Record<string, JsonSerializable>,
+  context: NodeHandlerContext
+) => { [K: string]: JsonSerializable | undefined };
 
 type StrictInvokeFn<
   I extends Record<string, InputPortConfig>,
@@ -254,30 +281,49 @@ type StrictInvokeFn<
   F extends LooseInvokeFn<I>,
 > = (
   staticInputs: Expand<StaticInvokeParams<I>>,
-  dynamicInputs: Expand<DynamicInvokeParams<I>>
-) => StrictInvokeFnReturn<I, O, F> | Promise<StrictInvokeFnReturn<I, O, F>>;
+  dynamicInputs: Expand<DynamicInvokeParams<I>>,
+  context: NodeHandlerContext
+) => MaybePromise<StrictInvokeFnReturn<I, O, F>>;
 
 type StrictInvokeFnReturn<
   I extends Record<string, InputPortConfig>,
   O extends Record<string, OutputPortConfig>,
   F extends LooseInvokeFn<I>,
-> = {
-  [K in keyof Omit<O, "*">]: Convert<O[K]>;
-} & {
-  [K in keyof ReturnType<
-    F extends (...args: unknown[]) => unknown ? F : never
-  >]: K extends keyof O
-    ? Convert<O[K]>
-    : O["*"] extends DynamicOutputPortConfig
-      ? Convert<O["*"]>
-      : never;
+> =
+  ReturnType<F extends (...args: unknown[]) => unknown ? F : never> extends {
+    $error: unknown;
+  }
+    ? {
+        [K in keyof ReturnType<
+          F extends (...args: unknown[]) => unknown ? F : never
+        >]: K extends "$error"
+          ?
+              | string
+              | { message: string }
+              | { kind: string; error: { message: string } }
+          : never;
+      }
+    : {
+        [K in keyof Omit<O, "*" | "$error">]: Convert<O[K]>;
+      } & {
+        [K in keyof ReturnType<
+          F extends (...args: unknown[]) => unknown ? F : never
+        >]: K extends keyof O
+          ? Convert<O[K]>
+          : O["*"] extends DynamicOutputPortConfig
+            ? Convert<O["*"]>
+            : never;
+      };
+
+export type StaticInvokeParams<I extends Record<string, InputPortConfig>> = {
+  [K in keyof Omit<I, "*">]: I[K] extends StaticInputPortConfig
+    ? I[K]["optional"] extends true
+      ? Convert<I[K]> | undefined
+      : Convert<I[K]>
+    : Convert<I[K]>;
 };
 
-type StaticInvokeParams<I extends Record<string, InputPortConfig>> = {
-  [K in keyof Omit<I, "*">]: Convert<I[K]>;
-};
-
-type DynamicInvokeParams<I extends Record<string, InputPortConfig>> =
+export type DynamicInvokeParams<I extends Record<string, InputPortConfig>> =
   I["*"] extends DynamicInputPortConfig
     ? { [K: string]: Convert<I["*"]> }
     : // eslint-disable-next-line @typescript-eslint/ban-types
@@ -287,18 +333,36 @@ type GetStaticTypes<C extends Record<string, PortConfig>> = {
   [K in Exclude<keyof C, "*">]: K extends "*" ? never : Convert<C[K]>;
 };
 
+type GetOptionalInputs<I extends Record<string, InputPortConfig>> = {
+  [K in keyof I]: I[K] extends StaticInputPortConfig
+    ? I[K]["optional"] extends true
+      ? K
+      : I[K]["default"] extends JsonSerializable
+        ? K
+        : never
+    : never;
+}[keyof I];
+
 type GetDynamicTypes<C extends Record<string, PortConfig>> =
   C["*"] extends PortConfig ? Convert<C["*"]> : undefined;
 
-type GetPrimary<C extends Record<string, PortConfig>> = {
-  [K in keyof Omit<C, "*">]: C[K] extends
-    | StaticInputPortConfig
-    | StaticOutputPortConfig
-    ? C[K]["primary"] extends true
-      ? K
-      : undefined
-    : undefined;
-}[keyof Omit<C, "*">];
+type GetPrimary<C extends Record<string, PortConfig>> = ReplaceNever<
+  Extract<
+    {
+      [K in keyof Omit<C, "*">]: C[K] extends
+        | StaticInputPortConfig
+        | StaticOutputPortConfig
+        ? C[K]["primary"] extends true
+          ? K
+          : false
+        : false;
+    }[keyof Omit<C, "*">],
+    string
+  >,
+  false
+>;
+
+type ReplaceNever<T, R> = IsNever<T> extends true ? R : T;
 
 type GetReflective<O extends Record<string, OutputPortConfig>> =
   O["*"] extends DynamicOutputPortConfig
@@ -309,60 +373,26 @@ type GetReflective<O extends Record<string, OutputPortConfig>> =
 
 type Convert<C extends PortConfig> = ConvertBreadboardType<C["type"]>;
 
-type LooseDescribeFn = Function;
+type VeryLooseDescribeFn = Function;
 
-export type DynamicInputPorts =
+export type CustomDescribePortManifest =
   | string[]
-  | { [K: string]: { description: string } };
-
-type StrictDescribeFn<
-  I extends Record<string, InputPortConfig>,
-  O extends Record<string, OutputPortConfig>,
-> = I["*"] extends DynamicInputPortConfig
-  ? O["*"] extends DynamicOutputPortConfig
-    ? O["*"]["reflective"] extends true
-      ? {
-          // poly/poly reflective
-          describe?: (
-            staticInputs: Expand<StaticInvokeParams<I>>,
-            dynamicInputs: Expand<DynamicInvokeParams<I>>
-          ) => {
-            inputs: DynamicInputPorts;
-            outputs?: never;
-          };
-        }
-      : {
-          // poly/poly non-reflective
-          describe: (
-            staticInputs: Expand<StaticInvokeParams<I>>,
-            dynamicInputs: Expand<DynamicInvokeParams<I>>
-          ) => {
-            inputs?: DynamicInputPorts;
-            outputs: DynamicInputPorts;
-          };
-        }
-    : {
-        // poly/mono
-        describe?: (
-          staticInputs: Expand<StaticInvokeParams<I>>,
-          dynamicInputs: Expand<DynamicInvokeParams<I>>
-        ) => {
-          inputs: DynamicInputPorts;
-          outputs?: never;
-        };
-      }
-  : O["*"] extends DynamicOutputPortConfig
-    ? {
-        // mono/poly
-        describe: (
-          staticInputs: Expand<StaticInvokeParams<I>>,
-          dynamicInputs: Expand<DynamicInvokeParams<I>>
-        ) => {
-          inputs?: never;
-          outputs: DynamicInputPorts;
-        };
-      }
-    : {
-        // mono/mono
-        describe?: never;
-      };
+  | {
+      [K: string]:
+        | { description?: string }
+        // We include undefined here because TypeScript sometimes generates a
+        // type which would otherwise not match our constraint. For example,
+        // the expression:
+        //
+        //   outputFoo ? { foo: { description: "foo" } } : {}
+        //
+        // Gets assigned this type:
+        //
+        //   { foo: { description:"foo" } } | { foo?: undefined }
+        //
+        // Instead of:
+        //
+        //   { foo: { description:"foo" } } | {}
+        | undefined;
+    }
+  | UnsafeSchema;

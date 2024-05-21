@@ -16,6 +16,10 @@ test("parametersFromTemplate returns an empty array when there are no parameters
   t.deepEqual(parametersFromTemplate("foo"), []);
 });
 
+test("parametersFromTemplate returns an empty array when there's no template", (t) => {
+  t.deepEqual(parametersFromTemplate(undefined), []);
+});
+
 test("parametersFromTemplate returns an array of parameters", (t) => {
   t.deepEqual(parametersFromTemplate("{{foo}}"), ["foo"]);
   t.deepEqual(parametersFromTemplate("{{foo}} {{bar}}"), ["foo", "bar"]);
@@ -106,6 +110,7 @@ test("`generateInputSchema` correctly generates schema for a template with no pa
       },
     },
     required: ["template"],
+    additionalProperties: false,
   });
 });
 
@@ -118,12 +123,12 @@ test("`generateInputSchema` correctly generates schema for a template with param
       foo: {
         title: "foo",
         description: 'The value to substitute for the parameter "foo"',
-        type: ["string", "object"],
+        type: ["array", "boolean", "null", "number", "object", "string"],
       },
       bar: {
         title: "bar",
         description: 'The value to substitute for the parameter "bar"',
-        type: ["string", "object"],
+        type: ["array", "boolean", "null", "number", "object", "string"],
       },
       template: {
         title: "template",
@@ -133,5 +138,6 @@ test("`generateInputSchema` correctly generates schema for a template with param
       },
     },
     required: ["bar", "foo", "template"],
+    additionalProperties: false,
   });
 });
