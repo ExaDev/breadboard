@@ -1,26 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 
 const BoardSettings = (): React.JSX.Element => {
   //References to inputs created below as JSX
-  const inputRef = React.createRef<HTMLInputElement>();
+  const nameRef = React.createRef<HTMLInputElement>();
+  const valueRef = React.createRef<HTMLInputElement>();
   const statusRef = React.createRef<HTMLDivElement>();
-  const taskRef = React.createRef<HTMLSelectElement>();
+  //const taskRef = React.createRef<HTMLSelectElement>();
+  const [showSettingsGroup, setShowSettingsGroup] = useState<boolean>(false);
 
   const saveKey = () => {
-    const apiKey = inputRef.current?.value;
-    chrome.storage.sync.set({ apiKey: apiKey }, () => {
-      // Update status to let user know options were saved.
-      const status = statusRef.current;
-      if (status) {
-        status.textContent = "Claude API key saved.";
-        setTimeout(() => {
-          status.textContent = "";
-        }, 750);
-      }
-    });
+    const name = nameRef.current?.value;
+    const value = valueRef.current?.value;
+    if (name && value) {
+      chrome.storage.sync.set({ [name]: value }, () => {
+        // Update status to let user know options were saved.
+        console.log(name, value);
+        const status = statusRef.current;
+        if (status) {
+          status.textContent = "Key-Value pair saved";
+          setTimeout(() => {
+            status.textContent = "";
+          }, 750);
+        }
+      });
+    }
   };
 
-  const saveModel = () => {
+  /* const saveModel = () => {
     const model = taskRef.current?.value;
     chrome.storage.sync.set({ model: model }, () => {
       // Update status to let user know options were saved.
@@ -32,29 +38,28 @@ const BoardSettings = (): React.JSX.Element => {
         }, 750);
       }
     });
-  };
+  }; */
 
   return (
-    <>
-      <aside>
-        <ul>
-          <li>Integrations</li>
-        </ul>
-      </aside>
-      <section>
-        <h4>Anthropic Claude</h4>
-        <label htmlFor="inputRef">API Key</label>
-        <input ref={inputRef} type="password" />
-        <button onClick={saveKey}>Save</button>
-        <div ref={statusRef}></div>
-        <label htmlFor="inputRef">Model</label>
-        <select ref={taskRef}>
-          <option>claude-2</option>
-          <option>claude-3</option>
-        </select>
-        <button onClick={saveModel}>Save</button>
-      </section>
-    </>
+    <ul className="settingsGroup">
+      <li>
+        <button
+          className="settingGroupName"
+          onClick={() => setShowSettingsGroup(true)}
+        >
+          Secrets
+        </button>
+      </li>
+      {showSettingsGroup ? (
+        <section className="settingsGroupItems">
+          <label htmlFor="nameRef">Name</label>
+          <input ref={nameRef} type="text" />
+          <label htmlFor="valueRef">Value</label>
+          <input ref={valueRef} type="password" />
+          <button onClick={saveKey}>Save</button>
+        </section>
+      ) : null}
+    </ul>
   );
 };
 

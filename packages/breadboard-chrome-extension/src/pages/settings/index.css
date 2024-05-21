@@ -6,6 +6,7 @@ aside ul {
 
 ul {
   padding: 0 0.2em 0 1em;
+  list-style: none;
 }
 
 main {
@@ -15,7 +16,7 @@ main {
   padding: 12px;
 }
 
-.settings {
+.settingsGroup {
   display: grid;
   grid-template-columns: 1fr 2fr;
   justify-items: start;
