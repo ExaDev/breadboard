@@ -4,22 +4,28 @@ import {
   GraphDescriptor,
   InputValues,
   Kit,
+  KitConstructor,
 } from "@google-labs/breadboard";
 import Core from "@google-labs/core-kit";
 
 export class ExtensionBoardRunner {
   #serializedBoard: GraphDescriptor;
-  #userKit?: Kit;
+  #userKits: Kit[];
 
-  constructor(serializedBoard: GraphDescriptor, userKit?: Kit) {
+  constructor(
+    serializedBoard: GraphDescriptor,
+    userKits: KitConstructor<Kit>[]
+  ) {
     this.#serializedBoard = serializedBoard;
-    this.#userKit = userKit;
+    this.#userKits = userKits.map((kitConstructor) =>
+      asRuntimeKit(kitConstructor)
+    );
   }
 
   async runBoard(inputValues: InputValues) {
     const runner = await BoardRunner.fromGraphDescriptor(this.#serializedBoard);
     const coreKit = asRuntimeKit(Core);
-    const kits = this.#userKit ? [coreKit, this.#userKit] : [coreKit];
+    const kits = this.#userKits.concat(coreKit);
     for await (const stop of runner.run({
       kits: kits,
     })) {
