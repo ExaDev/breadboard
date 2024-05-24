@@ -13,8 +13,8 @@ const Summariser = (): React.JSX.Element => {
   const [key, setKey] = useState<string>("");
 
   useEffect(() => {
-    chrome.storage.sync.get(["apiKey"], (result) => {
-      setKey(result["apiKey"]);
+    chrome.storage.sync.get(["CLAUDE_API_KEY"], (result) => {
+      setKey(result["CLAUDE_API_KEY"]);
     });
   }, [key]);
 

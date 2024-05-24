@@ -1,3 +1,4 @@
+import useDownloads from "@/chrome-api-hooks/use-downloads";
 import sentimentAnalysisBoard from "@breadboard/boards/sentiment-analysis";
 import claudeSummarisationBoard from "@breadboard/boards/summarise";
 import "@settings/background-scripts/settings";
@@ -6,8 +7,8 @@ import "@settings/background-scripts/settings";
 //Get api key from local storage
 let apiKey = "";
 const getApiKey = () => {
-  chrome.storage.sync.get(["apiKey"], async (result) => {
-    apiKey = await result["apiKey"];
+  chrome.storage.sync.get(["CLAUDE_API_KEY"], async (result) => {
+    apiKey = await result["CLAUDE_API_KEY"];
   });
 };
 
@@ -41,16 +42,6 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-//Define submenu for menu with id of "bb-sub-context-menu-translate"
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "bb-sub-context-menu-translate",
-    title: "Get translation",
-    parentId: "bb-context-menu",
-    contexts: ["page"],
-  });
-});
-
 //Add onClicked event listener if the menu item id matches that of the submenu created previously
 chrome.contextMenus.onClicked.addListener(async (info) => {
   switch (info.menuItemId) {
@@ -60,11 +51,7 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
     case "bb-sub-context-menu-sentiment":
       handleSentimentClick(info);
       break;
-    /* case "bb-sub-context-menu-translate":
-      handleTranslateClick(info);
-      break; */
     default:
-      console.log("default case");
       break;
   }
 });
@@ -83,7 +70,7 @@ const handleSummariseClick = async (info: chrome.contextMenus.OnClickData) => {
     message: result,
     claudeKey: apiKey,
   });
-  console.log(boardRun["completion"]);
+  useDownloads(boardRun["completion"]);
   chrome.action.setBadgeText({ text: "DONE" });
 };
 
@@ -97,14 +84,3 @@ const handleSentimentClick = async (info: chrome.contextMenus.OnClickData) => {
   console.log(JSON.stringify(boardRun["output"], null, 2));
   chrome.action.setBadgeText({ text: "DONE" });
 };
-
-//Handle click for the Get sentiment sub menu option
-/* const handleTranslateClick = async (info: chrome.contextMenus.OnClickData) => {
-  console.log(info);
-  const message = "Меня зовут Вольфганг и я живу в Берлине";
-  const extensionRunner = new ExtensionBoardRunner(serialisedTranslation);
-  extensionRunner.runBoard({
-    message: message,
-    claudeKey: key,
-  });
-}; */

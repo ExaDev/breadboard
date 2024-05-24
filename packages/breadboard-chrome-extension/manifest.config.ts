@@ -28,7 +28,14 @@ export default defineManifest(async () => ({
       matches: ["https://www.google.com/*"],
     },
   ],
-  permissions: ["scripting", "tabs", "activeTab", "storage", "contextMenus"],
+  permissions: [
+    "scripting",
+    "tabs",
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "downloads",
+  ],
   host_permissions: ["https://*/*", "http://*/*"],
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'",

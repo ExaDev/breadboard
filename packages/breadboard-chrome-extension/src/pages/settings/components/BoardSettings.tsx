@@ -96,9 +96,7 @@ const BoardSettings = (): React.JSX.Element => {
               <div>
                 {secretsToAdd.map((nameAndValue) => (
                   <div>
-                    <span>
-                      {nameAndValue.name} - {nameAndValue.value}
-                    </span>
+                    <span>{nameAndValue.name}</span>
                     <IconButton
                       Icon={faTrash}
                       onClick={onRemoveClick(nameAndValue.name)}
@@ -106,6 +104,7 @@ const BoardSettings = (): React.JSX.Element => {
                   </div>
                 ))}
               </div>
+              <div ref={statusRef} />
             </section>
           </>
         ) : null}
