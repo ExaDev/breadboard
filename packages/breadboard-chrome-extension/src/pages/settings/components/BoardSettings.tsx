@@ -72,8 +72,8 @@ const BoardSettings = (): React.JSX.Element => {
     <>
       <ul className="settingsGroup">
         <li className="settingsGroupCategory">
-          /* TODO: Create custom button component with styles from the class
-          'settingsGroupName' */
+          {/* TODO: Create custom button component with styles from the class
+          'settingsGroupName' */}
           <button className="settingGroupName">General</button>
           <button
             className="settingGroupName"
