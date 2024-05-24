@@ -16,9 +16,68 @@ main {
   padding: 12px;
 }
 
+footer {
+  display: flex;
+  gap: 1em;
+  width: 300px;
+  padding-right: 1em;
+}
+
+.settings {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.settingGroupName {
+  background-color: #c0dfff !important;
+  border-radius: 3em;
+  color: #5a92ce;
+  width: 150px;
+}
+
+.cancelButton {
+  background-color: #f6f6f6 !important;
+  color: black;
+  border-radius: 3em;
+}
+
+.saveButton {
+  background-color: #c0dfff !important;
+  border-radius: 3em;
+  color: #5a92ce;
+}
+
 .settingsGroup {
   display: grid;
   grid-template-columns: 1fr 2fr;
   justify-items: start;
   align-items: start;
+}
+
+.settingsGroupCategory {
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.settingsGroupCategoryItems {
+  background-color: #f6f6f6;
+  border-radius: 0.2em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1em;
+  gap: 1em;
+  width: 500px;
+  height: 200px;
+}
+
+.secretFields {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  gap: 1em;
 }
