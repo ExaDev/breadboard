@@ -16,6 +16,10 @@ main {
   padding: 12px;
 }
 
+input {
+  color: black;
+}
+
 footer {
   display: flex;
   gap: 1em;
