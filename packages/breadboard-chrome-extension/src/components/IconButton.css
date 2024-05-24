@@ -1,0 +1,16 @@
+.iconButton {
+  border-radius: 20px;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+}
+
+.iconButton {
+  background-color: transparent !important;
+  height: 40px;
+  width: 40px;
+  color: black;
+  border-radius: 20px;
+  border: none;
+  padding: 0;
+}
