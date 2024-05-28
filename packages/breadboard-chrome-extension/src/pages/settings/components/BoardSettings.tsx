@@ -1,6 +1,7 @@
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useState } from "react";
 import { IconButton } from "@/components/IconButton";
+import { Button } from "@/components/Button";
 
 const BoardSettings = (): React.JSX.Element => {
   //References to inputs created below as JSX
@@ -71,42 +72,32 @@ const BoardSettings = (): React.JSX.Element => {
   return (
     <>
       <ul className="settingsGroup">
-        <li className="settingsGroupCategory">
-          {/* TODO: Create custom button component with styles from the class
-          'settingsGroupName' */}
-          <button className="settingGroupName">General</button>
-          <button
-            className="settingGroupName"
-            onClick={() => setShowSettingsGroup(true)}
-          >
-            Secrets
-          </button>
-          <button className="settingGroupName">Boards</button>
-          <button className="settingGroupName">Saved Outputs</button>
+        <li className="settingsGroupButtons">
+          <Button title="General" />
+          <Button title="Secrets" onClick={() => setShowSettingsGroup(true)} />
+          <Button title="Boards" />
+          <Button title="Saved Outputs" />
         </li>
         {showSettingsGroup ? (
-          <>
-            <section className="settingsGroupCategoryItems">
-              <p>
-                This is where you can set secrets as key-value pairs. For
-                example, you can add a Claude API key for performing text
-                summarisation.
-              </p>
-              <div className="secretFields">{secretsRow()}</div>
-              <div>
-                {secretsToAdd.map((nameAndValue) => (
-                  <div>
-                    <span>{nameAndValue.name}</span>
-                    <IconButton
-                      Icon={faTrash}
-                      onClick={onRemoveClick(nameAndValue.name)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div ref={statusRef} />
-            </section>
-          </>
+          <li className="settingsGroupItems">
+            <p>
+              This is where you can set secrets as key-value pairs. For example,
+              you can add a Claude API key for performing text summarisation.
+            </p>
+            <div className="secretFields">{secretsRow()}</div>
+            <div>
+              {secretsToAdd.map((nameAndValue) => (
+                <div>
+                  <span>{nameAndValue.name}</span>
+                  <IconButton
+                    Icon={faTrash}
+                    onClick={onRemoveClick(nameAndValue.name)}
+                  />
+                </div>
+              ))}
+            </div>
+            <div ref={statusRef} />
+          </li>
         ) : null}
       </ul>
       <footer>
