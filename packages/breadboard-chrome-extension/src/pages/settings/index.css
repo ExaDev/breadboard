@@ -34,13 +34,6 @@ footer {
   align-items: flex-end;
 }
 
-.settingGroupName {
-  background-color: #c0dfff !important;
-  border-radius: 3em;
-  color: #5a92ce;
-  width: 150px;
-}
-
 .cancelButton {
   background-color: #f6f6f6 !important;
   color: black;
@@ -60,14 +53,14 @@ footer {
   align-items: start;
 }
 
-.settingsGroupCategory {
+.settingsGroupButtons {
   padding: 1em;
   display: flex;
   flex-direction: column;
   gap: 1em;
 }
 
-.settingsGroupCategoryItems {
+.settingsGroupItems {
   background-color: #f6f6f6;
   border-radius: 0.2em;
   display: flex;
