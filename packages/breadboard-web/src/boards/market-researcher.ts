@@ -208,12 +208,14 @@ const firstResult = spread({
   $id: "firstSearchResult",
   object: shiftItem.item,
 });
-firstResult.to(output);
+shiftItem.item.as("content").to(request);
+// firstResult.to(output);
 // firstResult.link.to(fetchPage)
 // const firstPageContent = core.fetch({
 //   url: firstResult.link as unknown as string,
 // });
 const fetchPage = core.fetch({
+  $id: "fetchPageContent",
   url: firstResult.link as unknown as string,
 });
 // firstResult.to(output)
@@ -230,7 +232,7 @@ const firstPageContent = fetchPage.response;
 
 // firstPageContent.response.to(output);
 
-request.to(output);
+// request.to(output);
 
 // request.to(base.output({
 //   $id: "requestOutput",
@@ -246,6 +248,24 @@ const fetchCompletion = core.fetch({
   body: request.body,
 });
 // fetchCompletion.response.to(output);
+const completionResponse = spread({
+  $id: "spreadCompletionResponse",
+  object: fetchCompletion.response,
+});
+const choices = completionResponse.choices;
+const shiftChocies = shift({
+  $id: "shiftChoice",
+  items: choices,
+});
+const completionItem = spread({
+  $id: "spreadCompletionItem",
+  object: shiftChocies.item,
+});
+const messageContent = spread({
+  $id: "spreadMessageContent",
+  object: completionItem.message,
+});
+messageContent.content.to(output);
 // fetchCompletion.to(base.output({
 //   $id: "fetchCompletionOutput",
 // })).to(finalOutput);
