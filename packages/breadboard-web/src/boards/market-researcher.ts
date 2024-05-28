@@ -171,11 +171,14 @@ const config = base.input({
     properties: {
       url: {
         type: "string",
+        title: "OpenAI API URL",
         description: "The URL of the OpenAI API",
         default: "https://api.openai.com/v1",
+        examples: ["https://api.openai.com/v1", "http://localhost:1234/v1"],
       },
       model: {
         type: "string",
+        title: "Model",
         description: "The model to use",
         default: "gpt-3.5-turbo-1106",
       },
@@ -186,6 +189,7 @@ const config = base.input({
       },
       prompt: {
         type: "string",
+        title: "Prompt",
         description: "The prompt to use",
         default: "Describe the product shown on the following page.",
       },
