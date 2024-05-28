@@ -4,18 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Schema, base, board, code } from "@google-labs/breadboard";
+import { Schema, base, board } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
 
 import { templates } from "@google-labs/template-kit";
-
-const spread = code<{ object: object }>((inputs) => {
-  const object = inputs.object;
-  if (typeof object !== "object") {
-    throw new Error(`object is of type ${typeof object} not object`);
-  }
-  return { ...object };
-});
+import { spread } from "../utils/spread";
 
 const openAlexEntities: Schema = {
   description: "Entity type to search for",
