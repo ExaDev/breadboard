@@ -129,6 +129,10 @@
     "version": "0.0.1"
   },
   {
+    "title": "Market Researcher",
+    "url": "/graphs/market-researcher.json"
+  },
+  {
     "title": "Math, chain style graph",
     "url": "/graphs/math-chain.json"
   },

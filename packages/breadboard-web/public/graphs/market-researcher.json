@@ -1,0 +1,325 @@
+{
+  "title": "Market Researcher",
+  "edges": [
+    {
+      "from": "buildRequest",
+      "to": "callOpenAI",
+      "out": "body",
+      "in": "body"
+    },
+    {
+      "from": "buildRequest",
+      "to": "callOpenAI",
+      "out": "headers",
+      "in": "headers"
+    },
+    {
+      "from": "buildRequest",
+      "to": "callOpenAI",
+      "out": "url",
+      "in": "url"
+    },
+    {
+      "from": "callOpenAI",
+      "to": "spreadCompletionResponse",
+      "out": "response",
+      "in": "object"
+    },
+    {
+      "from": "config",
+      "to": "buildRequest",
+      "out": "model",
+      "in": "model"
+    },
+    {
+      "from": "config",
+      "to": "buildRequest",
+      "out": "prompt",
+      "in": "prompt"
+    },
+    {
+      "from": "config",
+      "to": "buildRequest",
+      "out": "temperature",
+      "in": "temperature"
+    },
+    {
+      "from": "config",
+      "to": "buildRequest",
+      "out": "url",
+      "in": "url"
+    },
+    {
+      "from": "customSearchURL",
+      "to": "searchResult",
+      "out": "url",
+      "in": "url"
+    },
+    {
+      "from": "firstSearchResult",
+      "to": "fetchPageContent",
+      "out": "link",
+      "in": "url"
+    },
+    {
+      "from": "query",
+      "to": "customSearchURL",
+      "out": "query",
+      "in": "QUERY"
+    },
+    {
+      "from": "searchResult",
+      "to": "spreadResponse",
+      "out": "response",
+      "in": "object"
+    },
+    {
+      "from": "secrets",
+      "to": "buildRequest",
+      "out": "OPEN_AI_API_KEY",
+      "in": "OPEN_AI_API_KEY"
+    },
+    {
+      "from": "secrets",
+      "to": "customSearchURL",
+      "out": "CSE_API_KEY",
+      "in": "CSE_API_KEY"
+    },
+    {
+      "from": "secrets",
+      "to": "customSearchURL",
+      "out": "CSE_ID",
+      "in": "CSE_ID"
+    },
+    {
+      "from": "shiftChoice",
+      "to": "spreadCompletionItem",
+      "out": "item",
+      "in": "object"
+    },
+    {
+      "from": "shiftItem",
+      "to": "buildRequest",
+      "out": "item",
+      "in": "content"
+    },
+    {
+      "from": "shiftItem",
+      "to": "firstSearchResult",
+      "out": "item",
+      "in": "object"
+    },
+    {
+      "from": "spreadCompletionItem",
+      "to": "spreadMessageContent",
+      "out": "message",
+      "in": "object"
+    },
+    {
+      "from": "spreadCompletionResponse",
+      "to": "shiftChoice",
+      "out": "choices",
+      "in": "items"
+    },
+    {
+      "from": "spreadMessageContent",
+      "to": "output",
+      "out": "content",
+      "in": "content"
+    },
+    {
+      "from": "spreadResponse",
+      "to": "shiftItem",
+      "out": "items",
+      "in": "items"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "config",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "prompt",
+            "temperature",
+            "url"
+          ],
+          "properties": {
+            "model": {
+              "type": "string",
+              "title": "Model",
+              "description": "The model to use",
+              "default": "gpt-3.5-turbo-1106"
+            },
+            "prompt": {
+              "type": "string",
+              "title": "Prompt",
+              "description": "The prompt to use",
+              "default": "Describe the product shown on the following page."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "The temperature to use",
+              "default": "0.7"
+            },
+            "url": {
+              "type": "string",
+              "title": "OpenAI API URL",
+              "description": "The URL of the OpenAI API",
+              "default": "https://api.openai.com/v1",
+              "examples": [
+                "https://api.openai.com/v1",
+                "http://localhost:1234/v1"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "query",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "description": "Search for something on the web",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "What would you like to search for?",
+              "default": "Google Breadboard"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "id": "output",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "title": "content"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "buildRequest",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const buildRequest = inputs=>{return{body:{model:inputs.model,messages:[{role:\"user\",content:[inputs.prompt,JSON.stringify(inputs.content)].join(\"\\n\")}],temperature:inputs.temperature},headers:{\"Content-Type\":\"application/json\",Authorization:`Bearer ${inputs.OPEN_AI_API_KEY}`},url:`${inputs.url}/chat/completions`}};",
+        "name": "buildRequest",
+        "raw": true
+      }
+    },
+    {
+      "id": "callOpenAI",
+      "type": "fetch",
+      "configuration": {
+        "method": "POST"
+      }
+    },
+    {
+      "id": "customSearchURL",
+      "type": "urlTemplate",
+      "configuration": {
+        "template": "https://customsearch.googleapis.com/customsearch/v1?key={CSE_API_KEY}&cx={CSE_ID}&q={QUERY}"
+      }
+    },
+    {
+      "id": "fetchPageContent",
+      "type": "fetch",
+      "configuration": {}
+    },
+    {
+      "id": "firstSearchResult",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const firstSearchResult = inputs=>{const object=inputs.object;if(typeof object!==\"object\"){throw new Error(`object is of type ${typeof object} not object`)}return{...object}};",
+        "name": "firstSearchResult",
+        "raw": true
+      }
+    },
+    {
+      "id": "searchResult",
+      "type": "fetch",
+      "configuration": {}
+    },
+    {
+      "id": "secrets",
+      "type": "secrets",
+      "configuration": {
+        "keys": [
+          "CSE_API_KEY",
+          "CSE_ID",
+          "OPEN_AI_API_KEY"
+        ]
+      }
+    },
+    {
+      "id": "shiftChoice",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const shiftChoice = inputs=>{if(!Array.isArray(inputs.items)){throw new Error(\"items is not an array\")}const items=inputs.items;return{item:items.shift(),items}};",
+        "name": "shiftChoice",
+        "raw": true
+      }
+    },
+    {
+      "id": "shiftItem",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const shiftItem = inputs=>{if(!Array.isArray(inputs.items)){throw new Error(\"items is not an array\")}const items=inputs.items;return{item:items.shift(),items}};",
+        "name": "shiftItem",
+        "raw": true
+      }
+    },
+    {
+      "id": "spreadCompletionItem",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const spreadCompletionItem = inputs=>{const object=inputs.object;if(typeof object!==\"object\"){throw new Error(`object is of type ${typeof object} not object`)}return{...object}};",
+        "name": "spreadCompletionItem",
+        "raw": true
+      }
+    },
+    {
+      "id": "spreadCompletionResponse",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const spreadCompletionResponse = inputs=>{const object=inputs.object;if(typeof object!==\"object\"){throw new Error(`object is of type ${typeof object} not object`)}return{...object}};",
+        "name": "spreadCompletionResponse",
+        "raw": true
+      }
+    },
+    {
+      "id": "spreadMessageContent",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const spreadMessageContent = inputs=>{const object=inputs.object;if(typeof object!==\"object\"){throw new Error(`object is of type ${typeof object} not object`)}return{...object}};",
+        "name": "spreadMessageContent",
+        "raw": true
+      }
+    },
+    {
+      "id": "spreadResponse",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const spreadResponse = inputs=>{const object=inputs.object;if(typeof object!==\"object\"){throw new Error(`object is of type ${typeof object} not object`)}return{...object}};",
+        "name": "spreadResponse",
+        "raw": true
+      }
+    }
+  ]
+}
