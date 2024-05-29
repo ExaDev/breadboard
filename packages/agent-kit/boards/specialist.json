@@ -1,0 +1,646 @@
+{
+  "title": "Specialist",
+  "description": "All-in-one worker. A work in progress, incorporates all the learnings from making previous workers.",
+  "$schema": "https://raw.githubusercontent.com/breadboard-ai/breadboard/@google-labs/breadboard-schema@1.4.1/packages/schema/breadboard.schema.json",
+  "edges": [
+    {
+      "from": "fn-11",
+      "to": "output-2",
+      "out": "context",
+      "in": "out"
+    },
+    {
+      "from": "fn-5",
+      "to": "text-6",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "fn-5",
+      "to": "fn-11",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "router",
+      "to": "assembleBoardInvoke",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "router",
+      "to": "assembleBoardInvoke",
+      "out": "functionCalls",
+      "in": "functionCalls"
+    },
+    {
+      "from": "router",
+      "to": "fn-11",
+      "out": "context",
+      "in": "generated"
+    },
+    {
+      "from": "router",
+      "to": "fn-11",
+      "out": "text",
+      "in": "text"
+    },
+    {
+      "from": "fn-3",
+      "to": "fn-5",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "fn-3",
+      "to": "fn-9",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "fn-4",
+      "to": "fn-5",
+      "out": "progress",
+      "in": "progress"
+    },
+    {
+      "from": "text-6",
+      "to": "router",
+      "out": "context",
+      "in": "context"
+    },
+    {
+      "from": "assembleBoardInvoke",
+      "to": "map-7",
+      "out": "list",
+      "in": "list"
+    },
+    {
+      "from": "input-1",
+      "to": "fn-3",
+      "out": "in",
+      "in": "context"
+    },
+    {
+      "from": "input-1",
+      "to": "fn-3",
+      "out": "task",
+      "in": "toAdd"
+    },
+    {
+      "from": "input-1",
+      "to": "fn-4",
+      "out": "in",
+      "in": "context"
+    },
+    {
+      "from": "input-1",
+      "to": "turnBoardsToFunctions",
+      "out": "tools",
+      "in": "list"
+    },
+    {
+      "from": "input-1",
+      "to": "text-6",
+      "out": "persona",
+      "in": "systemInstruction"
+    },
+    {
+      "from": "fn-9",
+      "to": "output-10",
+      "out": "context",
+      "in": "out"
+    },
+    {
+      "from": "formatFunctionDeclarations",
+      "to": "text-6",
+      "out": "tools",
+      "in": "tools"
+    },
+    {
+      "from": "formatFunctionDeclarations",
+      "to": "assembleBoardInvoke",
+      "out": "urlMap",
+      "in": "urlMap"
+    },
+    {
+      "from": "map-7",
+      "to": "fn-8",
+      "out": "list",
+      "in": "response"
+    },
+    {
+      "from": "turnBoardsToFunctions",
+      "to": "formatFunctionDeclarations",
+      "out": "list",
+      "in": "list"
+    },
+    {
+      "from": "fn-8",
+      "to": "fn-9",
+      "out": "response",
+      "in": "toAdd"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "output-2",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "out": {
+              "title": "Context out",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fn-11",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_11 = ({ context: context2, generated }) => {\n  if (!context2) throw new Error(\"Context is required\");\n  if (!generated) throw new Error(\"Generated is required\");\n  const c = context2;\n  const g = generated;\n  let doneMarker = null;\n  for (let i = 0; i < c.length; ++i) {\n    const item = c[i];\n    if (item.role === \"$metadata\") {\n      const plan = item.data;\n      if (plan.doneMarker) {\n        doneMarker = plan.doneMarker;\n        break;\n      }\n    }\n  }\n  if (!doneMarker) {\n    return { context: [...c, g] };\n  }\n  let containsMarkers = false;\n  for (let i = 0; i < g.parts.length; ++i) {\n    const part = g.parts[i];\n    if (\"text\" in part && part.text.includes(doneMarker)) {\n      containsMarkers = true;\n      part.text = part.text.replaceAll(doneMarker, \"\").trim();\n      break;\n    }\n  }\n  if (!containsMarkers) {\n    return { context: [...c, g] };\n  }\n  const metadata5 = {\n    role: \"$metadata\",\n    data: {\n      type: \"looper\",\n      done: true\n    }\n  };\n  return { context: [...c, g, metadata5] };\n};",
+        "name": "fn_11",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Done Check",
+        "description": "Checking for the 'Done' marker"
+      }
+    },
+    {
+      "id": "fn-5",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_5 = ({ context: context2, progress }) => {\n  const contents = Array.isArray(context2) ? context2 : [context2];\n  const plans = Array.isArray(progress) ? progress : [progress];\n  const last = plans[0];\n  if (!last || !last.next) {\n    return { context: context2 };\n  }\n  contents.push({ role: \"user\", parts: [{ text: last.next }] });\n  return { context: contents };\n};",
+        "name": "fn_5",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Add Looper Task",
+        "description": "If there is a pending Looper task, add it."
+      }
+    },
+    {
+      "id": "router",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const router = ({ context: context2 }) => {\n  if (!context2) throw new Error(\"Context is a required input\");\n  const item = context2;\n  const functionCallParts = item.parts.filter((part) => \"functionCall\" in part).map((part) => part.functionCall);\n  if (functionCallParts.length === 0) {\n    const textPart = item.parts.find((part) => \"text\" in part);\n    if (!textPart) throw new Error(\"No text or function call found in context\");\n    return { context: context2, text: textPart.text };\n  }\n  return { context: context2, functionCalls: functionCallParts };\n};",
+        "name": "router",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Router",
+        "description": "Routing to either function call invocation or text reply"
+      }
+    },
+    {
+      "id": "fn-3",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_3 = ({ context: context2, toAdd }) => {\n  if (!context2) throw new Error(\"Context is required\");\n  const existing = Array.isArray(context2) ? context2 : [context2];\n  const incoming = toAdd;\n  if (!incoming.parts) {\n    const containsUserRole = existing.filter(\n      (item) => item.role !== \"model\" && item.role !== \"$metadata\"\n    ).length > 0;\n    if (!containsUserRole) {\n      return {\n        context: [\n          ...existing,\n          { role: \"user\", parts: [{ text: \"Do your magic\" }] }\n        ]\n      };\n    }\n    return { context: existing };\n  }\n  if (!incoming.role) {\n    incoming.role = \"user\";\n  }\n  const last = existing[existing.length - 1];\n  if (!last) {\n    return { context: [incoming] };\n  }\n  if (last.role !== incoming.role) {\n    return { context: [...existing, incoming] };\n  } else {\n    const result = structuredClone(existing);\n    const index = result.length - 1;\n    result[index].parts.push(...incoming.parts);\n    return { context: result };\n  }\n};",
+        "name": "fn_3",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Add Task",
+        "description": "Adding task to the prompt."
+      }
+    },
+    {
+      "id": "fn-4",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_4 = ({ context: context2, forkOutputs }) => {\n  const fork = forkOutputs;\n  const existing = Array.isArray(context2) ? context2 : [context2];\n  const progress = [];\n  for (let i = existing.length - 1; i >= 0; i--) {\n    const item = existing[i];\n    if (item.role === \"$metadata\") {\n      progress.push(item.data);\n    }\n  }\n  if (fork) {\n    if (progress.length) {\n      return { progress };\n    } else {\n      return { context: context2 };\n    }\n  } else {\n    return { context: context2, progress };\n  }\n};",
+        "name": "fn_4",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Read Progress so far"
+      }
+    },
+    {
+      "id": "text-6",
+      "type": "text",
+      "configuration": {},
+      "metadata": {
+        "title": "Gemini API Call",
+        "description": "Applying Gemini to do work"
+      }
+    },
+    {
+      "id": "assembleBoardInvoke",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const assembleBoardInvoke = ({ functionCalls, urlMap }) => {\n    if (!functionCalls) {\n      throw new Error(\"Function call array is a required input\");\n    }\n    if (!urlMap) {\n      throw new Error(\"URL map is a required input\");\n    }\n    const calls = functionCalls;\n    if (calls.length === 0) {\n      throw new Error(\"Function call array must not be empty.\");\n    }\n    const list = [];\n    for (const call of calls) {\n      const item = urlMap[call.name];\n      const $board = item.url;\n      const $flags = item.flags;\n      const llmContentProperty = $flags.inputLLMContent || $flags.inputLLMContentArray;\n      let invokeArgs = { $board, $flags };\n      if (llmContentProperty) {\n        const args = call.args;\n        const text2 = args[llmContentProperty];\n        const parts = [{ text: text2 }];\n        const llmContent = { parts, role: \"user\" };\n        if ($flags.inputLLMContentArray) {\n          invokeArgs[llmContentProperty] = [llmContent];\n        } else {\n          invokeArgs[llmContentProperty] = llmContent;\n        }\n      } else {\n        invokeArgs = { ...invokeArgs, ...call.args };\n      }\n      list.push(invokeArgs);\n    }\n    return { list };\n  };",
+        "name": "assembleBoardInvoke",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Assemble Tool Invoke",
+        "description": "Assembling the tool invocation based on Gemini response"
+      }
+    },
+    {
+      "id": "input-1",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "in": {
+              "title": "Context in",
+              "description": "Incoming conversation context",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "behavior": [
+                  "llm-content"
+                ]
+              },
+              "examples": [
+                "[\n  {\n    \"role\": \"user\",\n    \"parts\": [\n      {\n        \"text\": \"\\nbook description: This book will be about breadboards and how awesome they are\\nchapter target: 10\\npage target: 400\\nfiction genre: space opera\\nsetting: the planet where there are no breadboards\\nstory arc: A girl named Aurora invents a breadboard on the planet where breadboards are strictly forbidden. Through struggles and determination, and with the help of trusted friends, Aurora overcomes many challenges and changes the whole planet for the better. \\ntonality: futuristic struggle, but optimistic\\nworking title: Aurora\\n\"\n      }\n    ]\n  }\n]"
+              ]
+            },
+            "task": {
+              "title": "Task",
+              "description": "(Optional) Provide a specific task with clear instructions for the worker to complete using the conversation context",
+              "type": "object",
+              "default": "{}",
+              "behavior": [
+                "llm-content",
+                "config"
+              ],
+              "examples": [
+                "{\n  \"parts\": [\n    {\n      \"text\": \"\\nWrite an outline for a novel, following the provided specs.\\n\"\n    }\n  ]\n}"
+              ]
+            },
+            "tools": {
+              "title": "Tools",
+              "type": "array",
+              "description": "(Optional) Add tools to this list for the worker to use when needed",
+              "items": {
+                "type": "object",
+                "behavior": [
+                  "board",
+                  "config"
+                ]
+              },
+              "default": "[]"
+            },
+            "persona": {
+              "type": "object",
+              "title": "Persona",
+              "description": "Describe the worker's skills, capabilities, mindset, and thinking process",
+              "default": "",
+              "examples": [
+                "{\n  \"parts\": [\n    {\n      \"text\": \"\\nYou are a famous author.  You are writing a novel.\\n\\nYour well-established process starts with collecting the book description, chapter target, page target, fiction genre, setting, story arc, tonality and the working title.\\n\\nThen, your first step is to write a detailed outline for the novel.  You keep the page target in mind for the finished novel, so your outline typically contains contain key bullets for the story arc across the chapters. You usually create a part of the outline for each chapter. You also keep in mind that the outline must cover at least the target number of chapters.\\n\\nYou are very creative and you pride yourself in adding interesting twists and unexpected turns of the story, something that keeps the reader glued to your book.\\n\"\n    }\n  ]\n}"
+              ],
+              "behavior": [
+                "llm-content",
+                "config"
+              ]
+            }
+          },
+          "required": [
+            "in",
+            "persona"
+          ]
+        }
+      }
+    },
+    {
+      "id": "fn-9",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_9 = ({ merge, ...inputs }) => {\n  const entries = Object.entries(inputs).sort();\n  const context2 = [];\n  if (merge) {\n    const parts = [];\n    for (const entry of entries) {\n      const input2 = entry[1];\n      const c = Array.isArray(input2) ? input2 : [input2];\n      const last = c[c.length - 1];\n      if (last) {\n        if (last.role === \"$metadata\") {\n          continue;\n        }\n        parts.push(...last.parts);\n      }\n    }\n    context2.push({ parts });\n  } else {\n    for (const entry of entries) {\n      const input2 = entry[1];\n      const c = Array.isArray(input2) ? input2 : [input2];\n      context2.push(...c);\n    }\n  }\n  return { context: context2 };\n};",
+        "name": "fn_9",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Add Tool Response",
+        "description": "Adding tool response to context"
+      }
+    },
+    {
+      "id": "formatFunctionDeclarations",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const formatFunctionDeclarations = ({ list }) => {\n  const tools2 = [];\n  const urlMap = {};\n  list.forEach((item) => {\n    tools2.push(item.function);\n    const flags = item.flags;\n    urlMap[item.function.name] = { url: item.boardURL, flags };\n  });\n  return { tools: tools2, urlMap };\n};",
+        "name": "formatFunctionDeclarations",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Format Function Declarations",
+        "description": "Formatting the function declarations"
+      }
+    },
+    {
+      "id": "map-7",
+      "type": "map",
+      "configuration": {
+        "board": "#invokeBoardWithArgs"
+      },
+      "metadata": {
+        "title": "Invoke Tools in Parallel",
+        "description": "Invoking tools in parallel"
+      }
+    },
+    {
+      "id": "turnBoardsToFunctions",
+      "type": "map",
+      "configuration": {
+        "board": "#boardToFunction"
+      },
+      "metadata": {
+        "title": "Turn Boards into Functions",
+        "description": "Turning provided boards into functions"
+      }
+    },
+    {
+      "id": "fn-8",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_8 = ({ response: response2 }) => {\n  const r = response2;\n  const result = r.flatMap((item) => item.item);\n  return { response: result };\n};",
+        "name": "fn_8",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Format Tool Response",
+        "description": "Formatting tool response"
+      }
+    },
+    {
+      "id": "output-10",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "out": {
+              "title": "Context out",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "title": "Tool Output",
+        "description": "Return tool results as output"
+      }
+    }
+  ],
+  "kits": [],
+  "graphs": {
+    "boardToFunction": {
+      "title": "Board to functions",
+      "description": "Use this board to convert specified boards into function-calling signatures",
+      "edges": [
+        {
+          "from": "fn-4",
+          "to": "output-2",
+          "out": "function",
+          "in": "function"
+        },
+        {
+          "from": "fn-4",
+          "to": "output-2",
+          "out": "flags",
+          "in": "flags"
+        },
+        {
+          "from": "input-1",
+          "to": "curry-3",
+          "out": "item",
+          "in": "$board"
+        },
+        {
+          "from": "input-1",
+          "to": "output-2",
+          "out": "item",
+          "in": "boardURL"
+        },
+        {
+          "from": "curry-3",
+          "to": "fn-4",
+          "out": "board",
+          "in": "board"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "output-2",
+          "type": "output",
+          "configuration": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "function": {
+                  "type": "string",
+                  "title": "function"
+                },
+                "boardURL": {
+                  "type": "string",
+                  "title": "boardURL"
+                },
+                "flags": {
+                  "type": "string",
+                  "title": "flags"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fn-4",
+          "type": "runJavascript",
+          "configuration": {
+            "code": "const fn_4 = ({ board: board3 }) => {\n  const b = board3;\n  const inputs = b.nodes.filter((node) => node.type === \"input\");\n  if (inputs.length === 0) {\n    throw new Error(\"No inputs found\");\n  }\n  const outputs = b.nodes.filter((node) => node.type === \"output\");\n  if (outputs.length === 0) {\n    throw new Error(\"No outputs found\");\n  }\n  const inputSchema2 = inputs[0].configuration?.schema;\n  if (!inputSchema2) {\n    throw new Error(\"No input schema found\");\n  }\n  const outputSchema = outputs[0].configuration?.schema;\n  if (!outputSchema) {\n    throw new Error(\"No output schema found\");\n  }\n  const properties = {};\n  const flags = {};\n  for (const key in inputSchema2.properties) {\n    const property = inputSchema2.properties[key];\n    const isObject = property.type === \"object\";\n    const isArray = property.type === \"array\";\n    const type = isObject || isArray ? \"string\" : property.type;\n    if (isObject && property.behavior?.includes(\"llm-content\")) {\n      flags.inputLLMContent = key;\n    } else if (isArray && property.items?.behavior?.includes(\"llm-content\")) {\n      flags.inputLLMContentArray = key;\n    }\n    const description2 = property.description || property.title || \"text\";\n    properties[key] = { type, description: description2 };\n  }\n  for (const key in outputSchema.properties) {\n    const property = outputSchema.properties[key];\n    const isObject = property.type === \"object\";\n    const isArray = property.type === \"array\";\n    if (isObject && property.behavior?.includes(\"llm-content\")) {\n      flags.outputLLMContent = key;\n    } else if (isArray && property.items?.behavior?.includes(\"llm-content\")) {\n      flags.outputLLMContentArray = key;\n    }\n  }\n  const name = b.title?.replace(/\\W/g, \"_\");\n  const description = b.description;\n  const parameters = {\n    type: \"object\",\n    properties\n  };\n  return {\n    function: { name, description, parameters },\n    returns: outputSchema,\n    flags\n  };\n};",
+            "name": "fn_4",
+            "raw": true
+          },
+          "metadata": {
+            "title": "Get Function Signature from board"
+          }
+        },
+        {
+          "id": "input-1",
+          "type": "input",
+          "configuration": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "title": "board",
+                  "behavior": [
+                    "board"
+                  ],
+                  "description": "The board to curry. Can be a BoardCapability, a graph or a URL",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "item"
+              ]
+            }
+          }
+        },
+        {
+          "id": "curry-3",
+          "type": "curry",
+          "configuration": {}
+        }
+      ],
+      "graphs": {}
+    },
+    "invokeBoardWithArgs": {
+      "title": "Invoke Board With Args",
+      "description": "Takes one item of `boardInvocationAssembler` output and invokes it as a board with arguments.",
+      "version": "0.0.1",
+      "edges": [
+        {
+          "from": "fn-7",
+          "to": "output-2",
+          "out": "item",
+          "in": "item"
+        },
+        {
+          "from": "fn-6",
+          "to": "fn-7",
+          "out": "result",
+          "in": "result"
+        },
+        {
+          "from": "fn-4",
+          "to": "fn-7",
+          "out": "flags",
+          "in": "flags"
+        },
+        {
+          "from": "invoke-5",
+          "to": "fn-6",
+          "out": "*",
+          "in": ""
+        },
+        {
+          "from": "input-1",
+          "to": "fn-3",
+          "out": "item",
+          "in": "item"
+        },
+        {
+          "from": "input-1",
+          "to": "fn-4",
+          "out": "item",
+          "in": "item"
+        },
+        {
+          "from": "fn-3",
+          "to": "invoke-5",
+          "out": "*",
+          "in": ""
+        }
+      ],
+      "nodes": [
+        {
+          "id": "output-2",
+          "type": "output",
+          "configuration": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "title": "item"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "fn-7",
+          "type": "runJavascript",
+          "configuration": {
+            "code": "const fn_7 = ({ result, flags }) => {\n  let contentDetected = false;\n  const inputs = result;\n  const item = [];\n  const f = flags;\n  if (f) {\n    if (f.outputLLMContent) {\n      const content = inputs[f.outputLLMContent];\n      content.role = \"tool\";\n      item.push(content);\n      contentDetected = true;\n    } else if (f.outputLLMContentArray) {\n      const contentArray = inputs[f.outputLLMContentArray];\n      contentArray.forEach((content) => {\n        content.role = \"tool\";\n        item.push(content);\n      });\n      contentDetected = true;\n    }\n  } else {\n    for (const key in inputs) {\n      const input2 = inputs[key];\n      if (input2 !== null && typeof input2 === \"object\" && \"content\" in input2) {\n        const content = input2.content;\n        if (content.parts && Array.isArray(content.parts)) {\n          content.role = \"tool\";\n          item.push(content);\n          contentDetected = true;\n        }\n      }\n    }\n  }\n  if (!contentDetected) {\n    const text2 = JSON.stringify(inputs);\n    item.push({ parts: [{ text: text2 }], role: \"tool\" });\n  }\n  return { item };\n};",
+            "name": "fn_7",
+            "raw": true
+          },
+          "metadata": {
+            "title": "Format results",
+            "description": "Formatting results"
+          }
+        },
+        {
+          "id": "fn-6",
+          "type": "runJavascript",
+          "configuration": {
+            "code": "const fn_6 = (result) => {\n  return { result };\n};",
+            "name": "fn_6",
+            "raw": true
+          },
+          "metadata": {
+            "title": "Pack results",
+            "description": "Packing results"
+          }
+        },
+        {
+          "id": "fn-4",
+          "type": "runJavascript",
+          "configuration": {
+            "code": "const fn_4 = ({ item }) => {\n  const { $flags } = item;\n  return { flags: $flags };\n};",
+            "name": "fn_4",
+            "raw": true
+          },
+          "metadata": {
+            "title": "Get flags",
+            "description": "Getting flags for the board invocation"
+          }
+        },
+        {
+          "id": "invoke-5",
+          "type": "invoke",
+          "configuration": {},
+          "metadata": {
+            "title": "Invoke board",
+            "description": "Invoking the board with unpacked arguments"
+          }
+        },
+        {
+          "id": "input-1",
+          "type": "input",
+          "configuration": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string",
+                  "title": "item"
+                }
+              },
+              "required": [
+                "item"
+              ]
+            }
+          }
+        },
+        {
+          "id": "fn-3",
+          "type": "runJavascript",
+          "configuration": {
+            "code": "const fn_3 = ({ item }) => {\n  const { $flags, ...result } = item;\n  return result;\n};",
+            "name": "fn_3",
+            "raw": true
+          },
+          "metadata": {
+            "title": "Unpack args",
+            "description": "Unpacking board arguments"
+          }
+        }
+      ],
+      "graphs": {}
+    }
+  }
+}

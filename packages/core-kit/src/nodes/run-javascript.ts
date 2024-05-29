@@ -4,13 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  InputValues,
-  NodeDescriberFunction,
-  NodeHandler,
-  NodeHandlerFunction,
-  Schema,
-} from "@google-labs/breadboard";
+import { defineNodeType, object } from "@breadboard-ai/build";
+import { JsonSerializable } from "@breadboard-ai/build/internal/type-system/type.js";
+import type { InputValues, Schema } from "@google-labs/breadboard";
 
 // https://regex101.com/r/PeEmEW/1
 const stripCodeBlock = (code: string) =>
@@ -43,7 +39,7 @@ const runInNode = async ({
     vm = await import(/*@vite-ignore*/ "node:vm");
   }
   const codeToRun = `${code}\n${functionName}(${args});`;
-  const context = vm.createContext({ console });
+  const context = vm.createContext({ console, structuredClone });
   const script = new vm.Script(codeToRun);
   const result = await script.runInNewContext(context);
   return JSON.stringify(result);
@@ -59,7 +55,12 @@ const runInBrowser = async ({
   args: string;
 }): Promise<string> => {
   const runner = (code: string, functionName: string) => {
-    return `${code}\nself.onmessage = () => self.postMessage({ result: JSON.stringify(${functionName}(${args})) });self.onerror = (e) => self.postMessage({ error: e.message })`;
+    // The addition of `globalThis.__name = () => {}` is to ensure that
+    // if the function is compiled with esbuild --keep-names, the added "__name"
+    // call does not cause a runtime error.
+    // See https://github.com/privatenumber/tsx/issues/113 and
+    // https://github.com/evanw/esbuild/issues/1031 for more details.
+    return `${code}\nglobalThis.__name = () => {};\nself.onmessage = () => self.postMessage({ result: JSON.stringify(${functionName}(${args})) });self.onerror = (e) => self.postMessage({ error: e.message })`;
   };
 
   const blob = new Blob([runner(code, functionName)], {
@@ -98,6 +99,7 @@ export type RunJavascriptInputs = InputValues & {
   code?: string;
   name?: string;
   raw?: boolean;
+  schema?: JsonSerializable;
 };
 
 export function convertToNamedFunction({
@@ -154,12 +156,10 @@ export function convertToNamedFunction({
 }
 
 const DEFAULT_FUNCTION_NAME = "run";
-export const runJavascriptHandler: NodeHandlerFunction = async ({
-  code,
-  name,
-  raw,
-  ...args
-}: InputValues & RunJavascriptInputs) => {
+export const runJavascriptHandler = async (
+  { code, name, raw, schema }: RunJavascriptInputs,
+  args: InputValues
+) => {
   if (!code) throw new Error("Running JavaScript requires `code` input");
   code = stripCodeBlock(code);
   name ??= DEFAULT_FUNCTION_NAME;
@@ -193,72 +193,77 @@ export const runJavascriptHandler: NodeHandlerFunction = async ({
   }
 };
 
-export const computeOutputSchema = (inputs: InputValues): Schema => {
-  if (!inputs || !inputs.raw)
-    return {
-      type: "object",
-      properties: {
-        result: {
-          title: "result",
-          description: "The result of running the JavaScript code",
-          type: ["string", "object"],
-        },
-      },
-      required: ["result"],
-    };
-  return {
-    type: "object",
-    additionalProperties: true,
-  };
-};
-
-type SchemaProperties = Schema["properties"];
-
-export const computeAdditionalInputs = (
-  inputsSchema?: SchemaProperties
-): SchemaProperties => {
-  if (!inputsSchema) return {};
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { code, name, raw, ...args } = inputsSchema;
-  return args;
-};
-
-export const runJavascriptDescriber: NodeDescriberFunction = async (
-  inputs?: InputValues,
-  inputsSchema?: Schema
-) => {
-  return {
-    inputSchema: {
-      type: "object",
-      properties: {
-        code: {
-          title: "code",
-          description: "The JavaScript code to run",
-          type: "string",
-        },
-        name: {
-          title: "name",
-          description:
-            'The name of the function to invoke in the supplied code. Default value is "run".',
-          type: "string",
-          default: "run",
-        },
-        raw: {
-          title: "raw",
-          description:
-            "Whether or not to return use the result of execution as raw output (true) or as a port called `result` (false). Default is false.",
-          type: "boolean",
-        },
-        ...computeAdditionalInputs(inputsSchema?.properties || {}),
-      },
-      required: ["code"],
-      additionalProperties: true,
+export default defineNodeType({
+  name: "runJavascript",
+  metadata: {
+    title: "Run Javascript",
+    description: "Runs supplied `code` input as Javascript.",
+  },
+  inputs: {
+    code: {
+      behavior: ["config", "code"],
+      format: "javascript",
+      description: "The JavaScript code to run",
+      type: "string",
     },
-    outputSchema: computeOutputSchema(inputs || {}),
-  };
-};
+    name: {
+      description:
+        'The name of the function to invoke in the supplied code. Default value is "run".',
+      type: "string",
+      default: "run",
+    },
+    schema: {
+      behavior: ["config"],
+      description:
+        "The schema of the output data. This is used to validate the output data before running the code.",
+      type: object({}, "unknown"),
+      optional: true,
+    },
+    raw: {
+      behavior: ["config"],
+      description:
+        "Whether or not to return use the result of execution as raw output (true) or as a port called `result` (false). Default is false.",
+      type: "boolean",
+      default: false,
+    },
+    "*": {
+      type: "unknown",
+    },
+  },
+  outputs: {
+    "*": {
+      type: "unknown",
+    },
+  },
+  describe: (inputs) => {
+    if (inputs.raw && inputs.schema && inputs.schema.properties) {
+      const schema: Schema = inputs.schema;
 
-export default {
-  describe: runJavascriptDescriber,
-  invoke: runJavascriptHandler,
-} satisfies NodeHandler;
+      const outputEntries = Object.entries(schema.properties as object).map(
+        ([name, val]) => [
+          name,
+          {
+            type: val.type,
+            description: `output "${name}"`,
+          },
+        ]
+      );
+      return {
+        outputs: Object.fromEntries(outputEntries),
+      };
+    }
+
+    if (inputs.raw == false) {
+      return {
+        outputs: {
+          result: {
+            description: "The result of running the JavaScript code",
+          },
+        },
+      };
+    }
+
+    return { outputs: { "*": {} } };
+  },
+  invoke: (config, args) => runJavascriptHandler(config, args),
+});

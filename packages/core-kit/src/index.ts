@@ -21,6 +21,13 @@ import fetch from "./nodes/fetch.js";
 import runJavascript from "./nodes/run-javascript.js";
 import secrets from "./nodes/secrets.js";
 
+export { code } from "./nodes/code.js";
+export { default as fetch } from "./nodes/fetch.js";
+export { default as invoke } from "./nodes/invoke.js";
+export { default as passthrough } from "./nodes/passthrough.js";
+export { default as runJavascript } from "./nodes/run-javascript.js";
+export { secret, default as secrets } from "./nodes/secrets.js";
+
 const builder = new KitBuilder({
   title: "Core Kit",
   description: "A Breadboard kit that enables composition and reuse of boards",
@@ -184,6 +191,14 @@ export const Core = builder.build({
   runJavascript,
   secrets,
   curry,
+
+  /**
+   * Converts all inline data to stored data, saving memory.
+   * Useful when working with multimodal content. Safely passes
+   * data through if it's already stored or no inline data is
+   * present.
+   */
+  deflate,
 });
 
 export type Core = InstanceType<typeof Core>;
@@ -204,6 +219,7 @@ import {
   NewNodeFactory as NodeFactory,
 } from "@google-labs/breadboard";
 import curry, { CurryInputs, CurryOutputs } from "./nodes/curry.js";
+import deflate from "./nodes/deflate.js";
 
 export type CoreKitType = {
   passthrough: NodeFactory<InputValues, OutputValues>;

@@ -6,7 +6,7 @@
 
 import { LitElement, html, css } from "lit";
 import { customElement } from "lit/decorators.js";
-import { BreadboardOverlayDismissedEvent } from "../../events/events.js";
+import { OverlayDismissedEvent } from "../../events/events.js";
 
 @customElement("bb-overlay")
 export class Overlay extends LitElement {
@@ -74,14 +74,17 @@ export class Overlay extends LitElement {
       return;
     }
 
-    this.dispatchEvent(new BreadboardOverlayDismissedEvent());
+    this.dispatchEvent(new OverlayDismissedEvent());
   }
 
   render() {
     return html`
-    <div id="background" @pointerdown=${() => {
-      this.dispatchEvent(new BreadboardOverlayDismissedEvent());
+    <div id="background" @pointerdown=${(evt: Event) => {
+      evt.stopImmediatePropagation();
+      this.dispatchEvent(new OverlayDismissedEvent());
     }}></div>
-    <div id="content"><slot></div>`;
+    <div id="content" @pointerdown=${(evt: Event) => {
+      evt.stopImmediatePropagation();
+    }}><slot></div>`;
   }
 }
