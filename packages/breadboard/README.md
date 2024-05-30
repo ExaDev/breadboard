@@ -621,7 +621,7 @@ export default await board(() => {
 });
 ```
 
-You can then run `npm run dev` in the `boards` directory. This deploys an instance of Breadboard Web accessible athttp://localhost:5173/. Breadboard Web will automatically pick up this graph and allow the board to be selectable in the UI menu.
+You can then run `npm run dev` in the `boards` directory. This deploys an instance of Breadboard Web accessible at http://localhost:5173/. Breadboard Web will automatically pick up this graph and allow the board to be selectable in the UI menu.
 
 Running Breadboard Web locally also features hot reloading, which is handy if you are constantly changing your board. Save the file, and it will automatically rebuild and deploy Breadboard Web.
 
