@@ -3,6 +3,7 @@ import { env } from "@xenova/transformers";
 import sentimentAnalysisBoard from "@/breadboard/sentiment-analysis";
 import useDownloads from "@/chrome-api-hooks/use-downloads";
 import claudeSummarisationBoard from "@/breadboard/boards/summarise";
+import "@settings/background-scripts/settings";
 
 env.allowLocalModels = false;
 env.backends.onnx.wasm.numThreads = 1;
