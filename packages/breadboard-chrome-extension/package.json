@@ -1,55 +1,55 @@
 {
-  "name": "breadboard-chrome-extension",
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "generate:graphs": "wireit"
-  },
-  "wireit": {
-    "generate:graphs": {
-      "command": "npx tsx src/breadboard",
-      "files": [],
-      "output": [
-        "public/graphs/**/*.json"
-      ]
-    }
-  },
-  "dependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.23",
-    "@exadev/breadboard-kits": "^0.10.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@google-labs/breadboard": "^0.11.2",
-    "@xenova/transformers": "^2.17.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-spinners": "^0.13.8"
-  },
-  "devDependencies": {
-    "@anthropic-ai/tokenizer": "^0.0.4",
-    "@google-labs/core-kit": "^0.4.0",
-    "@google-labs/tsconfig": "^0.0.1",
-    "@mozilla/readability": "^0.5.0",
-    "@types/chrome": "0.0.195",
-    "@types/jsdom": "^21.1.6",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "dotenv": "^16.4.5",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
-    "js-tiktoken": "^1.0.11",
-    "jsdom": "^24.0.0",
-    "npm": "^10.5.2",
-    "tsx": "^4.10.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.2.0"
+	"name": "breadboard-chrome-extension",
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+	  "dev": "vite",
+	  "build": "tsc && vite build",
+	  "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+	  "preview": "vite preview",
+	  "generate:graphs": "wireit"
+	},
+	"wireit": {
+	  "generate:graphs": {
+		"command": "npx tsx src/breadboard",
+		"files": [],
+		"output": [
+		  "public/graphs/**/*.json"
+		]
+	  }
+	},
+	"dependencies": {
+	  "@crxjs/vite-plugin": "^2.0.0-beta.23",
+	  "@exadev/breadboard-kits": "^0.10.1",
+	  "@fortawesome/free-solid-svg-icons": "^6.5.2",
+	  "@fortawesome/react-fontawesome": "^0.2.2",
+	  "@google-labs/breadboard": "^0.11.2",
+	  "@xenova/transformers": "^2.17.1",
+	  "react": "^18.2.0",
+	  "react-dom": "^18.2.0",
+	  "react-spinners": "^0.13.8"
+	},
+	"devDependencies": {
+	  "@anthropic-ai/tokenizer": "^0.0.4",
+	  "@google-labs/core-kit": "^0.4.0",
+	  "@google-labs/tsconfig": "^0.0.1",
+	  "@mozilla/readability": "^0.5.0",
+	  "@types/chrome": "0.0.195",
+	  "@types/jsdom": "^21.1.6",
+	  "@types/react": "^18.2.66",
+	  "@types/react-dom": "^18.2.22",
+	  "@typescript-eslint/eslint-plugin": "^7.2.0",
+	  "@typescript-eslint/parser": "^7.2.0",
+	  "@vitejs/plugin-react": "^4.2.1",
+	  "dotenv": "^16.4.5",
+	  "eslint": "^8.57.0",
+	  "eslint-plugin-react-hooks": "^4.6.0",
+	  "eslint-plugin-react-refresh": "^0.4.6",
+	  "js-tiktoken": "^1.0.11",
+	  "jsdom": "^24.0.0",
+	  "npm": "^10.5.2",
+	  "tsx": "^4.10.2",
+	  "typescript": "^5.3.3",
+	  "vite": "^5.2.0"
+	}
   }
-}
