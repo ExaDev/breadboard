@@ -2,6 +2,7 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useState } from "react";
 import { IconButton } from "@/components/IconButton";
 import { Button } from "@/components/Button";
+import { LocalStorageEntry } from "@/chrome-api-hooks/types/types";
 
 const BoardSettings = (): React.JSX.Element => {
   //References to inputs created below as JSX
@@ -9,9 +10,13 @@ const BoardSettings = (): React.JSX.Element => {
   const valueRef = React.createRef<HTMLInputElement>();
   const statusRef = React.createRef<HTMLDivElement>();
   const [showSettingsGroup, setShowSettingsGroup] = useState<boolean>(true);
-  const [secretsToAdd, setSecretsToAdd] = useState<
-    { name: string; value: string }[]
-  >([]);
+  /* const [existingKeys, setExistingKeys] = useState<LocalStorageEntry[]>([]);
+
+  chrome.storage.sync.get(null, (r) =>
+    setExistingKeys(r as LocalStorageEntry[])
+  ); */
+
+  const [secretsToAdd, setSecretsToAdd] = useState<LocalStorageEntry[]>([]);
 
   const saveKey = () => {
     secretsToAdd.map(({ name, value }) => {
