@@ -77,7 +77,7 @@
 			"type": "fetch",
 			"configuration": {
 				"method": "POST",
-				"url": "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english"
+				"url": "https://api-inference.huggingface.co/models/lxyuan/distilbert-base-multilingual-cased-sentiments-student"
 			}
 		},
 		{

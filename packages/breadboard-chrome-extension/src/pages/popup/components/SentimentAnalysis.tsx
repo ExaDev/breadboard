@@ -3,10 +3,10 @@ import { PacmanLoader } from "react-spinners";
 import useActiveTab from "../../../chrome-api-hooks/use-active-tab";
 import useTextSelection from "../../../chrome-api-hooks/use-text-selection";
 import { ExtensionBoardRunner } from "@/breadboard/classes/ExtensionBoardRunner";
-import serializedSentimentBoard from "../../../breadboard/graphs/sentimentBoard.json";
+import serializedSentiment from "../../../breadboard/graphs/sentimentBoard.json";
 
 const SentimentAnalysis = (): React.JSX.Element => {
-  const [output, setOutput] = useState<React.ReactNode | undefined>(undefined);
+  const [output, setOutput] = useState<any | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [key, setKey] = useState<string>("");
 
@@ -20,16 +20,18 @@ const SentimentAnalysis = (): React.JSX.Element => {
     const activeTab = await useActiveTab();
     const result = await useTextSelection(activeTab.id ?? 0);
     setLoading(true);
-    const extensionRunner = new ExtensionBoardRunner(serializedSentimentBoard, []);
+    const extensionRunner = new ExtensionBoardRunner(serializedSentiment, []);
     const boardRun = await extensionRunner.runBoard({
-		inputs: result,
-		apiKey: key,
-		use_cache: true,
-		wait_for_model: false
+      inputs: result,
+      apiKey: key,
+      use_cache: true,
+      wait_for_model: false,
     });
-	console.log(boardRun)
-    if (boardRun) setOutput(boardRun["output"] as React.ReactNode);
-    setLoading(false);
+    if (boardRun) {
+      const boardResponse: any = boardRun.response;
+      setOutput(boardResponse[0]);
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,7 +46,20 @@ const SentimentAnalysis = (): React.JSX.Element => {
           {loading ? (
             <PacmanLoader loading={loading} color="#ef7900" />
           ) : (
-            output
+            <table>
+              <th>Label</th>
+              <th>Score</th>
+              <tbody>
+                {output?.map((r: any) => (
+                  <>
+                    <tr>
+                      <td>{r.label}</td>
+                      <td>{r.score}</td>
+                    </tr>
+                  </>
+                ))}
+              </tbody>
+            </table>
           )}
         </p>
       </section>
