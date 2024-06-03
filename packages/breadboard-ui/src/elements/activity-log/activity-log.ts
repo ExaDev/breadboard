@@ -11,7 +11,7 @@ import {
   InspectableRunInputs,
   InspectableRunNodeEvent,
   OutputValues,
-  createDataStore,
+  SerializedRun,
 } from "@google-labs/breadboard";
 import { LitElement, html, HTMLTemplateResult, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -25,8 +25,6 @@ import { markdown } from "../../directives/markdown.js";
 import { SETTINGS_TYPE, Settings } from "../../types/types.js";
 import { styles as activityLogStyles } from "./activity-log.styles.js";
 import { isArrayOfLLMContent, isLLMContent } from "../../utils/llm-content.js";
-import { provide } from "@lit/context";
-import { dataStoreContext } from "../../contexts/data-store.js";
 
 @customElement("bb-activity-log")
 export class ActivityLog extends LitElement {
@@ -51,12 +49,10 @@ export class ActivityLog extends LitElement {
   @property()
   settings: Settings | null = null;
 
-  @provide({ context: dataStoreContext })
-  dataStore = createDataStore();
-
   #seenItems = new Set<string>();
   #newestEntry: Ref<HTMLElement> = createRef();
   #isHidden = false;
+  #serializedRun: SerializedRun | null = null;
   #observer = new IntersectionObserver((entries) => {
     if (entries.length === 0) {
       return;
@@ -193,7 +189,26 @@ export class ActivityLog extends LitElement {
     >`;
   }
 
-  #getRunLog(evt: Event) {
+  #download(evt: Event) {
+    if (!(evt.target instanceof HTMLAnchorElement)) {
+      return;
+    }
+
+    if (!this.#serializedRun) {
+      return;
+    }
+
+    const data = JSON.stringify(this.#serializedRun, null, 2);
+
+    evt.target.download = `run-${new Date().toISOString()}.json`;
+    evt.target.href = URL.createObjectURL(
+      new Blob([data], { type: "application/json" })
+    );
+    this.#serializedRun = null;
+    this.requestUpdate();
+  }
+
+  async #getRunLog(evt: Event) {
     if (!(evt.target instanceof HTMLAnchorElement)) {
       return;
     }
@@ -206,12 +221,10 @@ export class ActivityLog extends LitElement {
       URL.revokeObjectURL(evt.target.href);
     }
 
-    const data = JSON.stringify(this.run.serialize(), null, 2);
+    evt.target.textContent = "Creating Download...";
 
-    evt.target.download = `run-${new Date().toISOString()}.json`;
-    evt.target.href = URL.createObjectURL(
-      new Blob([data], { type: "application/json" })
-    );
+    this.#serializedRun = await this.run.serialize();
+    this.requestUpdate();
   }
 
   async #renderPendingInput(idx: number, event: InspectableRunNodeEvent) {
@@ -313,10 +326,18 @@ export class ActivityLog extends LitElement {
     }
     const showLogDownload = this.run && this.run.serialize;
 
+    const downloadReady = !!this.#serializedRun;
+
     return html`
       <h1>
         <span>${this.logTitle}</span>${showLogDownload
-          ? html`<a @click=${(evt: Event) => this.#getRunLog(evt)}>Download</a>`
+          ? downloadReady
+            ? html`<a @click=${(evt: Event) => this.#download(evt)}
+                >Click to Download</a
+              >`
+            : html`<a @click=${(evt: Event) => this.#getRunLog(evt)}
+                >Download</a
+              >`
           : nothing}
       </h1>
       ${this.events && this.events.length
@@ -383,6 +404,13 @@ export class ActivityLog extends LitElement {
                 >
                   <h1 data-message-idx=${idx}>${event.type}</h1>
                   ${event.keys.map((id) => {
+                    if (id.startsWith("connection:")) {
+                      return html`<bb-connection-input
+                        id=${id}
+                        .connectionId=${id.replace(/^connection:/, "")}
+                      ></bb-connection-input>`;
+                    }
+
                     const configuration = {
                       schema: {
                         properties: {

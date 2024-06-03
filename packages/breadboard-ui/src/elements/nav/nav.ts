@@ -386,6 +386,22 @@ export class Navigation extends LitElement {
   #returnToDefaultStore() {
     this.selectedProvider = "IDBGraphProvider";
     this.selectedLocation = "default";
+
+    // In the event that the IDB provider is unavailable (like in the debugger),
+    // we fall through to another provider if available.
+    // TODO: Decide if the default store should be configurable from the
+    // settings and passed through to the component.
+    if (
+      this.providers.length === 1 &&
+      this.providers[0].name !== this.selectedProvider
+    ) {
+      const mainProvider = this.providers[0];
+      this.selectedProvider = mainProvider.name;
+      if (mainProvider.items().size === 1) {
+        const providerNames = [...mainProvider.items().keys()];
+        this.selectedLocation = providerNames[0] ?? "default";
+      }
+    }
   }
 
   render() {
@@ -487,7 +503,7 @@ export class Navigation extends LitElement {
           ${permission === "granted"
             ? html`${store.items.size > 0
                 ? html`<ul>
-                    ${map(store.items, ([name, { url }]) => {
+                    ${map(store.items, ([name, { url, readonly }]) => {
                       return html`<li>
                         <button
                           @click=${() => {
@@ -505,7 +521,7 @@ export class Navigation extends LitElement {
                         >
                           ${name}
                         </button>
-                        ${extendedCapabilities.modify
+                        ${extendedCapabilities.modify && !readonly
                           ? html`<button
                               class="delete"
                               @click=${() => {

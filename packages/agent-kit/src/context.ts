@@ -110,8 +110,11 @@ export type Context = LlmContent | Metadata;
  * @param f -- code function
  * @returns -- code function
  */
-export const fun = (
-  f: (inputs: Record<string, unknown>) => Record<string, unknown>
+export const fun = <
+  In = Record<string, unknown>,
+  Out = Record<string, unknown>,
+>(
+  f: (inputs: In) => Out
 ) => {
   return f;
 };
@@ -176,15 +179,24 @@ export const progressReader = code(({ context, forkOutputs }) => {
 });
 
 export const looperTaskAdder = code(({ context, progress }) => {
-  const contents = (
-    Array.isArray(context) ? context : [context]
-  ) as LlmContent[];
+  const contents = (Array.isArray(context) ? context : [context]) as Context[];
   const plans = (
     Array.isArray(progress) ? progress : [progress]
   ) as LooperProgress[];
   const last = plans[0];
   if (!last || !last.next) {
     return { context };
+  }
+  // @ts-expect-error -- TS doesn't know findLastIndex exists
+  const lastLooperMarker = contents.findLastIndex(
+    (item: Context) => item.role === "$metadata" && item.type === "looper"
+  );
+  if (lastLooperMarker >= 0) {
+    const pastLooper = contents.slice(lastLooperMarker);
+    const hasModel = pastLooper.some((item) => item.role === "model");
+    if (hasModel) {
+      return { context: contents };
+    }
   }
   contents.push({ role: "user", parts: [{ text: last.next }] });
   return { context: contents };
@@ -377,15 +389,16 @@ export const combineContextsFunction = fun(({ merge, ...inputs }) => {
     const parts: LlmContent["parts"] = [];
     for (const [, input] of entries) {
       const c = asContextArray(input);
-      const last = c[c.length - 1];
+      let lastIndex = c.length - 1;
+      let last;
+      do {
+        last = c[lastIndex--];
+      } while (lastIndex >= 0 && last.role === "$metadata");
       if (last) {
-        if (last.role === "$metadata") {
-          continue;
-        }
-        parts.push(...last.parts);
+        parts.push(...(last as LlmContent).parts);
       }
     }
-    context.push({ parts });
+    context.push({ parts, role: "user" });
     return { context };
   } else {
     let mode: "single" | "preamble" | "adhoc" | "simple";
@@ -512,3 +525,41 @@ export const combineContextsFunction = fun(({ merge, ...inputs }) => {
   }
 });
 export const combineContexts = code(combineContextsFunction);
+
+/**
+ * Takes a single context and splits it into multiple contexts using the
+ * split markers.
+ */
+export const splitContextsFunction = fun(({ context }) => {
+  if (!context) throw new Error("Context is required");
+  const c = asContextArray(context);
+  const last = c[c.length - 1];
+  if (
+    last.role !== "$metadata" ||
+    last.type !== "split" ||
+    last.data.type !== "end"
+  ) {
+    return { context: c };
+  }
+  const contexts: Context[][] = [];
+  let current: Context[] = [];
+  for (const item of c) {
+    if (item.role === "$metadata" && item.type === "split") {
+      if (item.data.type === "start") {
+        current = [];
+      } else if (item.data.type === "end") {
+        contexts.push(current);
+      }
+    } else {
+      current.push(item);
+    }
+  }
+  const result: Record<string, Context[]> = Object.fromEntries(
+    contexts.map((c, i) => [`context-${i}`, c])
+  );
+  return result;
+
+  function asContextArray(input: unknown): Context[] {
+    return Array.isArray(input) ? input : [input];
+  }
+});

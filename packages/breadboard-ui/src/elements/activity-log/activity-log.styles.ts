@@ -220,14 +220,15 @@ export const styles = css`
 
   .subgraph-info summary::before {
     content: "";
-    width: 12px;
-    height: 12px;
-    background: var(--bb-expand-arrow) 1px -2px no-repeat;
+    width: 20px;
+    height: 20px;
+    background: var(--bb-icon-arrow-right) center center / 20px 20px no-repeat;
     display: inline-block;
+    margin: -5px 0 0 0;
   }
 
   .subgraph-info[open] > summary::before {
-    background: var(--bb-collapse-arrow) 1px 2px no-repeat;
+    background: var(--bb-icon-arrow-drop-down) -1px 6px / 20px 20px no-repeat;
   }
 
   .subgraph-info[open] > summary {
@@ -311,7 +312,7 @@ export const styles = css`
     white-space: pre-line;
     border-radius: var(--bb-grid-size);
     padding: var(--bb-input-padding, calc(var(--bb-grid-size) * 2));
-    user-select: text;
+    user-select: auto;
   }
 
   dt .value.markdown {

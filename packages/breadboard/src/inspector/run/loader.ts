@@ -10,20 +10,42 @@ import {
   GraphstartTimelineEntry,
   InspectableGraph,
   InspectableRunLoadResult,
-  InspectableRunObserver,
   NodestartTimelineEntry,
   SerializedRun,
   SerializedRunLoadingOptions,
   TimelineEntry,
 } from "../types.js";
 import { inspectableGraph } from "../graph.js";
+import { DataStore, SerializedDataStoreGroup } from "../../data/types.js";
+import { remapData } from "../../data/inflate-deflate.js";
+import { asyncGen } from "../../utils/async-gen.js";
+import { PastRun } from "./past-run.js";
+
+export const errorResult = (error: string): HarnessRunResult => {
+  return {
+    type: "error",
+    data: {
+      error,
+      timestamp: Date.now(),
+    },
+    reply: async () => {
+      // Do nothing
+    },
+  };
+};
 
 export class RunLoader {
   #run: SerializedRun;
+  #store: DataStore;
   #graphs = new Map<number, InspectableGraph>();
   #options: SerializedRunLoadingOptions;
 
-  constructor(o: unknown, options: SerializedRunLoadingOptions) {
+  constructor(
+    store: DataStore,
+    o: unknown,
+    options: SerializedRunLoadingOptions
+  ) {
+    this.#store = store;
     this.#run = o as SerializedRun;
     this.#options = options;
   }
@@ -31,6 +53,23 @@ export class RunLoader {
   #asHarnessRunResult(entry: TimelineEntry): HarnessRunResult {
     const [type, data] = entry;
     return { type, data } as HarnessRunResult;
+  }
+
+  async #inflateData(
+    timeline: TimelineEntry[],
+    serializedData: SerializedDataStoreGroup
+  ): Promise<TimelineEntry[]> {
+    return await Promise.all(
+      timeline.map(async (entry) => {
+        const [, data] = entry;
+        entry[1] = (await remapData(
+          this.#store,
+          data,
+          serializedData
+        )) as Promise<TimelineEntry>;
+        return entry;
+      })
+    );
   }
 
   loadGraphStart(result: GraphstartTimelineEntry): HarnessRunResult {
@@ -67,7 +106,41 @@ export class RunLoader {
     } as HarnessRunResult;
   }
 
-  load(observer: InspectableRunObserver): InspectableRunLoadResult {
+  async *replay() {
+    const run = this.#run;
+    if (run.$schema !== "tbd") {
+      yield errorResult(`Specified "$schema": "${run.$schema}" is not valid`);
+    }
+    yield* asyncGen<HarnessRunResult>(async (next) => {
+      try {
+        const secretReplacer = this.#options?.secretReplacer;
+        let timeline = secretReplacer
+          ? replaceSecrets(run, secretReplacer).timeline
+          : run.timeline;
+        timeline = run.data
+          ? await this.#inflateData(timeline, run.data)
+          : timeline;
+        for (const result of timeline) {
+          const [type] = result;
+          switch (type) {
+            case "graphstart":
+              await next(this.loadGraphStart(result));
+              continue;
+            case "nodestart":
+              await next(this.loadNodestart(result));
+              continue;
+            default:
+              await next(this.#asHarnessRunResult(result));
+          }
+        }
+      } catch (e) {
+        const error = e as Error;
+        next(errorResult(`Loading run failed with the error ${error.message}`));
+      }
+    });
+  }
+
+  async load(): Promise<InspectableRunLoadResult> {
     const run = this.#run;
     if (run.$schema !== "tbd") {
       return {
@@ -77,23 +150,13 @@ export class RunLoader {
     }
     try {
       const secretReplacer = this.#options?.secretReplacer;
-      const timeline = secretReplacer
+      let timeline = secretReplacer
         ? replaceSecrets(run, secretReplacer).timeline
         : run.timeline;
-      for (const result of timeline) {
-        const [type] = result;
-        switch (type) {
-          case "graphstart":
-            observer.observe(this.loadGraphStart(result));
-            continue;
-          case "nodestart":
-            observer.observe(this.loadNodestart(result));
-            continue;
-          default:
-            observer.observe(this.#asHarnessRunResult(result));
-        }
-      }
-      return { success: true };
+      timeline = run.data
+        ? await this.#inflateData(timeline, run.data)
+        : timeline;
+      return { success: true, run: new PastRun(timeline, this.#options) };
     } catch (e) {
       const error = e as Error;
       return {

@@ -134,6 +134,7 @@ export enum SETTINGS_TYPE {
   GENERAL = "General",
   INPUTS = "Inputs",
   NODE_PROXY_SERVERS = "Node Proxy Servers",
+  CONNECTIONS = "Connections",
 }
 
 export interface SettingEntry {
@@ -151,6 +152,7 @@ export interface SettingsList {
   [SETTINGS_TYPE.SECRETS]: SettingEntry;
   [SETTINGS_TYPE.INPUTS]: SettingEntry;
   [SETTINGS_TYPE.NODE_PROXY_SERVERS]: SettingEntry;
+  [SETTINGS_TYPE.CONNECTIONS]: SettingEntry;
 }
 
 export type Settings = {
@@ -160,7 +162,29 @@ export type Settings = {
       description: string;
       nameEditable: boolean;
       nameVisible: boolean;
+      /**
+       * Render an instance of the custom element with this name, instead of
+       * generic setting entries. The element must match the
+       * {@link CustomSettingsElement} interface.
+       */
+      customElement?: string;
     };
     items: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
   };
 };
+
+export type CustomSettingsElement = HTMLElement & {
+  settingsType?: SETTINGS_TYPE | undefined;
+  settingsItems?: Settings[SETTINGS_TYPE]["items"] | undefined;
+};
+
+/**
+ * A simplified interface over {@link SettingsStore} that reads/writes
+ * immediately and can be consumed by elements using
+ * {@link settingsHelperContext}.
+ */
+export interface SettingsHelper {
+  get(section: SETTINGS_TYPE, name: string): SettingEntry["value"] | undefined;
+  set(section: SETTINGS_TYPE, name: string, value: SettingEntry["value"]): void;
+  delete(section: SETTINGS_TYPE, name: string): void;
+}

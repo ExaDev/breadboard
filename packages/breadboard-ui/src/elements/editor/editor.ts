@@ -21,22 +21,20 @@ import {
 } from "@google-labs/breadboard";
 import {
   EdgeChangeEvent,
-  FileDropEvent,
   GraphInitialDrawEvent,
   GraphNodeDeleteEvent,
-  GraphNodeEdgeAttachEvent,
+  GraphEdgeAttachEvent,
   GraphNodeEdgeChangeEvent,
-  GraphNodeEdgeDetachEvent,
-  GraphNodeMoveEvent,
-  GraphNodesMoveEvent,
+  GraphEdgeDetachEvent,
+  GraphNodesVisualUpdateEvent,
   KitNodeChosenEvent,
   MultiEditEvent,
   NodeCreateEvent,
   NodeDeleteEvent,
-  NodeMoveEvent,
   SubGraphChosenEvent,
   SubGraphCreateEvent,
   SubGraphDeleteEvent,
+  GraphEntityRemoveEvent,
 } from "../../events/events.js";
 import { GraphRenderer } from "./graph-renderer.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
@@ -50,6 +48,29 @@ import { until } from "lit/directives/until.js";
 
 const DATA_TYPE = "text/plain";
 const PASTE_OFFSET = 50;
+
+function getDefaultConfiguration(type: string): NodeConfiguration | undefined {
+  if (type !== "input" && type !== "output") {
+    return undefined;
+  }
+
+  return {
+    schema: {
+      properties: {
+        content: {
+          type: "object",
+          title: "Content",
+          examples: [],
+          behavior: ["llm-content"],
+          default:
+            type === "input" ? '{"role":"user","parts":[{"text":""}]}' : "null",
+        },
+      },
+      type: "object",
+      required: [],
+    },
+  };
+}
 
 type EditedNode = {
   editAction: "add" | "update";
@@ -115,12 +136,12 @@ export class Editor extends LitElement {
   #onResizeBound = this.#onResize.bind(this);
   #onPointerMoveBound = this.#onPointerMove.bind(this);
   #onPointerDownBound = this.#onPointerDown.bind(this);
-  #onGraphNodeMoveBound = this.#onGraphNodeMove.bind(this);
-  #onGraphNodesMoveBound = this.#onGraphNodesMove.bind(this);
+  #onGraphNodesVisualUpdateBound = this.#onGraphNodesVisualUpdate.bind(this);
   #onGraphEdgeAttachBound = this.#onGraphEdgeAttach.bind(this);
   #onGraphEdgeDetachBound = this.#onGraphEdgeDetach.bind(this);
   #onGraphEdgeChangeBound = this.#onGraphEdgeChange.bind(this);
   #onGraphNodeDeleteBound = this.#onGraphNodeDelete.bind(this);
+  #onGraphEntityRemoveBound = this.#onGraphEntityRemove.bind(this);
   #top = 0;
   #left = 0;
   #addButtonRef: Ref<HTMLInputElement> = createRef();
@@ -415,7 +436,7 @@ export class Editor extends LitElement {
       ports: ports,
       edges: breadboardGraph.edges(),
       nodes: breadboardGraph.nodes(),
-      visible: true,
+      visible: false,
     });
 
     this.#graphRenderer.addEventListener(
@@ -443,12 +464,12 @@ export class Editor extends LitElement {
 
   connectedCallback(): void {
     this.#graphRenderer.addEventListener(
-      GraphNodeEdgeAttachEvent.eventName,
+      GraphEdgeAttachEvent.eventName,
       this.#onGraphEdgeAttachBound
     );
 
     this.#graphRenderer.addEventListener(
-      GraphNodeEdgeDetachEvent.eventName,
+      GraphEdgeDetachEvent.eventName,
       this.#onGraphEdgeDetachBound
     );
 
@@ -463,13 +484,13 @@ export class Editor extends LitElement {
     );
 
     this.#graphRenderer.addEventListener(
-      GraphNodeMoveEvent.eventName,
-      this.#onGraphNodeMoveBound
+      GraphNodesVisualUpdateEvent.eventName,
+      this.#onGraphNodesVisualUpdateBound
     );
 
     this.#graphRenderer.addEventListener(
-      GraphNodesMoveEvent.eventName,
-      this.#onGraphNodesMoveBound
+      GraphEntityRemoveEvent.eventName,
+      this.#onGraphEntityRemoveBound
     );
 
     window.addEventListener("resize", this.#onResizeBound);
@@ -484,12 +505,12 @@ export class Editor extends LitElement {
 
   disconnectedCallback(): void {
     this.#graphRenderer.removeEventListener(
-      GraphNodeEdgeAttachEvent.eventName,
+      GraphEdgeAttachEvent.eventName,
       this.#onGraphEdgeAttachBound
     );
 
     this.#graphRenderer.removeEventListener(
-      GraphNodeEdgeDetachEvent.eventName,
+      GraphEdgeDetachEvent.eventName,
       this.#onGraphEdgeDetachBound
     );
 
@@ -504,13 +525,13 @@ export class Editor extends LitElement {
     );
 
     this.#graphRenderer.removeEventListener(
-      GraphNodeMoveEvent.eventName,
-      this.#onGraphNodeMoveBound
+      GraphNodesVisualUpdateEvent.eventName,
+      this.#onGraphNodesVisualUpdateBound
     );
 
     this.#graphRenderer.removeEventListener(
-      GraphNodesMoveEvent.eventName,
-      this.#onGraphNodesMoveBound
+      GraphEntityRemoveEvent.eventName,
+      this.#onGraphEntityRemoveBound
     );
 
     window.removeEventListener("resize", this.#onResizeBound);
@@ -690,7 +711,12 @@ export class Editor extends LitElement {
               y: this.#lastY + offset.y - PASTE_OFFSET,
             };
 
-            this.#graphRenderer.setNodeLayoutPosition(node.id, position, false);
+            this.#graphRenderer.setNodeLayoutPosition(
+              node.id,
+              position,
+              this.collapseNodesByDefault,
+              false
+            );
             this.#graphRenderer.addToAutoSelect(node.id);
 
             // Ask the graph for the visual positioning because the graph accounts for
@@ -776,19 +802,13 @@ export class Editor extends LitElement {
     this.#addButtonRef.value.checked = false;
   }
 
-  #onGraphNodeMove(evt: Event) {
-    const { id, x, y } = evt as GraphNodeMoveEvent;
-    this.#ignoreNextUpdate = true;
-    this.dispatchEvent(new NodeMoveEvent(id, x, y, this.subGraphId));
-  }
-
-  #onGraphNodesMove(evt: Event) {
-    const moveEvt = evt as GraphNodesMoveEvent;
+  #onGraphNodesVisualUpdate(evt: Event) {
+    const moveEvt = evt as GraphNodesVisualUpdateEvent;
     const label = moveEvt.nodes.reduce((prev, curr, idx) => {
       return (
         prev +
         (idx > 0 ? ", " : "") +
-        `(${curr.id}, {x: ${curr.x}, y: ${curr.y}})`
+        `(${curr.id}, {x: ${curr.x}, y: ${curr.y}, collapsed: ${curr.collapsed}})`
       );
     }, "");
     const editsEvt = new MultiEditEvent(
@@ -806,6 +826,7 @@ export class Editor extends LitElement {
             visual: {
               x: node.x,
               y: node.y,
+              collapsed: node.collapsed,
             },
           },
         };
@@ -819,7 +840,7 @@ export class Editor extends LitElement {
   }
 
   #onGraphEdgeAttach(evt: Event) {
-    const { edge } = evt as GraphNodeEdgeAttachEvent;
+    const { edge } = evt as GraphEdgeAttachEvent;
     this.dispatchEvent(
       new EdgeChangeEvent(
         "add",
@@ -837,7 +858,7 @@ export class Editor extends LitElement {
   }
 
   #onGraphEdgeDetach(evt: Event) {
-    const { edge } = evt as GraphNodeEdgeDetachEvent;
+    const { edge } = evt as GraphEdgeDetachEvent;
     this.dispatchEvent(
       new EdgeChangeEvent(
         "remove",
@@ -882,45 +903,81 @@ export class Editor extends LitElement {
     this.dispatchEvent(new NodeDeleteEvent(id, this.subGraphId));
   }
 
+  #onGraphEntityRemove(evt: Event) {
+    const { nodes, edges } = evt as GraphEntityRemoveEvent;
+    const edits: EditSpec[] = [];
+
+    for (const edge of edges) {
+      edits.push({
+        type: "removeedge",
+        edge: {
+          from: edge.from.descriptor.id,
+          to: edge.to.descriptor.id,
+          out: edge.out,
+          in: edge.in,
+        },
+      });
+    }
+
+    for (const id of nodes) {
+      edits.push({ type: "removenode", id });
+    }
+
+    const nodesLabel = nodes.length ? `#${nodes.join(", #")}` : "No nodes";
+    const edgesLabel = edges.length
+      ? edges.reduce((prev, curr, idx) => {
+          return (
+            prev +
+            (idx > 0 ? ", " : "") +
+            edgeToString({
+              from: curr.from.descriptor.id,
+              to: curr.to.descriptor.id,
+              out: curr.out,
+              in: curr.in,
+            })
+          );
+        }, "")
+      : "No edges";
+
+    this.dispatchEvent(
+      new MultiEditEvent(
+        edits,
+        `Delete (${nodesLabel}) (${edgesLabel})`,
+        this.subGraphId
+      )
+    );
+  }
+
   #onDragOver(evt: DragEvent) {
     evt.preventDefault();
   }
 
   #onDrop(evt: DragEvent) {
-    evt.preventDefault();
-
     const [top] = evt.composedPath();
     if (!(top instanceof HTMLCanvasElement)) {
       return;
     }
 
-    if (evt.dataTransfer?.files && evt.dataTransfer.files.length) {
-      const fileDropped = evt.dataTransfer.files[0];
-      try {
-        fileDropped.text().then((data) => {
-          const descriptor = JSON.parse(data) as GraphDescriptor;
-          this.dispatchEvent(new FileDropEvent(fileDropped.name, descriptor));
-        });
-      } catch (err) {
-        console.warn(err);
-      }
-      return;
-    }
-
-    const data = evt.dataTransfer?.getData(DATA_TYPE);
-    if (!data || !this.#graphRenderer) {
+    evt.preventDefault();
+    const type = evt.dataTransfer?.getData(DATA_TYPE);
+    if (!type || !this.#graphRenderer) {
       console.warn("No data in dropped node");
       return;
     }
 
-    const id = this.#createRandomID(data);
+    const id = this.#createRandomID(type);
     const x = evt.pageX - this.#left + window.scrollX;
     const y = evt.pageY - this.#top - window.scrollY;
 
     this.#graphRenderer.deselectAllChildren();
 
     // Store the middle of the node for later.
-    this.#graphRenderer.setNodeLayoutPosition(id, { x, y }, true);
+    this.#graphRenderer.setNodeLayoutPosition(
+      id,
+      { x, y },
+      this.collapseNodesByDefault,
+      true
+    );
 
     // Ask the graph for the visual positioning because the graph accounts for
     // any transforms, whereas our base x & y values do not.
@@ -928,9 +985,15 @@ export class Editor extends LitElement {
       x: 0,
       y: 0,
     };
+
+    const configuration = getDefaultConfiguration(type);
     this.dispatchEvent(
-      new NodeCreateEvent(id, data, this.subGraphId, undefined, {
-        visual: { x: layout.x, y: layout.y },
+      new NodeCreateEvent(id, type, this.subGraphId, configuration, {
+        visual: {
+          x: layout.x,
+          y: layout.y,
+          collapsed: this.collapseNodesByDefault,
+        },
       })
     );
   }

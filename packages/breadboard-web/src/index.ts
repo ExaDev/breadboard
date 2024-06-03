@@ -12,9 +12,11 @@ import { LitElement, html, css, HTMLTemplateResult, nothing } from "lit";
 import * as BreadboardUI from "@google-labs/breadboard-ui";
 import { InputResolveRequest } from "@google-labs/breadboard/remote";
 import {
-  blank,
+  blankLLMContent,
   BoardRunner,
+  createDataStore,
   createLoader,
+  DataStore,
   edit,
   EditableGraph,
   GraphDescriptor,
@@ -23,6 +25,7 @@ import {
   InspectableRun,
   InspectableRunObserver,
   Kit,
+  SerializedRun,
 } from "@google-labs/breadboard";
 import { classMap } from "lit/directives/class-map.js";
 import { createRunObserver } from "@google-labs/breadboard";
@@ -33,6 +36,20 @@ import BuildExampleKit from "./build-example-kit";
 import { SettingsStore } from "./data/settings-store";
 import { inputsFromSettings } from "./data/inputs";
 import { addNodeProxyServerConfig } from "./data/node-proxy-servers";
+import { provide } from "@lit/context";
+import {
+  Environment,
+  environmentContext,
+} from "@google-labs/breadboard-ui/contexts/environment.js";
+import { dataStoreContext } from "@google-labs/breadboard-ui/contexts/data-store.js";
+import { settingsHelperContext } from "@google-labs/breadboard-ui/contexts/settings-helper.js";
+import type {
+  SETTINGS_TYPE,
+  SettingEntry,
+  SettingsHelper,
+} from "@google-labs/breadboard-ui/types/types.js";
+
+const REPLAY_DELAY_MS = 10;
 
 type MainArguments = {
   boards: BreadboardUI.Types.Board[];
@@ -91,6 +108,21 @@ export class Main extends LitElement {
 
   @state()
   providerOps = 0;
+
+  @provide({ context: environmentContext })
+  environment: Environment = {
+    connectionServerUrl:
+      // TODO(aomarks) Read this from a global stamped into the HTML somehow.
+      new URL(window.location.href).origin === "http://localhost:5173"
+        ? "http://localhost:5555"
+        : undefined,
+    connectionRedirectUrl: "/oauth/",
+  };
+
+  @provide({ context: dataStoreContext })
+  dataStore: { instance: DataStore | null } = { instance: createDataStore() };
+  @provide({ context: settingsHelperContext })
+  settingsHelper!: SettingsHelperImpl;
 
   #abortController: AbortController | null = null;
   #uiRef: Ref<BreadboardUI.Elements.UI> = createRef();
@@ -366,6 +398,9 @@ export class Main extends LitElement {
 
     this.#providers = config.providers || [];
     this.#settings = config.settings || null;
+    if (this.#settings) {
+      this.settingsHelper = new SettingsHelperImpl(this.#settings);
+    }
     // Single loader instance for all boards.
     this.#loader = createLoader(this.#providers);
 
@@ -583,6 +618,7 @@ export class Main extends LitElement {
     this.status = BreadboardUI.Types.STATUS.STOPPED;
     this.#runObserver = null;
     this.#setBoardPendingSaveState(false);
+    this.#setPageTitle();
 
     this.#checkForPossibleEmbed();
   }
@@ -672,7 +708,9 @@ export class Main extends LitElement {
     if (!this.#runObserver)
       this.#runObserver = createRunObserver({
         logLevel: "debug",
+        store: this.dataStore.instance!,
       });
+
     for await (const result of runner) {
       // Update "runs" to ensure the UI is aware when the new run begins.
       this.runs = this.#runObserver.observe(result);
@@ -689,6 +727,7 @@ export class Main extends LitElement {
         await result.reply({ inputs: answer } as InputResolveRequest);
       }
     }
+
     this.status = BreadboardUI.Types.STATUS.STOPPED;
   }
 
@@ -832,6 +871,60 @@ export class Main extends LitElement {
     }
   }
 
+  #attemptLoad(evt: DragEvent) {
+    if (
+      !evt.dataTransfer ||
+      !evt.dataTransfer.files ||
+      !evt.dataTransfer.files.length
+    ) {
+      return;
+    }
+
+    const isSerializedRun = (
+      data: SerializedRun | GraphDescriptor
+    ): data is SerializedRun => {
+      return "timeline" in data;
+    };
+
+    const fileDropped = evt.dataTransfer.files[0];
+    fileDropped.text().then((data) => {
+      try {
+        const runData = JSON.parse(data) as SerializedRun | GraphDescriptor;
+        if (isSerializedRun(runData)) {
+          if (!this.#runObserver) {
+            this.#runObserver = createRunObserver({
+              logLevel: "debug",
+              store: this.dataStore.instance!,
+            });
+          }
+
+          evt.preventDefault();
+          const runObserver = this.#runObserver;
+          runObserver.load(runData).then(async (result) => {
+            if (result.success) {
+              const run = result.run;
+              for await (const result of run.replay()) {
+                this.runs = runObserver.observe(result);
+                await new Promise((r) => setTimeout(r, REPLAY_DELAY_MS));
+                this.requestUpdate();
+              }
+            } else {
+              this.toast(
+                "Unable to load run data",
+                BreadboardUI.Events.ToastType.ERROR
+              );
+            }
+          });
+        } else {
+          this.#onStartBoard(new BreadboardUI.Events.StartEvent(null, runData));
+        }
+      } catch (err) {
+        console.warn(err);
+        this.toast("Unable to load file", BreadboardUI.Events.ToastType.ERROR);
+      }
+    });
+  }
+
   render() {
     const toasts = html`${this.toasts.map(({ message, type }, idx, toasts) => {
       const offset = toasts.length - idx - 1;
@@ -906,7 +999,18 @@ export class Main extends LitElement {
             );
             return;
           }
-          const url = new URL(provider.createURL(evt.location, evt.fileName));
+          const urlString = await provider.createURL(
+            evt.location,
+            evt.fileName
+          );
+          if (!urlString) {
+            this.toast(
+              "Unable to create a new board",
+              BreadboardUI.Events.ToastType.ERROR
+            );
+            return;
+          }
+          const url = new URL(urlString);
           const { result, error } = await provider.createBlank(url);
 
           if (!result) {
@@ -1124,6 +1228,13 @@ export class Main extends LitElement {
           .providers=${this.#providers}
           .providerOps=${this.providerOps}
           .history=${history}
+          @dragover=${(evt: DragEvent) => {
+            evt.preventDefault();
+          }}
+          @drop=${(evt: DragEvent) => {
+            evt.preventDefault();
+            this.#attemptLoad(evt);
+          }}
           @bbinputerror=${(evt: BreadboardUI.Events.InputErrorEvent) => {
             this.toast(evt.detail, BreadboardUI.Events.ToastType.ERROR);
             return;
@@ -1155,7 +1266,7 @@ export class Main extends LitElement {
             }
 
             const id = globalThis.crypto.randomUUID();
-            const board = blank();
+            const board = blankLLMContent();
             board.title = evt.subGraphTitle;
 
             const editResult = editableGraph.addGraph(id, board);
@@ -1203,19 +1314,6 @@ export class Main extends LitElement {
                 : null;
             this.requestUpdate();
           }}
-          @bbfiledrop=${async (evt: BreadboardUI.Events.FileDropEvent) => {
-            if (this.status === BreadboardUI.Types.STATUS.RUNNING) {
-              this.toast(
-                "Unable to update; board is already running",
-                BreadboardUI.Events.ToastType.ERROR
-              );
-              return;
-            }
-
-            this.#onStartBoard(
-              new BreadboardUI.Events.StartEvent(null, evt.descriptor)
-            );
-          }}
           @bbrunboard=${async () => {
             if (!this.graph?.url) {
               return;
@@ -1234,6 +1332,7 @@ export class Main extends LitElement {
                     diagnostics: true,
                     kits: this.kits,
                     loader: this.#loader,
+                    store: this.dataStore.instance!,
                     signal: this.#abortController?.signal,
                     inputs: inputsFromSettings(this.#settings),
                     interactiveSecrets: true,
@@ -1324,38 +1423,6 @@ export class Main extends LitElement {
             editableGraph.edit(
               [{ type: "changemetadata", id, metadata: newMetadata }],
               `Change metadata for "${id}"`
-            );
-          }}
-          @bbnodemove=${(evt: BreadboardUI.Events.NodeMoveEvent) => {
-            let editableGraph = this.#getEditor();
-            if (editableGraph && evt.subGraphId) {
-              editableGraph = editableGraph.getGraph(evt.subGraphId);
-            }
-
-            if (!editableGraph) {
-              console.warn("Unable to update node metadata; no active graph");
-              return;
-            }
-
-            const inspectableGraph = editableGraph.inspect();
-
-            const { id, x, y } = evt;
-            const existingNode = inspectableGraph.nodeById(id);
-            const metadata = existingNode?.metadata() || {};
-            let visual = metadata.visual || {};
-            if (typeof visual !== "object") {
-              visual = {};
-            }
-
-            editableGraph.edit(
-              [
-                {
-                  type: "changemetadata",
-                  id,
-                  metadata: { ...metadata, visual: { ...visual, x, y } },
-                },
-              ],
-              `Move node "${id}" to (${x}, ${y})`
             );
           }}
           @bbmultiedit=${(evt: BreadboardUI.Events.MultiEditEvent) => {
@@ -1454,9 +1521,11 @@ export class Main extends LitElement {
 
             const isSecret = "secret" in event.data;
             const shouldSaveSecrets =
-              this.#settings
-                .getSection(BreadboardUI.Types.SETTINGS_TYPE.GENERAL)
-                .items.get("Save Secrets")?.value || false;
+              (event.allowSavingIfSecret &&
+                this.#settings
+                  .getSection(BreadboardUI.Types.SETTINGS_TYPE.GENERAL)
+                  .items.get("Save Secrets")?.value) ||
+              false;
             if (!shouldSaveSecrets || !isSecret) {
               return;
             }
@@ -1582,7 +1651,7 @@ export class Main extends LitElement {
           }
 
           try {
-            await provider.connect(evt.location);
+            await provider.connect(evt.location, evt.apiKey);
           } catch (err) {
             return;
           }
@@ -1639,7 +1708,7 @@ export class Main extends LitElement {
 
           let success = false;
           try {
-            success = await provider.connect(evt.location);
+            success = await provider.connect(evt.location, evt.apiKey);
           } catch (err) {
             this.toast(
               "Unable to connect to provider",
@@ -1687,5 +1756,33 @@ export class Main extends LitElement {
 
     return html`${tmpl} ${boardOverlay} ${previewOverlay} ${settingsOverlay}
     ${firstRunOverlay} ${historyOverlay} ${providerAddOverlay} ${toasts} `;
+  }
+}
+
+class SettingsHelperImpl implements SettingsHelper {
+  #store: SettingsStore;
+
+  constructor(store: SettingsStore) {
+    this.#store = store;
+  }
+
+  get(section: SETTINGS_TYPE, name: string): SettingEntry["value"] | undefined {
+    return this.#store.values[section].items.get(name);
+  }
+
+  set(
+    section: SETTINGS_TYPE,
+    name: string,
+    value: SettingEntry["value"]
+  ): void {
+    const values = this.#store.values;
+    values[section].items.set(name, value);
+    this.#store.save(values);
+  }
+
+  delete(section: SETTINGS_TYPE, name: string): void {
+    const values = this.#store.values;
+    values[section].items.delete(name);
+    this.#store.save(values);
   }
 }

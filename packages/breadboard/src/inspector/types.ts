@@ -29,6 +29,7 @@ import {
   OutputValues,
   Schema,
 } from "../types.js";
+import { DataStore, SerializedDataStoreGroup } from "../data/types.js";
 
 export type GraphVersion = number;
 
@@ -566,6 +567,7 @@ export type InspectableRunLoadResult =
     }
   | {
       success: true;
+      run: InspectableRun;
     };
 
 /**
@@ -592,7 +594,7 @@ export type InspectableRunObserver = {
   load(
     o: unknown,
     options?: SerializedRunLoadingOptions
-  ): InspectableRunLoadResult;
+  ): Promise<InspectableRunLoadResult>;
 };
 
 /**
@@ -777,6 +779,11 @@ export type InspectableRun = {
    */
   events: InspectableRunEvent[];
   /**
+   * A way to associate data with the run.
+   * TODO: Revisit the approach once the evolutionary forces have settled.
+   */
+  dataStoreGroupId: number;
+  /**
    * Returns the current `InspectableRunNodeEvent` if any.
    * This is useful for tracking the latest node that is being run.
    *
@@ -797,7 +804,7 @@ export type InspectableRun = {
    * If present, returns a serialized representation of the run or null if
    * serialization of this run is not supported.
    */
-  serialize?(options?: RunSerializationOptions): SerializedRun;
+  serialize?(options?: RunSerializationOptions): Promise<SerializedRun>;
   /**
    * Given an `EventIdentifier`, returns an `InspectableRunEvent` instance or
    * null if not found.
@@ -808,6 +815,11 @@ export type InspectableRun = {
    * if no inputs were submitted.
    */
   inputs(): InspectableRunInputs | null;
+  /**
+   * Returns a HarnessRunResult asynchronous generator that allows replaying
+   * the run.
+   */
+  replay(): AsyncGenerator<HarnessRunResult>;
 };
 
 /**
@@ -876,6 +888,10 @@ export type RunObserverOptions = {
    * the ability to inspect graphs and nodes during the run.
    */
   kits?: Kit[];
+  /**
+   * The data store that will manage non-text data within the run.
+   */
+  store?: DataStore;
 };
 
 export type GraphstartTimelineEntry = [
@@ -919,4 +935,5 @@ export type SerializedRun = {
   version: "0";
   secrets?: Record<string, string>;
   timeline: TimelineEntry[];
+  data?: SerializedDataStoreGroup;
 };

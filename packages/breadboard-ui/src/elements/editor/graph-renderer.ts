@@ -10,15 +10,15 @@ import * as PIXI from "pixi.js";
 import {
   GraphNodeSelectedEvent,
   GraphNodeDeleteEvent,
-  GraphNodeEdgeAttachEvent,
+  GraphEdgeAttachEvent,
   GraphNodeEdgeChangeEvent,
-  GraphNodeEdgeDetachEvent,
-  GraphNodeMoveEvent,
+  GraphEdgeDetachEvent,
   InputErrorEvent,
   GraphNodeDeselectedEvent,
   GraphNodeDeselectedAllEvent,
-  GraphNodesMoveEvent,
+  GraphNodesVisualUpdateEvent,
   GraphInitialDrawEvent,
+  GraphEntityRemoveEvent,
 } from "../../events/events.js";
 import { GRAPH_OPERATIONS } from "./types.js";
 import { Graph } from "./graph.js";
@@ -71,6 +71,8 @@ export class GraphRenderer extends LitElement {
 
   #app = new PIXI.Application();
   #appInitialized = false;
+
+  #graphMask = new PIXI.Graphics();
 
   #overflowDeleteNode: Ref<HTMLButtonElement> = createRef();
   #overflowMinMaxSingleNode: Ref<HTMLButtonElement> = createRef();
@@ -500,7 +502,7 @@ export class GraphRenderer extends LitElement {
         continue;
       }
 
-      graph.visible = false;
+      graph.mask = this.#graphMask;
     }
   }
 
@@ -510,7 +512,7 @@ export class GraphRenderer extends LitElement {
         continue;
       }
 
-      graph.visible = true;
+      graph.mask = null;
     }
   }
 
@@ -582,7 +584,11 @@ export class GraphRenderer extends LitElement {
     }
 
     if (opts.visible !== undefined) {
-      graph.visible = opts.visible;
+      if (opts.visible) {
+        graph.mask = null;
+      } else {
+        graph.mask = this.#graphMask;
+      }
     }
 
     return true;
@@ -620,17 +626,16 @@ export class GraphRenderer extends LitElement {
   addGraph(graph: Graph) {
     graph.editable = this.editable;
 
-    graph.on(
-      GRAPH_OPERATIONS.GRAPH_NODE_MOVED,
-      (id: string, x: number, y: number) => {
-        this.dispatchEvent(new GraphNodeMoveEvent(id, x, y));
-      }
-    );
+    graph.on(GRAPH_OPERATIONS.GRAPH_NODE_EXPAND_COLLAPSE, () => {
+      this.#emitGraphNodeVisualInformation(graph);
+    });
 
     graph.on(
       GRAPH_OPERATIONS.GRAPH_NODES_MOVED,
-      (nodes: Array<{ id: string; x: number; y: number }>) => {
-        this.dispatchEvent(new GraphNodesMoveEvent(nodes));
+      (
+        nodes: Array<{ id: string; x: number; y: number; collapsed: boolean }>
+      ) => {
+        this.dispatchEvent(new GraphNodesVisualUpdateEvent(nodes));
       }
     );
 
@@ -647,11 +652,11 @@ export class GraphRenderer extends LitElement {
     });
 
     graph.on(GRAPH_OPERATIONS.GRAPH_EDGE_ATTACH, (edge: InspectableEdge) => {
-      this.dispatchEvent(new GraphNodeEdgeAttachEvent(edge));
+      this.dispatchEvent(new GraphEdgeAttachEvent(edge));
     });
 
     graph.on(GRAPH_OPERATIONS.GRAPH_EDGE_DETACH, (edge: InspectableEdge) => {
-      this.dispatchEvent(new GraphNodeEdgeDetachEvent(edge));
+      this.dispatchEvent(new GraphEdgeDetachEvent(edge));
     });
 
     graph.on(
@@ -841,6 +846,7 @@ export class GraphRenderer extends LitElement {
   setNodeLayoutPosition(
     node: string,
     position: PIXI.PointData,
+    collapsed: boolean,
     justAdded: boolean
   ) {
     for (const graph of this.#container.children) {
@@ -848,7 +854,7 @@ export class GraphRenderer extends LitElement {
         continue;
       }
 
-      return graph.setNodeLayoutPosition(node, position, justAdded);
+      return graph.setNodeLayoutPosition(node, position, collapsed, justAdded);
     }
 
     return null;
@@ -913,18 +919,18 @@ export class GraphRenderer extends LitElement {
         y: rendererBounds.height / 2,
       };
       this.#scaleContainerAroundPoint(delta, pivot);
-      this.#emitGraphNodePositions(graph);
+      this.#emitGraphNodeVisualInformation(graph);
       return;
     }
   }
 
-  #emitGraphNodePositions(graph: Graph) {
+  #emitGraphNodeVisualInformation(graph: Graph) {
     const positions = graph.getNodeLayoutPositions();
     const nodes = [...positions.entries()].map(([id, layout]) => {
-      return { id, x: layout.x, y: layout.y };
+      return { id, x: layout.x, y: layout.y, collapsed: layout.collapsed };
     });
 
-    this.dispatchEvent(new GraphNodesMoveEvent(nodes));
+    this.dispatchEvent(new GraphNodesVisualUpdateEvent(nodes));
   }
 
   resetGraphLayout() {
@@ -936,7 +942,7 @@ export class GraphRenderer extends LitElement {
       graph.clearNodeLayoutPositions();
       graph.layout();
 
-      this.#emitGraphNodePositions(graph);
+      this.#emitGraphNodeVisualInformation(graph);
     }
   }
 
@@ -984,32 +990,17 @@ export class GraphRenderer extends LitElement {
         continue;
       }
 
-      const nodes = selectedChildren.filter(
-        (child) => child instanceof GraphNode
-      ) as GraphNode[];
-      const edges = selectedChildren.filter(
-        (child) => child instanceof GraphEdge
-      ) as GraphEdge[];
-
-      // Delete all edges first.
-      for (const graphEdge of edges) {
-        if (!graphEdge.edge) {
-          console.warn("Invalid edge - unable to delete");
-          return;
+      const nodes: string[] = [];
+      const edges: InspectableEdge[] = [];
+      for (const child of selectedChildren) {
+        if (child instanceof GraphNode) {
+          nodes.push(child.label);
+        } else if (child instanceof GraphEdge && child.edge) {
+          edges.push(child.edge);
         }
-        this.dispatchEvent(new GraphNodeEdgeDetachEvent(graphEdge.edge));
       }
 
-      // Wait a frame and delete all nodes.
-      requestAnimationFrame(() => {
-        for (const graphNode of nodes) {
-          if (!graphNode.label) {
-            console.warn("Node has no name - unable to delete");
-            return;
-          }
-          this.dispatchEvent(new GraphNodeDeleteEvent(graphNode.label));
-        }
-      });
+      this.dispatchEvent(new GraphEntityRemoveEvent(nodes, edges));
     }
   }
 
@@ -1129,6 +1120,11 @@ export class GraphRenderer extends LitElement {
         },
         { once: true }
       );
+
+      const input = this.#edgeCreateMenuRef.value?.querySelector("input");
+      if (input) {
+        input.focus();
+      }
     }
 
     if (this.#autoFocusSelf) {
@@ -1222,7 +1218,7 @@ export class GraphRenderer extends LitElement {
       type: "ordinary",
     } as InspectableEdge;
 
-    this.dispatchEvent(new GraphNodeEdgeAttachEvent(edge));
+    this.dispatchEvent(new GraphEdgeAttachEvent(edge));
 
     return true;
   }
@@ -1291,6 +1287,26 @@ export class GraphRenderer extends LitElement {
       (this.#newEdgeData.portsIn === null ||
         this.#newEdgeData.portsOut === null);
 
+    let suppliedPortInName: string | null = null;
+    let suppliedPortOutName: string | null = null;
+
+    if (this.#newEdgeData) {
+      const canSupplyInPortName =
+        this.#newEdgeData.portsOut !== null &&
+        this.#newEdgeData.portsOut.length === 1;
+      const canSupplyOutPortName =
+        this.#newEdgeData.portsIn !== null &&
+        this.#newEdgeData.portsIn.length === 1;
+
+      if (canSupplyInPortName && this.#newEdgeData.portsOut !== null) {
+        suppliedPortInName = this.#newEdgeData.portsOut[0].name;
+      }
+
+      if (canSupplyOutPortName && this.#newEdgeData.portsIn !== null) {
+        suppliedPortOutName = this.#newEdgeData.portsIn[0].name;
+      }
+    }
+
     const edgeMenu = this.#newEdgeData
       ? html`<div
           ${ref(this.#edgeCreateMenuRef)}
@@ -1340,6 +1356,7 @@ export class GraphRenderer extends LitElement {
 
                       window.dispatchEvent(new Event("pointerdown"));
                     }}
+                    .value=${suppliedPortOutName}
                     type="text"
                     placeholder="Enter port name"
                     required
@@ -1386,6 +1403,7 @@ export class GraphRenderer extends LitElement {
 
                       window.dispatchEvent(new Event("pointerdown"));
                     }}
+                    .value=${suppliedPortInName}
                     type="text"
                     placeholder="Enter port name"
                     required

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { HarnessRunResult } from "../../harness/types.js";
 import type {
   GraphUUID,
   InspectableRun,
@@ -23,6 +24,7 @@ export class NestedRun implements InspectableRun {
   end: number | null;
   graphVersion = 0;
   events: InspectableRunEvent[];
+  dataStoreGroupId: number = -1;
 
   constructor(entry: PathRegistryEntry) {
     this.graphId = entry.graphId as GraphUUID;
@@ -46,5 +48,9 @@ export class NestedRun implements InspectableRun {
 
   inputs(): InspectableRunInputs | null {
     return null;
+  }
+
+  replay(): AsyncGenerator<HarnessRunResult> {
+    throw new Error("Nested runs can't provide replay");
   }
 }

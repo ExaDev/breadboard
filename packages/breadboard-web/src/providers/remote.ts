@@ -9,13 +9,14 @@ import {
   GraphDescriptor,
   GraphProvider,
   GraphProviderCapabilities,
-  blank,
+  blankLLMContent,
 } from "@google-labs/breadboard";
 import { GraphProviderStore } from "./types";
 import { GraphProviderExtendedCapabilities } from "@google-labs/breadboard";
 
 interface GraphDBStore {
   url: string;
+  apiKey: string;
 }
 
 interface GraphDBStoreList extends idb.DBSchema {
@@ -27,6 +28,12 @@ interface GraphDBStoreList extends idb.DBSchema {
 
 const STORE_LIST = "remote-store-list";
 const STORE_LIST_VERSION = 1;
+
+const authHeader = (apiKey: string, headers?: HeadersInit) => {
+  const h = new Headers(headers);
+  h.set("Authorization", `Bearer ${apiKey}`);
+  return h;
+};
 
 export class RemoteGraphProvider implements GraphProvider {
   static #instance: RemoteGraphProvider;
@@ -46,23 +53,48 @@ export class RemoteGraphProvider implements GraphProvider {
     {
       permission: "unknown" | "prompt" | "granted";
       title: string;
-      items: Map<string, { url: string; handle: void }>;
+      items: Map<string, { url: string; readonly: boolean; handle: void }>;
     }
   >();
 
   private constructor() {}
 
+  #getApiKey(location: string) {
+    const store = this.#locations.find((store) => store.url === location);
+    if (!store) {
+      return null;
+    }
+    return store.apiKey;
+  }
+
   async #sendToRemote(url: URL, descriptor: GraphDescriptor) {
+    const apiKey = this.#getApiKey(url.origin);
+    if (!apiKey) {
+      return { error: "No API Key" };
+    }
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify(descriptor, null, 2),
-      headers: new Headers([["Content-Type", "application/json"]]),
+      headers: authHeader(apiKey, [["Content-Type", "application/json"]]),
     });
     return await response.json();
   }
 
-  createURL(location: string, fileName: string) {
-    return `${location}/boards/${fileName}`;
+  async createURL(location: string, fileName: string) {
+    const apiKey = this.#getApiKey(location);
+    if (!apiKey) {
+      return null;
+    }
+    const response = await fetch(`${location}/boards`, {
+      method: "POST",
+      body: JSON.stringify({ name: fileName }),
+      headers: authHeader(apiKey),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return `${location}/boards/${data.path}`;
   }
 
   parseURL(_url: URL) {
@@ -99,8 +131,17 @@ export class RemoteGraphProvider implements GraphProvider {
       return { result: false };
     }
 
+    const location = url.origin;
+    const store = this.#locations.find((store) => store.url === location);
+    if (!store) {
+      return { result: false };
+    }
+
     try {
-      const response = await fetch(url, { method: "DELETE" });
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: authHeader(store.apiKey),
+      });
       const data = await response.json();
       await this.#refreshAllItems();
 
@@ -113,12 +154,19 @@ export class RemoteGraphProvider implements GraphProvider {
     }
   }
 
-  async connect(location?: string) {
+  async connect(location?: string, auth?: unknown) {
     if (!location) {
       return false;
     }
+    if (!auth) {
+      // TODO: Support public servers. For now, Auth is required.
+      return false;
+    }
+    const apiKey = auth as string;
 
-    const response = await fetch(`${location}/boards`);
+    const response = await fetch(`${location}/boards`, {
+      headers: authHeader(apiKey),
+    });
     if (response.ok) {
       for (const storeLocation of this.#locations) {
         if (storeLocation.url === location) {
@@ -126,7 +174,7 @@ export class RemoteGraphProvider implements GraphProvider {
         }
       }
 
-      this.#locations.push({ url: location });
+      this.#locations.push({ url: location, apiKey });
       await this.#storeLocations();
       await this.#refreshAllItems();
       return true;
@@ -169,7 +217,7 @@ export class RemoteGraphProvider implements GraphProvider {
       return { result: false };
     }
 
-    const data = await this.#sendToRemote(url, blank());
+    const data = await this.#sendToRemote(url, blankLLMContent());
     if (data.error) {
       return { result: false };
     }
@@ -184,6 +232,7 @@ export class RemoteGraphProvider implements GraphProvider {
       STORE_LIST_VERSION,
       {
         upgrade(db) {
+          if (db.objectStoreNames.contains("stores")) return;
           db.createObjectStore("stores", {
             keyPath: "id",
             autoIncrement: true,
@@ -209,22 +258,44 @@ export class RemoteGraphProvider implements GraphProvider {
   }
 
   async #refreshItems(store: GraphDBStore) {
-    const response = await fetch(`${store.url}/boards`);
-    const files = await response.json();
-
-    const items = new Map<string, { url: string; handle: void }>();
-    for (const file of files) {
-      items.set(file, {
-        url: `${store.url}/boards/${file}`,
-        handle: void 0,
+    try {
+      const response = await fetch(`${store.url}/boards`, {
+        headers: authHeader(store.apiKey),
       });
-    }
+      const files = await response.json();
 
-    this.#stores.set(store.url, {
-      permission: "granted",
-      title: store.url,
-      items,
-    });
+      const items = new Map<
+        string,
+        { url: string; readonly: boolean; handle: void }
+      >();
+      for (const item of files) {
+        let file: string;
+        let readonly: boolean;
+        if (typeof item === "string") {
+          file = item;
+          readonly = false;
+        } else {
+          file = item.path;
+          readonly = item.readonly;
+        }
+        items.set(file, {
+          url: `${store.url}/boards/${file}`,
+          readonly,
+          handle: void 0,
+        });
+      }
+
+      this.#stores.set(store.url, {
+        permission: "granted",
+        title: store.url,
+        items,
+      });
+    } catch (err) {
+      console.warn(
+        `[RemoteGraphProvider]: Unable to connect to ${store.url}`,
+        err
+      );
+    }
   }
 
   async #refreshAllItems() {
@@ -235,21 +306,34 @@ export class RemoteGraphProvider implements GraphProvider {
     }
   }
 
-  createGraphURL(location: string, fileName: string) {
-    return this.createURL(location, fileName);
+  async createGraphURL(location: string, fileName: string) {
+    return await this.createURL(location, fileName);
   }
 
   canProvide(url: URL): false | GraphProviderCapabilities {
-    const canProvide =
-      this.#locations.find((store) => url.href.startsWith(store.url)) !==
-      undefined;
-    return canProvide
-      ? {
-          load: canProvide,
-          save: canProvide,
-          delete: canProvide,
-        }
-      : false;
+    const store = this.#locations.find((store) =>
+      url.href.startsWith(store.url)
+    );
+    if (store) {
+      const storeData = this.#stores.get(store.url);
+      const itemName = url.pathname.replace(/^\/boards\//, "");
+      const item = storeData?.items.get(itemName);
+
+      if (item) {
+        return {
+          load: true,
+          save: !item.readonly,
+          delete: !item.readonly,
+        };
+      }
+
+      return {
+        load: false,
+        save: true,
+        delete: false,
+      };
+    }
+    return false;
   }
 
   extendedCapabilities(): GraphProviderExtendedCapabilities {

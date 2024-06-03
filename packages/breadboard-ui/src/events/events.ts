@@ -30,17 +30,6 @@ export enum ToastType {
  * Board Management
  */
 
-export class FileDropEvent extends Event {
-  static eventName = "bbfiledrop";
-
-  constructor(
-    public readonly url: string,
-    public readonly descriptor: GraphDescriptor
-  ) {
-    super(FileDropEvent.eventName, { ...eventInit });
-  }
-}
-
 export class StartEvent extends Event {
   static eventName = "bbstart";
 
@@ -182,7 +171,8 @@ export class InputEnterEvent extends Event {
 
   constructor(
     public readonly id: string,
-    public readonly data: Record<string, unknown>
+    public readonly data: Record<string, unknown>,
+    public readonly allowSavingIfSecret: boolean
   ) {
     super(InputEnterEvent.eventName, { ...eventInit });
   }
@@ -245,7 +235,8 @@ export class GraphProviderConnectRequestEvent extends Event {
 
   constructor(
     public readonly providerName: string,
-    public readonly location?: string
+    public readonly location?: string,
+    public readonly apiKey?: string
   ) {
     super(GraphProviderConnectRequestEvent.eventName, { ...eventInit });
   }
@@ -413,19 +404,6 @@ export class EdgeChangeEvent extends Event {
   }
 }
 
-export class NodeMoveEvent extends Event {
-  static eventName = "bbnodemove";
-
-  constructor(
-    public readonly id: string,
-    public readonly x: number,
-    public readonly y: number,
-    public readonly subGraphId: string | null = null
-  ) {
-    super(NodeMoveEvent.eventName, { ...eventInit });
-  }
-}
-
 export class MultiEditEvent extends Event {
   static eventName = "bbmultiedit";
   constructor(
@@ -437,19 +415,7 @@ export class MultiEditEvent extends Event {
   }
 }
 
-export class GraphNodeMoveEvent extends Event {
-  static eventName = "bbgraphnodemove";
-
-  constructor(
-    public readonly id: string,
-    public readonly x: number,
-    public readonly y: number
-  ) {
-    super(GraphNodeMoveEvent.eventName, { ...eventInit });
-  }
-}
-
-export class GraphNodesMoveEvent extends Event {
+export class GraphNodesVisualUpdateEvent extends Event {
   static eventName = "bbgraphnodesmove";
 
   constructor(
@@ -457,9 +423,10 @@ export class GraphNodesMoveEvent extends Event {
       readonly id: string;
       readonly x: number;
       readonly y: number;
+      readonly collapsed: boolean;
     }>
   ) {
-    super(GraphNodesMoveEvent.eventName, { ...eventInit });
+    super(GraphNodesVisualUpdateEvent.eventName, { ...eventInit });
   }
 }
 
@@ -495,19 +462,30 @@ export class GraphInitialDrawEvent extends Event {
   }
 }
 
-export class GraphNodeEdgeAttachEvent extends Event {
+export class GraphEdgeAttachEvent extends Event {
   static eventName = "bbgraphedgeattach";
 
   constructor(public readonly edge: InspectableEdge) {
-    super(GraphNodeEdgeAttachEvent.eventName, { ...eventInit });
+    super(GraphEdgeAttachEvent.eventName, { ...eventInit });
   }
 }
 
-export class GraphNodeEdgeDetachEvent extends Event {
+export class GraphEdgeDetachEvent extends Event {
   static eventName = "bbgraphedgedetach";
 
   constructor(public readonly edge: InspectableEdge) {
-    super(GraphNodeEdgeDetachEvent.eventName, { ...eventInit });
+    super(GraphEdgeDetachEvent.eventName, { ...eventInit });
+  }
+}
+
+export class GraphEntityRemoveEvent extends Event {
+  static eventName = "bbgraphentityremove";
+
+  constructor(
+    public readonly nodes: string[],
+    public readonly edges: InspectableEdge[]
+  ) {
+    super(GraphEntityRemoveEvent.eventName, { ...eventInit });
   }
 }
 

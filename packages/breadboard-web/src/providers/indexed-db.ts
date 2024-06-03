@@ -8,7 +8,7 @@ import * as idb from "idb";
 import {
   GraphProvider,
   GraphProviderCapabilities,
-  blank,
+  blankLLMContent,
 } from "@google-labs/breadboard";
 import { GraphProviderStore } from "./types";
 import { GraphDescriptor } from "../../../schema/dist/graph";
@@ -59,7 +59,7 @@ export class IDBGraphProvider implements GraphProvider {
     {
       permission: "unknown" | "prompt" | "granted";
       title: string;
-      items: Map<string, { url: string; handle: void }>;
+      items: Map<string, { url: string; readonly: boolean; handle: void }>;
     }
   >();
 
@@ -86,7 +86,7 @@ export class IDBGraphProvider implements GraphProvider {
     return { location, fileName };
   }
 
-  createURL(location: string, fileName: string) {
+  async createURL(location: string, fileName: string) {
     return `${IDB_PROTOCOL}//${encodeURIComponent(location.toLocaleLowerCase())}/${encodeURIComponent(fileName.toLocaleLowerCase())}`;
   }
 
@@ -159,7 +159,7 @@ export class IDBGraphProvider implements GraphProvider {
       return { result: false, error: "Unable to create: board already exists" };
     }
 
-    return this.save(url, blank());
+    return this.save(url, blankLLMContent());
   }
 
   async save(
@@ -248,24 +248,25 @@ export class IDBGraphProvider implements GraphProvider {
 
     let graphs = await db.getAll("graphs");
     if (graphs.length === 0 && store.name === DEFAULT_STORE.name) {
-      const blankBoard = blank();
-      blankBoard.url = this.createURL(DEFAULT_STORE.name, "blank.json");
+      const blankBoard = blankLLMContent();
+      blankBoard.url = await this.createURL(DEFAULT_STORE.name, "blank.json");
       await db.put("graphs", blankBoard);
       graphs = await db.getAll("graphs");
     }
 
     const itemsByUrl = graphs.map(
-      (descriptor): [string, { url: string; handle: void }] => {
+      (
+        descriptor
+      ): [string, { url: string; readonly: boolean; handle: void }] => {
         const url = descriptor.url || "";
         const { fileName } = this.parseURL(new URL(url));
 
-        return [fileName, { url, handle: void 0 }];
+        return [fileName, { url, readonly: false, handle: void 0 }];
       }
     );
 
-    const items: Map<string, { url: string; handle: void }> = new Map(
-      itemsByUrl
-    );
+    const items: Map<string, { url: string; readonly: boolean; handle: void }> =
+      new Map(itemsByUrl);
 
     this.#stores.set(store.name, {
       permission: "granted",
