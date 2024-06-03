@@ -1,9 +1,10 @@
 //import sentimentAnalysisBoard from "../../breadboard/sentiment-analysis";
 import { env } from "@xenova/transformers";
-import sentimentAnalysisBoard from "@/breadboard/sentiment-analysis";
+import serializedSentiment from "@breadboard/graphs/sentimentBoard.json";
 import useDownloads from "@/chrome-api-hooks/use-downloads";
 import claudeSummarisationBoard from "@/breadboard/boards/summarise";
 import "@settings/background-scripts/settings";
+import { ExtensionBoardRunner } from "@/breadboard/classes/ExtensionBoardRunner";
 
 env.allowLocalModels = false;
 env.backends.onnx.wasm.numThreads = 1;
@@ -21,8 +22,8 @@ env.backends.onnx.wasm.numThreads = 1;
 /* CREATING CONTEXT MENU */
 let apiKey = "";
 const getApiKey = () => {
-  chrome.storage.sync.get(["CLAUDE_API_KEY"], async (result) => {
-    apiKey = await result["CLAUDE_API_KEY"];
+  chrome.storage.sync.get(["HUGGING_FACE_API_KEY"], async (result) => {
+    apiKey = await result["HUGGING_FACE_API_KEY"];
   });
 };
 
@@ -92,9 +93,16 @@ const handleSummariseClick = async (info: chrome.contextMenus.OnClickData) => {
 const handleSentimentClick = async (info: chrome.contextMenus.OnClickData) => {
   const result = info.selectionText;
   chrome.action.setBadgeText({ text: "ON" });
-  const boardRun = await sentimentAnalysisBoard({
-    message: result,
+  const extensionRunner = new ExtensionBoardRunner(serializedSentiment, []);
+  const boardRun = await extensionRunner.runBoard({
+    inputs: result,
+    apiKey: apiKey,
+    use_cache: true,
+    wait_for_model: false,
   });
-  console.log(JSON.stringify(boardRun["output"], null, 2));
-  chrome.action.setBadgeText({ text: "DONE" });
+  if (boardRun) {
+    const boardResponse: any = boardRun.response;
+    console.log(JSON.stringify(boardResponse[0], null, 2));
+    chrome.action.setBadgeText({ text: "DONE" });
+  }
 };
