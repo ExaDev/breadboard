@@ -1,6 +1,6 @@
 {
-	"title": "Hugging Face Text Classification",
-	"description": "Board which calls the Hugging Face Text Classification Endpoint",
+	"title": "Hugging Face Sentiment Analysis",
+	"description": "Board which calls the Hugging Face Twitter Roberta Sentiment Analysis Endpoint",
 	"edges": [
 		{
 			"from": "main",
@@ -99,13 +99,12 @@
 			"type": "input",
 			"configuration": {
 				"schema": {
-					"title": "Hugging Face Schema For Text Classification",
+					"title": "Hugging Face Schema For Sentiment Analysis",
 					"properties": {
 						"inputs": {
 							"type": "string",
 							"title": "inputs",
-							"default": "I like you. I love you",
-							"description": "The data to send to the hugging face api text classification endpoint"
+							"default": "I like you. I love you"
 						},
 						"apiKey": {
 							"type": "string",

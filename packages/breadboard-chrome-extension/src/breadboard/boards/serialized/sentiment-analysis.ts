@@ -1,7 +1,7 @@
 import { board, base, code } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
-import path from "path";
-import fs from "fs";
+/* import path from "path";
+import fs from "fs"; */
 
 const inputsSchema = {
   type: "string",
@@ -93,7 +93,7 @@ export const serializedSentiment = await board(() => {
     "Board which calls the Hugging Face Twitter Roberta Sentiment Analysis Endpoint",
 });
 
-fs.writeFileSync(
+/* fs.writeFileSync(
   path.join(".", "/src/breadboard/graphs/sentimentBoard.json"),
   JSON.stringify(serializedSentiment, null, "\t")
-);
+); */
