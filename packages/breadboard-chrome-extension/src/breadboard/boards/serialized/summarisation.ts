@@ -167,9 +167,8 @@ export const serializedClaudeBoard = await board(() => {
   const output = base.output({ $id: "output" });
 
   completion.completion.to(output);
-  completion.status.to(output);
 
-  return { output };
+  return output;
 }).serialize({ title: "Summarisation board with claude" });
 
 fs.writeFileSync(
