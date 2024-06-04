@@ -2,6 +2,12 @@
 	"title": "Summarisation board with claude",
 	"edges": [
 		{
+			"from": "output",
+			"to": "output-2",
+			"out": "output",
+			"in": "output"
+		},
+		{
 			"from": "claudePostSummarisation",
 			"to": "output",
 			"out": "completion",
@@ -27,6 +33,21 @@
 		}
 	],
 	"nodes": [
+		{
+			"id": "output-2",
+			"type": "output",
+			"configuration": {
+				"schema": {
+					"type": "object",
+					"properties": {
+						"output": {
+							"type": "string",
+							"title": "output"
+						}
+					}
+				}
+			}
+		},
 		{
 			"id": "output",
 			"type": "output",

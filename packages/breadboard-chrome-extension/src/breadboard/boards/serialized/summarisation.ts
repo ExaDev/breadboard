@@ -151,7 +151,7 @@ export const serializedClaudeBoard = await board(() => {
     type: "string",
   });
 
-  const completion = complete({
+  const claudePostCompletion = complete({
     $id: "claudePostSummarisation",
     model: "claude-2",
     url: "https://api.anthropic.com/v1/complete",
@@ -163,12 +163,12 @@ export const serializedClaudeBoard = await board(() => {
     template: inputs.message as unknown as string,
   });
 
-  instructionTemplate.string.as("userQuestion").to(completion);
+  instructionTemplate.string.as("userQuestion").to(claudePostCompletion);
   const output = base.output({ $id: "output" });
 
-  completion.completion.to(output);
+  claudePostCompletion.completion.to(output);
 
-  return output;
+  return { output };
 }).serialize({ title: "Summarisation board with claude" });
 
 fs.writeFileSync(
