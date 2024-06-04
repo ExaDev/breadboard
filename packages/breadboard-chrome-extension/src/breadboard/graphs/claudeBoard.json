@@ -2,22 +2,10 @@
 	"title": "Summarisation board with claude",
 	"edges": [
 		{
-			"from": "output",
-			"to": "output-2",
-			"out": "output",
-			"in": "output"
-		},
-		{
 			"from": "claudePostSummarisation",
 			"to": "output",
 			"out": "completion",
 			"in": "completion"
-		},
-		{
-			"from": "claudePostSummarisation",
-			"to": "output",
-			"out": "status",
-			"in": "status"
 		},
 		{
 			"from": "inputs",
@@ -40,21 +28,6 @@
 	],
 	"nodes": [
 		{
-			"id": "output-2",
-			"type": "output",
-			"configuration": {
-				"schema": {
-					"type": "object",
-					"properties": {
-						"output": {
-							"type": "string",
-							"title": "output"
-						}
-					}
-				}
-			}
-		},
-		{
 			"id": "output",
 			"type": "output",
 			"configuration": {
@@ -64,10 +37,6 @@
 						"completion": {
 							"type": "string",
 							"title": "completion"
-						},
-						"status": {
-							"type": "string",
-							"title": "status"
 						}
 					}
 				}
