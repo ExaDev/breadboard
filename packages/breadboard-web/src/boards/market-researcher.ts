@@ -19,14 +19,8 @@ const input = base.input({
     required: ["query"],
   },
 });
-// const finalOutput = base.output({
-//   $id: "finalOutput",
-// });
 const output = base.output({
   $id: "output",
-  //   schema: {
-  //     title: "Search Results",
-  //   },
 });
 
 const secrets = core.secrets({
@@ -53,85 +47,10 @@ const response = spread({
   object: search.response,
 });
 
-// const items = response.items;
-// response.items.to(base.output()).to(finalOutput);
-
-// const pop = <T extends NodeValue>() =>
-//   code<{ items: T[] }, { item: T; items: T[] }>((inputs) => ({
-//     item: inputs.items.pop() as T,
-//     items: inputs.items,
-//   }));
-
-// const genericPop = <T>() =>
-//   code<{ items: T[] }, { item?: T; items?: T[] }>((inputs) => {
-//     const items = inputs.items;
-//     const item = items.pop();
-//     // return {
-//     //   item: item as T,
-//     //   items,
-//     // };
-//     if (item) {
-//       // throw new Error("No more items to pop");
-//       return {
-//         item,
-//         items,
-//       };
-//     }
-//   });
-
 const shiftItem = shift({
   $id: "shiftItem",
   items: response.items,
 });
-
-// shiftItem.item.to(base.output({
-//   $id: "shiftItemOutput"
-// })).to(finalOutput);
-
-// const urlInput = base.input({
-//   $id: "initialUrl",
-//   schema: {
-//     description: "Search for something on the web",
-//     type: "object",
-//     properties: {
-//       url: {
-//         type: "string",
-//         description: "What would you like to search for?",
-//         default: "https://breadboard-ai.github.io/breadboard/",
-//       },
-//     },
-//   },
-// });
-// items.to(popItem);
-// response.to(output)
-// search.to(output)
-
-// const openAiBaseUrl = base.input({
-//   $id: "openAiBaseUrl",
-//   schema: {
-//     type: "object",
-//     properties: {
-//       url: {
-//         type: "string",
-//         description: "The URL of the OpenAI API",
-//         // default: "https://api.openai.com/v1",
-//         default: "http://mbp-m3.turtle-frog.ts.net:1234/v1",
-//       },
-//     },
-//   },
-// });
-
-// const completionsUrl = templates.urlTemplate({
-//   $id: "completionsUrl",
-//   url: openAiBaseUrl.url,
-//   template: "{url}/chat/completions",
-// });
-// const fetchPage = core.fetch({
-//   $id: "fetchPage",
-//   // url: completionsUrl.url,
-//   // url: urlInput.url
-// });
-// // urlInput.url.to(fetchPage);
 
 const buildRequest = code<
   {
@@ -173,7 +92,8 @@ const config = base.input({
         type: "string",
         title: "OpenAI API URL",
         description: "The URL of the OpenAI API",
-        default: "https://api.openai.com/v1",
+
+        default: "http://mbp-m3.turtle-frog.ts.net:1234/v1",
         examples: ["https://api.openai.com/v1", "http://localhost:1234/v1"],
       },
       model: {
@@ -206,44 +126,21 @@ config.model.to(request);
 config.temperature.to(request);
 config.prompt.to(request);
 //
-// shiftItem.item.as("content").to(request);
-// shiftItem.item.to(output)
 const firstResult = spread({
   $id: "firstSearchResult",
   object: shiftItem.item,
 });
 shiftItem.item.as("content").to(request);
-// firstResult.to(output);
-// firstResult.link.to(fetchPage)
-// const firstPageContent = core.fetch({
-//   url: firstResult.link as unknown as string,
-// });
+firstResult.to(output);
 const fetchPage = core.fetch({
   $id: "fetchPageContent",
   url: firstResult.link as unknown as string,
 });
-// firstResult.to(output)
-// firstResult.link.as("url").to(fetchPage);
-// fetchPage.response.to(output);
-// const firstPageContent = fetchPage.response.as("content").to(request);
-const firstPageContent = fetchPage.response;
-// const xmlExtractor = code<{ content: string }, { content: string }>(
-//   (inputs) => {
-//     // parse the html
-//   }
-// );
-// request;
+fetchPage.response.to(output);
 
-// firstPageContent.response.to(output);
 
-// request.to(output);
 
-// request.to(base.output({
-//   $id: "requestOutput",
-// })).to(finalOutput);
-// openAiBaseUrl.url.to(request);
 
-// request.to(output);
 const fetchCompletion = core.fetch({
   $id: "callOpenAI",
   url: request.url,
@@ -251,7 +148,6 @@ const fetchCompletion = core.fetch({
   headers: request.headers,
   body: request.body,
 });
-// fetchCompletion.response.to(output);
 const completionResponse = spread({
   $id: "spreadCompletionResponse",
   object: fetchCompletion.response,
@@ -270,14 +166,7 @@ const messageContent = spread({
   object: completionItem.message,
 });
 messageContent.content.to(output);
-// fetchCompletion.to(base.output({
-//   $id: "fetchCompletionOutput",
-// })).to(finalOutput);
 
-// fetchPage.response.to(base.output({
-//   $id: "fetchPageOutput",
-// })).to(finalOutput);
-// fetchPage.response.as("content").to(buildRequest);
 
 export default await output.serialize({
   title: "Market Researcher",
