@@ -75,10 +75,11 @@
 		},
 		{
 			"id": "claudePostSummarisation",
-			"type": "complete",
+			"type": "invoke",
 			"configuration": {
 				"model": "claude-2",
-				"url": "https://api.anthropic.com/v1/complete"
+				"url": "https://api.anthropic.com/v1/complete",
+				"$board": "#claudePostSummarisation"
 			}
 		},
 		{
@@ -113,6 +114,41 @@
 		}
 	],
 	"graphs": {
+		"claudePostSummarisation": {
+			"edges": [
+				{
+					"from": "claudePostSummarisation-input",
+					"to": "claudePostSummarisation-run",
+					"out": "*"
+				},
+				{
+					"from": "claudePostSummarisation-run",
+					"to": "claudePostSummarisation-output",
+					"out": "*"
+				}
+			],
+			"nodes": [
+				{
+					"id": "claudePostSummarisation-input",
+					"type": "input",
+					"configuration": {}
+				},
+				{
+					"id": "claudePostSummarisation-run",
+					"type": "runJavascript",
+					"configuration": {
+						"code": "async function claudePostSummarisation(input) {const completion=postClaudeCompletion(input);return{completion}}",
+						"name": "claudePostSummarisation",
+						"raw": true
+					}
+				},
+				{
+					"id": "claudePostSummarisation-output",
+					"type": "output",
+					"configuration": {}
+				}
+			]
+		},
 		"instructionTemplate": {
 			"edges": [
 				{
