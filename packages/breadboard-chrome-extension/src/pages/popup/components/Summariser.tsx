@@ -4,7 +4,7 @@ import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 import { PacmanLoader } from "react-spinners";
 import useTextSelection from "../../../chrome-api-hooks/use-text-selection";
 import { ExtensionBoardRunner } from "@breadboard/classes/ExtensionBoardRunner";
-import serializedClaudeBoard from "@breadboard/graphs/claudeBoard.json";
+import serializedClaudeBoard from "@breadboard/graphs/ClaudeSummarisationBoard.json";
 import { ClaudeKit } from "@breadboard/kits/kits-as-code-node";
 
 const Summariser = (): React.JSX.Element => {

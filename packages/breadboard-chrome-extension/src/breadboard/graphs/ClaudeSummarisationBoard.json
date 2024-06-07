@@ -1,5 +1,5 @@
 {
-	"title": "Summarisation board with claude",
+	"title": "ClaudeSummarisationBoard",
 	"edges": [
 		{
 			"from": "output",
