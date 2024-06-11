@@ -82,7 +82,7 @@ const defaultReview = [
 ].join("\n");
 
 const examples = [
-  // defaultReview,
+  defaultReview,
   // Positive reviews
   `I had an amazing time at ABC Cafe. The coffee was absolutely perfect and the staff were so friendly and attentive. I’ll definitely be coming back!"`,
   `XYZ Boutique has such a fantastic collection! I found exactly what I was looking for and the customer service was excellent. Highly recommend!"`,
@@ -170,7 +170,7 @@ const input = base.input({
         default: "",
         // default: defaultReview,
         format: "multiline",
-        // examples: examples,
+        examples: examples,
       },
     },
     required: ["task", "tone", "voice"],
