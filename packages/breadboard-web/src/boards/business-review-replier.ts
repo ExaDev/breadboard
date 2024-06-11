@@ -5,9 +5,19 @@
  */
 
 import { agents } from "@google-labs/agent-kit";
-import { Schema, base, code } from "@google-labs/breadboard";
+import {
+  AbstractNode,
+  InputValues,
+  InputsMaybeAsValues,
+  NewInputValuesWithNodeFactory,
+  Schema,
+  V,
+  base,
+  code,
+} from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
 import { Context, LlmContentRole } from "../../../agent-kit/dist/src/context";
+import { NodeProxy } from "../../../breadboard/dist/src/new/grammar/types";
 
 const task = [
   `You are tasked with assisting businesses by generating thoughtful, engaging, and professional responses to customer reviews. Your purpose is to process business reviews from various sources and generate replies that maintain the brand's voice. Here are the detailed instructions for generating replies:`,
@@ -72,7 +82,7 @@ const defaultReview = [
 ].join("\n");
 
 const examples = [
-  defaultReview,
+  // defaultReview,
   // Positive reviews
   `I had an amazing time at ABC Cafe. The coffee was absolutely perfect and the staff were so friendly and attentive. I’ll definitely be coming back!"`,
   `XYZ Boutique has such a fantastic collection! I found exactly what I was looking for and the customer service was excellent. Highly recommend!"`,
@@ -86,6 +96,45 @@ const examples = [
   `I had a mixed experience at PQR Salon. The haircut was fine, but the stylist seemed rushed and didn't really listen to what I wanted."`,
   `Shopping at STU Supermarket is convenient, but the aisles are often cluttered and it’s hard to find certain items. Prices are reasonable though."`,
 ];
+
+function randomFromArray<T>(
+  args:
+    | V<unknown>
+    | AbstractNode<NewInputValuesWithNodeFactory, { array: T[] }>
+    | InputsMaybeAsValues<{ array: T[] }, NewInputValuesWithNodeFactory>
+    | undefined
+): NodeProxy<{ array: T[] }, Required<{ item: T }>> {
+  return code<
+    {
+      array: T[];
+    },
+    {
+      item: T;
+    }
+  >((inputs) => {
+    console.log({ inputs });
+    const randomIndex = Math.floor(Math.random() * inputs.array.length);
+    return { item: inputs.array[randomIndex] };
+  })(args);
+}
+
+function coalesce<T>(
+  args:
+    | V<unknown>
+    | AbstractNode<NewInputValuesWithNodeFactory, InputValues>
+    | InputsMaybeAsValues<InputValues, NewInputValuesWithNodeFactory>
+    | undefined
+): NodeProxy<{ a: T; b: T }, Required<{ item: T }>> {
+  return code<InputValues, { item: T }>((inputs) => {
+    if ("a" in inputs) {
+      return { item: inputs.a as T };
+    }
+    if ("b" in inputs) {
+      return { item: inputs.b as T };
+    }
+    throw new Error("No value");
+  })(args);
+}
 
 const input = base.input({
   $metadata: {
@@ -118,12 +167,13 @@ const input = base.input({
       review: {
         type: "string",
         title: "Review",
-        default: defaultReview,
+        default: "",
+        // default: defaultReview,
         format: "multiline",
-        examples: examples,
+        // examples: examples,
       },
     },
-    required: ["system_prompt"],
+    required: ["task", "tone", "voice"],
   },
 });
 
@@ -147,11 +197,36 @@ const voice_passthrough = core.passthrough({
   },
   voice: input.voice,
 });
+
+const pickRandomExample = randomFromArray({
+  $metadata: {
+    title: "Pick random example",
+  },
+  array: examples,
+});
+const coalesceReview = coalesce({
+  $metadata: {
+    title: "Coalesce",
+  },
+});
+
+const relabelReviewParam = core.passthrough({
+  $metadata: {
+    title: "Relabel Review",
+  },
+});
+
+pickRandomExample.item.as("b").to(coalesceReview);
+input.as({}).to(relabelReviewParam);
+input.review.as("a").as({}).to(relabelReviewParam);
+
+relabelReviewParam.to(coalesceReview);
+
 const review_content = core.passthrough({
   $metadata: {
     title: "Review Passthrough",
   },
-  review: input.review,
+  review: coalesceReview.item,
 });
 
 const contextPartMaker = code<
@@ -218,16 +293,20 @@ const output = base.output({
   schema: {
     type: "object",
     properties: {
+      review: {
+        type: "string",
+        title: "Review",
+      },
       reply: {
         type: "string",
         title: "Reply",
       },
     },
   } satisfies Schema,
-  reply: bot.out,
 });
 
-// bot.to(output);
+bot.out.as("reply").to(output);
+review_content.review.as("review").to(output);
 
 export default await input.serialize({
   title: "Bussiness Review Reply Generator",

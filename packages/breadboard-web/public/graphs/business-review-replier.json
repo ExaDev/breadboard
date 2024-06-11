@@ -3,20 +3,32 @@
   "description": "A board that generates a reply to a business review.",
   "edges": [
     {
+      "from": "fn-30",
+      "to": "fn-31",
+      "out": "item",
+      "in": "b"
+    },
+    {
       "from": "fn-31",
-      "to": "fn-32",
+      "to": "passthrough-33",
+      "out": "item",
+      "in": "review"
+    },
+    {
+      "from": "fn-34",
+      "to": "fn-35",
       "out": "result",
       "in": "text"
     },
     {
-      "from": "fn-32",
-      "to": "specialist-34",
+      "from": "fn-35",
+      "to": "specialist-37",
       "out": "context",
       "in": "persona"
     },
     {
-      "from": "fn-33",
-      "to": "specialist-34",
+      "from": "fn-36",
+      "to": "specialist-37",
       "out": "context",
       "in": "in"
     },
@@ -40,37 +52,55 @@
     },
     {
       "from": "input-26",
-      "to": "passthrough-30",
+      "to": "passthrough-32",
+      "out": "",
+      "in": ""
+    },
+    {
+      "from": "input-26",
+      "to": "passthrough-32",
       "out": "review",
-      "in": "review"
+      "in": "a"
     },
     {
       "from": "passthrough-27",
-      "to": "specialist-34",
+      "to": "specialist-37",
       "out": "task",
       "in": "task"
     },
     {
       "from": "passthrough-28",
-      "to": "fn-31",
+      "to": "fn-34",
       "out": "tone",
       "in": "a"
     },
     {
       "from": "passthrough-29",
-      "to": "fn-31",
+      "to": "fn-34",
       "out": "voice",
       "in": "b"
     },
     {
-      "from": "passthrough-30",
-      "to": "fn-33",
+      "from": "passthrough-32",
+      "to": "fn-31",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "passthrough-33",
+      "to": "fn-36",
       "out": "review",
       "in": "text"
     },
     {
-      "from": "specialist-34",
-      "to": "output-35",
+      "from": "passthrough-33",
+      "to": "output-38",
+      "out": "review",
+      "in": "review"
+    },
+    {
+      "from": "specialist-37",
+      "to": "output-38",
       "out": "out",
       "in": "reply"
     }
@@ -86,19 +116,7 @@
             "review": {
               "type": "string",
               "title": "Review",
-              "default": "Rating: ★★★★★\n\nI recently visited Brewed Bliss Coffee Shop and was thoroughly impressed with my experience. From the moment I walked in, I was greeted with a warm, welcoming atmosphere that instantly made me feel at home. The cosy decor, complete with comfortable seating and tasteful artwork, added to the overall charm of the place.\nThe staff were exceptionally friendly and attentive, making sure that every customer felt valued. I was particularly impressed by their knowledge of the menu and their willingness to offer recommendations. Their passion for coffee was evident, and it was clear that they took great pride in their work.\nNow, onto the coffee – it was nothing short of spectacular. I ordered a flat white, and it was perfectly balanced with a rich, creamy texture and a smooth, velvety finish. The barista’s skill in crafting the drink was apparent, and it was one of the best coffees I’ve had in a long time. They also offer a variety of specialty drinks, teas, and pastries, all of which looked delicious.\nOne aspect that really stood out was their commitment to sustainability. Brewed Bliss uses ethically sourced beans and environmentally friendly packaging, which is a big plus for me. It’s great to see a local business taking steps to reduce its environmental impact.\nOverall, Brewed Bliss Coffee Shop exceeded my expectations in every way. The delightful ambience, excellent coffee, and outstanding service make it a standout in the local coffee scene. I highly recommend paying them a visit – you won’t be disappointed!",
-              "examples": [
-                "Rating: ★★★★★\n\nI recently visited Brewed Bliss Coffee Shop and was thoroughly impressed with my experience. From the moment I walked in, I was greeted with a warm, welcoming atmosphere that instantly made me feel at home. The cosy decor, complete with comfortable seating and tasteful artwork, added to the overall charm of the place.\nThe staff were exceptionally friendly and attentive, making sure that every customer felt valued. I was particularly impressed by their knowledge of the menu and their willingness to offer recommendations. Their passion for coffee was evident, and it was clear that they took great pride in their work.\nNow, onto the coffee – it was nothing short of spectacular. I ordered a flat white, and it was perfectly balanced with a rich, creamy texture and a smooth, velvety finish. The barista’s skill in crafting the drink was apparent, and it was one of the best coffees I’ve had in a long time. They also offer a variety of specialty drinks, teas, and pastries, all of which looked delicious.\nOne aspect that really stood out was their commitment to sustainability. Brewed Bliss uses ethically sourced beans and environmentally friendly packaging, which is a big plus for me. It’s great to see a local business taking steps to reduce its environmental impact.\nOverall, Brewed Bliss Coffee Shop exceeded my expectations in every way. The delightful ambience, excellent coffee, and outstanding service make it a standout in the local coffee scene. I highly recommend paying them a visit – you won’t be disappointed!",
-                "I had an amazing time at ABC Cafe. The coffee was absolutely perfect and the staff were so friendly and attentive. I’ll definitely be coming back!\"",
-                "XYZ Boutique has such a fantastic collection! I found exactly what I was looking for and the customer service was excellent. Highly recommend!\"",
-                "What a wonderful experience at LMN Spa! The massage was incredibly relaxing and the ambience was just right. Can't wait for my next visit.\"",
-                "The service at DEF Restaurant was really slow. We had to wait almost an hour for our food, and when it arrived, it was cold and undercooked.\"",
-                "I was very disappointed with my stay at GHI Hotel. The room was not clean, and the staff seemed uninterested in addressing our concerns.\"",
-                "The product I bought from JKL Electronics stopped working after just a week. When I tried to contact customer service, I got no response.\"",
-                "The new exhibit at MNO Museum was interesting, but it felt a bit disorganised. Some of the information was hard to follow, but overall, it was a decent visit.\"",
-                "I had a mixed experience at PQR Salon. The haircut was fine, but the stylist seemed rushed and didn't really listen to what I wanted.\"",
-                "Shopping at STU Supermarket is convenient, but the aisles are often cluttered and it’s hard to find certain items. Prices are reasonable though.\""
-              ],
+              "default": "",
               "format": "multiline"
             },
             "task": {
@@ -124,7 +142,9 @@
             }
           },
           "required": [
-            "system_prompt"
+            "task",
+            "tone",
+            "voice"
           ]
         }
       },
@@ -133,7 +153,7 @@
       }
     },
     {
-      "id": "output-35",
+      "id": "output-38",
       "type": "output",
       "configuration": {
         "schema": {
@@ -142,6 +162,10 @@
             "reply": {
               "type": "string",
               "title": "Reply"
+            },
+            "review": {
+              "type": "string",
+              "title": "Review"
             }
           }
         }
@@ -151,12 +175,47 @@
       }
     },
     {
+      "id": "fn-30",
+      "type": "runJavascript",
+      "configuration": {
+        "array": [
+          "I had an amazing time at ABC Cafe. The coffee was absolutely perfect and the staff were so friendly and attentive. I’ll definitely be coming back!\"",
+          "XYZ Boutique has such a fantastic collection! I found exactly what I was looking for and the customer service was excellent. Highly recommend!\"",
+          "What a wonderful experience at LMN Spa! The massage was incredibly relaxing and the ambience was just right. Can't wait for my next visit.\"",
+          "The service at DEF Restaurant was really slow. We had to wait almost an hour for our food, and when it arrived, it was cold and undercooked.\"",
+          "I was very disappointed with my stay at GHI Hotel. The room was not clean, and the staff seemed uninterested in addressing our concerns.\"",
+          "The product I bought from JKL Electronics stopped working after just a week. When I tried to contact customer service, I got no response.\"",
+          "The new exhibit at MNO Museum was interesting, but it felt a bit disorganised. Some of the information was hard to follow, but overall, it was a decent visit.\"",
+          "I had a mixed experience at PQR Salon. The haircut was fine, but the stylist seemed rushed and didn't really listen to what I wanted.\"",
+          "Shopping at STU Supermarket is convenient, but the aisles are often cluttered and it’s hard to find certain items. Prices are reasonable though.\""
+        ],
+        "code": "const fn_30 = inputs=>{console.log({inputs});const randomIndex=Math.floor(Math.random()*inputs.array.length);return{item:inputs.array[randomIndex]}};",
+        "name": "fn_30",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Pick random example"
+      }
+    },
+    {
       "id": "fn-31",
       "type": "runJavascript",
       "configuration": {
-        "code": "const fn_31 = ({a,b,delimiter=\" \"})=>{return{result:a+delimiter+b}};",
-        "delimiter": "\n\n",
+        "code": "const fn_31 = inputs=>{if(\"a\"in inputs){return{item:inputs.a}}if(\"b\"in inputs){return{item:inputs.b}}throw new Error(\"No value\")};",
         "name": "fn_31",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Coalesce"
+      }
+    },
+    {
+      "id": "fn-34",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_34 = ({a,b,delimiter=\" \"})=>{return{result:a+delimiter+b}};",
+        "delimiter": "\n\n",
+        "name": "fn_34",
         "raw": true
       },
       "metadata": {
@@ -164,11 +223,11 @@
       }
     },
     {
-      "id": "fn-32",
+      "id": "fn-35",
       "type": "runJavascript",
       "configuration": {
-        "code": "const fn_32 = inputs=>{const parts=[{text:inputs.text}];return{context:inputs.role?{role:inputs.role,parts}:{parts}}};",
-        "name": "fn_32",
+        "code": "const fn_35 = inputs=>{const parts=[{text:inputs.text}];return{context:inputs.role?{role:inputs.role,parts}:{parts}}};",
+        "name": "fn_35",
         "raw": true
       },
       "metadata": {
@@ -176,11 +235,11 @@
       }
     },
     {
-      "id": "fn-33",
+      "id": "fn-36",
       "type": "runJavascript",
       "configuration": {
-        "code": "const fn_33 = inputs=>{const parts=[{text:inputs.text}];return{context:inputs.role?{role:inputs.role,parts}:{parts}}};",
-        "name": "fn_33",
+        "code": "const fn_36 = inputs=>{const parts=[{text:inputs.text}];return{context:inputs.role?{role:inputs.role,parts}:{parts}}};",
+        "name": "fn_36",
         "raw": true,
         "role": "user"
       },
@@ -213,7 +272,15 @@
       }
     },
     {
-      "id": "passthrough-30",
+      "id": "passthrough-32",
+      "type": "passthrough",
+      "configuration": {},
+      "metadata": {
+        "title": "Relabel Review"
+      }
+    },
+    {
+      "id": "passthrough-33",
       "type": "passthrough",
       "configuration": {},
       "metadata": {
@@ -221,7 +288,7 @@
       }
     },
     {
-      "id": "specialist-34",
+      "id": "specialist-37",
       "type": "specialist",
       "configuration": {},
       "metadata": {
