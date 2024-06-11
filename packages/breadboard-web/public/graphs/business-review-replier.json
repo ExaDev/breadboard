@@ -71,8 +71,8 @@
     {
       "from": "specialist-34",
       "to": "output-35",
-      "out": "*",
-      "in": ""
+      "out": "out",
+      "in": "reply"
     }
   ],
   "nodes": [
@@ -85,7 +85,7 @@
           "properties": {
             "review": {
               "type": "string",
-              "title": "Review content",
+              "title": "Review",
               "default": "Rating: ★★★★★\n\nI recently visited Brewed Bliss Coffee Shop and was thoroughly impressed with my experience. From the moment I walked in, I was greeted with a warm, welcoming atmosphere that instantly made me feel at home. The cosy decor, complete with comfortable seating and tasteful artwork, added to the overall charm of the place.\nThe staff were exceptionally friendly and attentive, making sure that every customer felt valued. I was particularly impressed by their knowledge of the menu and their willingness to offer recommendations. Their passion for coffee was evident, and it was clear that they took great pride in their work.\nNow, onto the coffee – it was nothing short of spectacular. I ordered a flat white, and it was perfectly balanced with a rich, creamy texture and a smooth, velvety finish. The barista’s skill in crafting the drink was apparent, and it was one of the best coffees I’ve had in a long time. They also offer a variety of specialty drinks, teas, and pastries, all of which looked delicious.\nOne aspect that really stood out was their commitment to sustainability. Brewed Bliss uses ethically sourced beans and environmentally friendly packaging, which is a big plus for me. It’s great to see a local business taking steps to reduce its environmental impact.\nOverall, Brewed Bliss Coffee Shop exceeded my expectations in every way. The delightful ambience, excellent coffee, and outstanding service make it a standout in the local coffee scene. I highly recommend paying them a visit – you won’t be disappointed!",
               "examples": [
                 "Rating: ★★★★★\n\nI recently visited Brewed Bliss Coffee Shop and was thoroughly impressed with my experience. From the moment I walked in, I was greeted with a warm, welcoming atmosphere that instantly made me feel at home. The cosy decor, complete with comfortable seating and tasteful artwork, added to the overall charm of the place.\nThe staff were exceptionally friendly and attentive, making sure that every customer felt valued. I was particularly impressed by their knowledge of the menu and their willingness to offer recommendations. Their passion for coffee was evident, and it was clear that they took great pride in their work.\nNow, onto the coffee – it was nothing short of spectacular. I ordered a flat white, and it was perfectly balanced with a rich, creamy texture and a smooth, velvety finish. The barista’s skill in crafting the drink was apparent, and it was one of the best coffees I’ve had in a long time. They also offer a variety of specialty drinks, teas, and pastries, all of which looked delicious.\nOne aspect that really stood out was their commitment to sustainability. Brewed Bliss uses ethically sourced beans and environmentally friendly packaging, which is a big plus for me. It’s great to see a local business taking steps to reduce its environmental impact.\nOverall, Brewed Bliss Coffee Shop exceeded my expectations in every way. The delightful ambience, excellent coffee, and outstanding service make it a standout in the local coffee scene. I highly recommend paying them a visit – you won’t be disappointed!",
@@ -135,7 +135,17 @@
     {
       "id": "output-35",
       "type": "output",
-      "configuration": {},
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "reply": {
+              "type": "string",
+              "title": "Reply"
+            }
+          }
+        }
+      },
       "metadata": {
         "title": "Output"
       }
@@ -183,7 +193,7 @@
       "type": "passthrough",
       "configuration": {},
       "metadata": {
-        "title": "System Prompt"
+        "title": "Task Passthrough"
       }
     },
     {
@@ -191,7 +201,7 @@
       "type": "passthrough",
       "configuration": {},
       "metadata": {
-        "title": "Business Tone"
+        "title": "Tone Passthrough"
       }
     },
     {
@@ -199,7 +209,7 @@
       "type": "passthrough",
       "configuration": {},
       "metadata": {
-        "title": "Voice"
+        "title": "Voice Passthrough"
       }
     },
     {
@@ -207,7 +217,7 @@
       "type": "passthrough",
       "configuration": {},
       "metadata": {
-        "title": "Review Content"
+        "title": "Review Passthrough"
       }
     },
     {

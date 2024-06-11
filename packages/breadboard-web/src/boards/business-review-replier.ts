@@ -5,7 +5,7 @@
  */
 
 import { agents } from "@google-labs/agent-kit";
-import { base, code } from "@google-labs/breadboard";
+import { Schema, base, code } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
 import { Context, LlmContentRole } from "../../../agent-kit/dist/src/context";
 
@@ -117,7 +117,7 @@ const input = base.input({
       },
       review: {
         type: "string",
-        title: "Review content",
+        title: "Review",
         default: defaultReview,
         format: "multiline",
         examples: examples,
@@ -129,27 +129,27 @@ const input = base.input({
 
 const task_passthrough = core.passthrough({
   $metadata: {
-    title: "System Prompt",
+    title: "Task Passthrough",
   },
   task: input.task,
 });
 
 const tone_passthrough = core.passthrough({
   $metadata: {
-    title: "Business Tone",
+    title: "Tone Passthrough",
   },
   tone: input.tone,
 });
 
 const voice_passthrough = core.passthrough({
   $metadata: {
-    title: "Voice",
+    title: "Voice Passthrough",
   },
   voice: input.voice,
 });
 const review_content = core.passthrough({
   $metadata: {
-    title: "Review Content",
+    title: "Review Passthrough",
   },
   review: input.review,
 });
@@ -215,9 +215,19 @@ const output = base.output({
   $metadata: {
     title: "Output",
   },
+  schema: {
+    type: "object",
+    properties: {
+      reply: {
+        type: "string",
+        title: "Reply",
+      },
+    },
+  } satisfies Schema,
+  reply: bot.out,
 });
 
-bot.to(output);
+// bot.to(output);
 
 export default await input.serialize({
   title: "Bussiness Review Reply Generator",
