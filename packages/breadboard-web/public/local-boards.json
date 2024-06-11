@@ -60,6 +60,10 @@
     "version": "1.1.0"
   },
   {
+    "title": "Bussiness Review Reply Generator",
+    "url": "/graphs/business-review-replier.json"
+  },
+  {
     "title": "Chat bot 2.0",
     "url": "/graphs/chat-bot-2.json",
     "version": "0.0.1"
