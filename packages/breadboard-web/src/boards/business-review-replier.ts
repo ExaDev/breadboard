@@ -289,7 +289,11 @@ const output = base.output({
 bot.out.as("reply").to(output);
 coalesceReview.item.as("review").to(output);
 
-export default await input.serialize({
+const serialised = await input.serialize({
   title: "Bussiness Review Reply Generator",
   description: "A board that generates a reply to a business review.",
 });
+
+export { serialised as graph, input, output };
+
+export default serialised;
