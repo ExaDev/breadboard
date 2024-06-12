@@ -125,12 +125,12 @@ function coalesce<T>(
     | InputsMaybeAsValues<InputValues, NewInputValuesWithNodeFactory>
     | undefined
 ): NodeProxy<{ a: T; b: T }, Required<{ item: T }>> {
-  return code<InputValues, { item: T }>((inputs) => {
+  return code<InputValues, { item: T }>((inputs: { a: T; b: T }) => {
     if ("a" in inputs) {
-      return { item: inputs.a as T };
+      return { item: inputs["a"] as T };
     }
     if ("b" in inputs) {
-      return { item: inputs.b as T };
+      return { item: inputs["b"] as T };
     }
     throw new Error("No value");
   })(args);
