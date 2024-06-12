@@ -111,7 +111,7 @@ function randomFromArray<T>(
     {
       item: T;
     }
-  >((inputs) => {
+  >((inputs: { array: T[] }) => {
     console.log({ inputs });
     const randomIndex = Math.floor(Math.random() * inputs.array.length);
     return { item: inputs.array[randomIndex] };
@@ -208,29 +208,32 @@ const review_content = core.passthrough({
   review: coalesceReview.item,
 });
 
-const contextPartMaker = code<
-  {
-    role?: LlmContentRole;
-    text: string;
-  },
-  { context: Context }
->((inputs) => {
-  const parts = [{ text: inputs.text }];
-  return {
-    context: inputs.role ? { role: inputs.role, parts } : { parts },
-  };
-});
+type ContextMakerNodeInput = {
+  role?: LlmContentRole;
+  text: string;
+};
+
+const contextPartMaker = code<ContextMakerNodeInput, { context: Context }>(
+  (inputs: ContextMakerNodeInput) => {
+    const parts = [{ text: inputs.text }];
+    return {
+      context: inputs.role ? { role: inputs.role, parts } : { parts },
+    };
+  }
+);
+
+type JoinStringNodeInput = {
+  a: string;
+  b: string;
+  delimiter?: string;
+};
 
 const joinString = code<
-  {
-    a: string;
-    b: string;
-    delimiter?: string;
-  },
+  JoinStringNodeInput,
   {
     result: string;
   }
->(({ a, b, delimiter = " " }): { result: string } => {
+>(({ a, b, delimiter = " " }: JoinStringNodeInput): { result: string } => {
   return { result: a + delimiter + b };
 });
 
@@ -238,7 +241,7 @@ const persona = joinString({
   $metadata: {
     title: "Persona",
   },
-  a: input.tone ,
+  a: input.tone,
   b: input.voice,
   delimiter: "\n\n",
 });
