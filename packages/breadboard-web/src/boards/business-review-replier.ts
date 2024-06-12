@@ -177,27 +177,6 @@ const input = base.input({
   },
 });
 
-const task_passthrough = core.passthrough({
-  $metadata: {
-    title: "Task Passthrough",
-  },
-  task: input.task,
-});
-
-const tone_passthrough = core.passthrough({
-  $metadata: {
-    title: "Tone Passthrough",
-  },
-  tone: input.tone,
-});
-
-const voice_passthrough = core.passthrough({
-  $metadata: {
-    title: "Voice Passthrough",
-  },
-  voice: input.voice,
-});
-
 const pickRandomExample = randomFromArray({
   $metadata: {
     title: "Pick random example",
@@ -259,8 +238,8 @@ const persona = joinString({
   $metadata: {
     title: "Persona",
   },
-  a: tone_passthrough.tone as unknown as string,
-  b: voice_passthrough.voice as unknown as string,
+  a: input.tone ,
+  b: input.voice,
   delimiter: "\n\n",
 });
 
@@ -283,7 +262,7 @@ const bot = agents.specialist({
   $metadata: { title: "Chat Bot" },
   in: makeReviewContext.context,
   persona: makePersonaContext.context,
-  task: task_passthrough.task,
+  task: input.task,
 });
 
 const output = base.output({
