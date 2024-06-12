@@ -49,6 +49,9 @@ const examples: string[] = [
 ] as const;
 
 const input = base.input({
+  $metadata: {
+    title: "Input",
+  },
   schema: {
     ...inputSchema,
     required: ["tone", "voice", "review"],
