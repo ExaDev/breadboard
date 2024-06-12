@@ -239,8 +239,8 @@ const persona = joinString({
   $metadata: {
     title: "Persona",
   },
-  a: input.tone,
-  b: input.voice,
+  a: input.tone as unknown as string,
+  b: input.voice as unknown as string,
   delimiter: "\n\n",
 });
 
