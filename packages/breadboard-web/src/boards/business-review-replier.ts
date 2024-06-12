@@ -266,6 +266,7 @@ const bot = agents.specialist({
   in: makeReviewContext.context,
   persona: makePersonaContext.context,
   task: input.task,
+  model: "gemini-1.5-flash-latest",
 });
 
 const output = base.output({
