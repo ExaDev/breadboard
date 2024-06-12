@@ -201,13 +201,6 @@ input.review.as("a").as({}).to(relabelReviewParam);
 
 relabelReviewParam.to(coalesceReview);
 
-const review_content = core.passthrough({
-  $metadata: {
-    title: "Review Passthrough",
-  },
-  review: coalesceReview.item,
-});
-
 type ContextMakerNodeInput = {
   role?: LlmContentRole;
   text: string;
@@ -257,7 +250,7 @@ const makeReviewContext = contextPartMaker({
   $metadata: {
     title: "Make review context",
   },
-  text: review_content.review as unknown as string,
+  text: coalesceReview.item as unknown as string,
   role: "user",
 });
 
@@ -289,7 +282,7 @@ const output = base.output({
 });
 
 bot.out.as("reply").to(output);
-review_content.review.as("review").to(output);
+coalesceReview.item.as("review").to(output);
 
 export default await input.serialize({
   title: "Bussiness Review Reply Generator",
