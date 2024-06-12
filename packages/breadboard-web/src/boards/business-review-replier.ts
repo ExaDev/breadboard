@@ -118,14 +118,19 @@ function randomFromArray<T>(
   })(args);
 }
 
+type AlternateType<T> = {
+  a?: T;
+  b?: T;
+};
+
 function coalesce<T>(
   args:
     | V<unknown>
-    | AbstractNode<NewInputValuesWithNodeFactory, InputValues>
-    | InputsMaybeAsValues<InputValues, NewInputValuesWithNodeFactory>
+    | AbstractNode<NewInputValuesWithNodeFactory, AlternateType<T>>
+    | InputsMaybeAsValues<AlternateType<T>, NewInputValuesWithNodeFactory>
     | undefined
-): NodeProxy<{ a: T; b: T }, Required<{ item: T }>> {
-  return code<InputValues, { item: T }>((inputs: { a: T; b: T }) => {
+): NodeProxy<AlternateType<T>, Required<{ item: T }>> {
+  return code<AlternateType<T>, { item: T }>((inputs: AlternateType<T>) => {
     if ("a" in inputs) {
       return { item: inputs["a"] as T };
     }
