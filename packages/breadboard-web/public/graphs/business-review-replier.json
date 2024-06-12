@@ -184,7 +184,7 @@
       "id": "fn-28",
       "type": "runJavascript",
       "configuration": {
-        "code": "const fn_28 = inputs=>{if(\"a\"in inputs){return{item:inputs.a}}if(\"b\"in inputs){return{item:inputs.b}}throw new Error(\"No value\")};",
+        "code": "const fn_28 = inputs=>{if(\"a\"in inputs){return{item:inputs[\"a\"]}}if(\"b\"in inputs){return{item:inputs[\"b\"]}}throw new Error(\"No value\")};",
         "name": "fn_28",
         "raw": true
       },
