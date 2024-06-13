@@ -1,0 +1,163 @@
+{
+  "title": "Lm Studio Proxy",
+  "description": "A board that can make requests to a local deployment of LM studio",
+  "version": "0.0.1",
+  "edges": [
+    {
+      "from": "fetch-4",
+      "to": "main",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "fn-3",
+      "to": "fetch-4",
+      "out": "payload",
+      "in": "body"
+    },
+    {
+      "from": "main",
+      "to": "output-2",
+      "out": "output",
+      "in": "output"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "max_tokens",
+      "in": "max_tokens"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "stream",
+      "in": "steam"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "systemContext",
+      "in": "systemContext"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "systemRole",
+      "in": "systemRole"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "temperature",
+      "in": "temperature"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "userContext",
+      "in": "userContext"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "userRole",
+      "in": "userRole"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "query",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "title": "LM Studio Schema for https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+          "properties": {
+            "maxToken": {
+              "type": "number",
+              "title": "max token",
+              "description": "",
+              "default": "1.0"
+            },
+            "stream": {
+              "type": "boolean",
+              "title": "stream",
+              "description": "Boolean to indicate if the model should stream the answer as it is being constructed",
+              "default": "false"
+            },
+            "systemContext": {
+              "type": "string",
+              "title": "system context",
+              "description": "context of the system",
+              "default": "default"
+            },
+            "systemRole": {
+              "type": "string",
+              "title": "system role",
+              "description": "role of the system",
+              "default": "system"
+            },
+            "temperature": {
+              "type": "number",
+              "title": "temperature",
+              "description": "The temperature of the sampling operation. 1 means regular sampling, 0 means always take the highest score, 100.0 is getting closer to uniform probability",
+              "default": "1.0"
+            },
+            "userContext": {
+              "type": "string",
+              "title": "user context",
+              "description": "context of the user",
+              "default": "default"
+            },
+            "userRole": {
+              "type": "string",
+              "title": "user context",
+              "description": "role of the user",
+              "default": "user"
+            }
+          }
+        },
+        "type": "string"
+      }
+    },
+    {
+      "id": "main",
+      "type": "output",
+      "configuration": {}
+    },
+    {
+      "id": "output-2",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string",
+              "title": "output"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fetch-4",
+      "type": "fetch",
+      "configuration": {
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "url": "http://host.docker.internal:1234/v1/chat/completions"
+      }
+    },
+    {
+      "id": "fn-3",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_3 = input=>{const{systemRole,userRole,systemContext,userContext,temperature,max_tokens,stream}=input;const context1={role:systemRole,content:systemContext};const context2={role:userRole,content:userContext};const payload={messages:[context1,context2],temperature,max_tokens,stream};console.log(\"payload\",payload);return{payload}};",
+        "name": "fn_3",
+        "raw": true
+      }
+    }
+  ]
+}

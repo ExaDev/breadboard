@@ -144,6 +144,11 @@
     "version": "0.0.1"
   },
   {
+    "title": "Lm Studio Proxy",
+    "url": "/graphs/lm-studio.json",
+    "version": "0.0.1"
+  },
+  {
     "title": "Looper Chat Testing Grounds",
     "url": "/graphs/looper-chat-test.json",
     "version": "0.0.1"
