@@ -207,6 +207,11 @@
     "version": "0.0.1"
   },
   {
+    "title": "Ollama Proxy",
+    "url": "/graphs/ollama.json",
+    "version": "0.0.1"
+  },
+  {
     "title": "Open Alex Entity Search Results",
     "url": "/graphs/open-alex-entity-search-list.json",
     "version": "0.0.1"

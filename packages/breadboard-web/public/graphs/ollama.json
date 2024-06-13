@@ -1,0 +1,104 @@
+{
+  "title": "Ollama Proxy",
+  "description": "Board which interacts with local Ollama server",
+  "version": "0.0.1",
+  "edges": [
+    {
+      "from": "fetch-4",
+      "to": "main",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "fn-3",
+      "to": "fetch-4",
+      "out": "payload",
+      "in": "body"
+    },
+    {
+      "from": "main",
+      "to": "output-2",
+      "out": "output",
+      "in": "output"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "model",
+      "in": "model"
+    },
+    {
+      "from": "query",
+      "to": "fn-3",
+      "out": "prompt",
+      "in": "prompt"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "query",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "title": "Inputs for Ollama3 API call",
+          "properties": {
+            "model": {
+              "type": "string",
+              "title": "Ollama Model",
+              "description": "The Ollama model to respond to the prompt",
+              "default": "llama3"
+            },
+            "prompt": {
+              "type": "string",
+              "title": "Prompt",
+              "description": "Prompt to ask Ollama Model",
+              "default": "What are the continents called?"
+            }
+          }
+        },
+        "type": "string"
+      }
+    },
+    {
+      "id": "main",
+      "type": "output",
+      "configuration": {}
+    },
+    {
+      "id": "output-2",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string",
+              "title": "output"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "fetch-4",
+      "type": "fetch",
+      "configuration": {
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate"
+      }
+    },
+    {
+      "id": "fn-3",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_3 = input=>{const payload=input;console.log(\"payload\",payload);return{payload}};",
+        "name": "fn_3",
+        "raw": true,
+        "stream": false
+      }
+    }
+  ]
+}
