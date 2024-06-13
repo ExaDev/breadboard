@@ -48,7 +48,7 @@ export default await board(() => {
         type: "string",
     });
 
-    const url = "http://host.docker.internal:11434/api/generate"
+    const url = "http://localhost:11434/api/generate"
     const output = base.output({ $id: "main" });
 
     const { payload } = buildRequest({
@@ -68,7 +68,7 @@ export default await board(() => {
     return { output }
 }).serialize({
     title: "Ollama Proxy",
-    description: "Board which interacts with local Ollama server",
+    description: "Board which interacts with local Ollama",
     version: "0.0.1",
   });
   

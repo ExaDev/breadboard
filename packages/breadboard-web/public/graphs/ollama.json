@@ -1,6 +1,6 @@
 {
   "title": "Ollama Proxy",
-  "description": "Board which interacts with local Ollama server",
+  "description": "Board which interacts with local Ollama",
   "version": "0.0.1",
   "edges": [
     {
@@ -87,7 +87,7 @@
           "content-type": "application/json"
         },
         "method": "POST",
-        "url": "http://host.docker.internal:11434/api/generate"
+        "url": "http://localhost:11434/api/generate"
       }
     },
     {
