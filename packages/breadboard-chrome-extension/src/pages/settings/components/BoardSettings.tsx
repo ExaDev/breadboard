@@ -78,10 +78,7 @@ const BoardSettings = (): React.JSX.Element => {
     <>
       <ul className="settingsGroup">
         <li className="settingsGroupButtons">
-          <Button title="General" />
           <Button title="Secrets" onClick={() => setShowSettingsGroup(true)} />
-          <Button title="Boards" />
-          <Button title="Saved Outputs" />
         </li>
         {showSettingsGroup ? (
           <li className="settingsGroupItems">

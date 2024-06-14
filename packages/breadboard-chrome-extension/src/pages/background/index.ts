@@ -1,16 +1,19 @@
 import useDownloads from "@/chrome-api-hooks/use-downloads";
-import sentimentAnalysisBoard from "@breadboard/boards/sentiment-analysis";
-import claudeSummarisationBoard from "@breadboard/boards/summarise";
+import serializedClaudeBoard from "@breadboard/graphs/claudeSummarisationBoard.json";
 import "@settings/background-scripts/settings";
-/** LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE */
+import { ExtensionBoardRunner } from "@/breadboard/classes/ExtensionBoardRunner";
+import { ClaudeKit } from "@/breadboard/kits/kits-as-code-node";
+import { API_KEY_NAME } from "@/chrome-api-hooks/types/types";
 
 //Get api key from local storage
 let apiKey = "";
 const getApiKey = () => {
-  chrome.storage.sync.get(["CLAUDE_API_KEY"], async (result) => {
-    apiKey = await result["CLAUDE_API_KEY"];
+  chrome.storage.sync.get([API_KEY_NAME], (result) => {
+    apiKey = result[API_KEY_NAME];
   });
 };
+
+//#region LISTENERS FOR CONTEXT MENU/SUBMENU AND BADGE
 
 //Define context menu for sending current selection to Breadboard
 chrome.runtime.onInstalled.addListener(() => {
@@ -33,14 +36,14 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 //Define submenu for menu with id of "bb-sub-context-menu-sentiment"
-chrome.runtime.onInstalled.addListener(() => {
+/* chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "bb-sub-context-menu-sentiment",
     title: "Get sentiment",
     parentId: "bb-context-menu",
     contexts: ["selection"],
   });
-});
+}); */
 
 //Add onClicked event listener if the menu item id matches that of the submenu created previously
 chrome.contextMenus.onClicked.addListener(async (info) => {
@@ -48,9 +51,9 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
     case "bb-sub-context-menu-summary":
       handleSummariseClick(info);
       break;
-    case "bb-sub-context-menu-sentiment":
+    /* case "bb-sub-context-menu-sentiment":
       handleSentimentClick(info);
-      break;
+      break; */
     default:
       break;
   }
@@ -61,26 +64,23 @@ chrome.tabs.onUpdated.addListener(() => {
   chrome.action.setBadgeText({ text: "" });
 });
 
+//#endregion
+
 //Handle click for the Summarise sub menu option
 const handleSummariseClick = async (info: chrome.contextMenus.OnClickData) => {
   getApiKey(); //Get Claude API key from storage
   const result = info.selectionText;
   chrome.action.setBadgeText({ text: "ON" });
-  const boardRun = await claudeSummarisationBoard({
+  const extensionRunner = new ExtensionBoardRunner(serializedClaudeBoard, [
+    ClaudeKit,
+  ]);
+  const boardRun = await extensionRunner.runBoard({
     message: result,
     claudeKey: apiKey,
   });
-  useDownloads(boardRun["completion"]);
-  chrome.action.setBadgeText({ text: "DONE" });
-};
-
-//Handle click for the Get sentiment sub menu option
-const handleSentimentClick = async (info: chrome.contextMenus.OnClickData) => {
-  const result = info.selectionText;
-  chrome.action.setBadgeText({ text: "ON" });
-  const boardRun = await sentimentAnalysisBoard({
-    message: result,
-  });
-  console.log(JSON.stringify(boardRun["output"], null, 2));
-  chrome.action.setBadgeText({ text: "DONE" });
+  console.log(boardRun);
+  if (boardRun) {
+    useDownloads(boardRun["completion"]);
+    chrome.action.setBadgeText({ text: "DONE" });
+  }
 };
