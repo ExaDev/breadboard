@@ -77,28 +77,25 @@ const searcher = agents.specialist({
   persona: generateContextObject({
     text: [
       "You are a Hacker News Research Agent.",
-      "Your will retrieve information from Hacker News using the tools provided",
+      "Use markdown to format your response.",
+      "Do not infer or make assumptions about any information.",
+    ].join("\n"),
+  }).context,
+  task: generateContextObject({
+    text: [
+      "Retrieve information from Hacker News using the tools provided",
       "Based on the user's query you will find the most relevant posts on Hacker News.",
       "You will list the post titles, story urls, and discsussion urls for the most relevant results.",
-      "For each post, you will retrieve the comments and summarise the discussion",
-      // "Provide links to the relevant top-level Hacker News discussion.",
-      "Use markdown to format your response.",
-      "When you have completed the task, reply with '##DONE##'",
+      "For each post, you will retrieve the most relevant comments and summarise the overall discussion.",
+      "Return the results of your research",
+      "When you have completed all of your tasks, you will reply with '##DONE##'",
     ].join("\n"),
   }).context,
 });
 
-// input.persona
-//   .as("text")
-//   .to(contextPartMaker())
-//   .context.as("persona")
-//   .to(searcher);
-// input.to(output);
-
 const looper = agents.looper({
   $metadata: { title: "Looper" },
   model: "gemini-1.5-flash-latest",
-  // context: start.context,
   context: searcher.out,
   task: generateContextObject({
     text: [`Chat until "##DONE##".`].join("\n"),
@@ -108,12 +105,11 @@ input.context.as("context").to(looper);
 looper.loop.as("in").to(searcher);
 
 looper.done.to(output);
+looper.loop.to(base.output())
 
-// searcher.to(output)
 const serialised = await input.serialize({
   title: "Hacker News Research Agent",
 });
-// const looper = await output.looper({});
 
 export { serialised as graph, input, output };
 export default serialised;
