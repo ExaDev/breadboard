@@ -81,6 +81,9 @@
             }
           }
         }
+      },
+      "metadata": {
+        "title": "Primary Output"
       }
     },
     {
@@ -102,6 +105,9 @@
             }
           }
         }
+      },
+      "metadata": {
+        "title": "Intermediate Output"
       }
     },
     {
@@ -127,16 +133,10 @@
       "configuration": {
         "model": "gemini-1.5-flash-latest",
         "persona": {
+          "role": "tool",
           "parts": [
             {
-              "text": "You are a Hacker News Research Agent.\nUse markdown to format your response.\nDo not infer or make assumptions about any information."
-            }
-          ]
-        },
-        "task": {
-          "parts": [
-            {
-              "text": "Retrieve information from Hacker News using the tools provided\nBased on the user's query you will find the most relevant posts on Hacker News.\nYou will list the post titles, story urls, and discsussion urls for the most relevant results.\nFor each post, you will retrieve the most relevant comments and summarise the overall discussion.\nReturn the results of your research\nWhen you have completed all of your tasks, you will reply with '##DONE##'"
+              "text": "You are a Hacker News Research Agent.\nRetrieve information from Hacker News using the tools provided\nBased on the user's query you will find the most relevant posts on Hacker News.\nYou will list the post titles, story urls, and discsussion urls for the most relevant results.\nFor each post, you will retrieve the most relevant comments.\nBased on the comments, summarise the factual information contained in the article\nSummarise the overall discussion and provide a brief analysis of the information.\nUse markdown to format your response.\nDo not infer or make assumptions about any information.\nWhen you have completed all of your tasks, you will reply with '##DONE##'"
             }
           ]
         },
