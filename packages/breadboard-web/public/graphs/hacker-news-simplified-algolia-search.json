@@ -723,7 +723,7 @@
                         "id": "fn-44",
                         "type": "runJavascript",
                         "configuration": {
-                          "code": "const fn_44 = ({object,keys,mode=\"pick\",strict=false})=>{if(mode===\"pick\"){const result={};keys.forEach(key=>{if(strict&&!object[key]){throw new Error(`Key \"${key}\" not found in object`)}result[key]=object[key]});return{object:result}}else{const result={...object};keys.forEach(key=>{if(strict&&!object[key]){throw new Error(`Key \"${key}\" not found in object`)}delete result[key]});return{object:result}}};",
+                          "code": "const fn_44 = ({object,keys,mode=\"pick\",strict=false})=>{if(mode===\"pick\"){const result={};keys.forEach(key=>{if(strict&&!(key in object)){throw new Error(`Key \"${key}\" not found in object`)}else if(key in object){result[key]=object[key]}});return{object:result}}else{const result={...object};keys.forEach(key=>{if(strict&&!(key in object)){throw new Error(`Key \"${key}\" not found in object`)}else if(key in object){delete result[key]}});return{object:result}}};",
                           "name": "fn_44",
                           "raw": true
                         },
@@ -834,7 +834,8 @@
                     "updated_at",
                     "url",
                     "objectType"
-                  ]
+                  ],
+                  "strict": false
                 }
               },
               {
