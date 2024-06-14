@@ -36,7 +36,11 @@ const input = base.input({
     title: "Input",
   },
 });
-const output = base.output({});
+const output = base.output({
+  $metadata: {
+    title: "Primary Output",
+  },
+});
 
 type ContextMakerNodeInput = {
   role?: LlmContentRole;
@@ -75,22 +79,31 @@ const searcher = agents.specialist({
   ],
   model: "gemini-1.5-flash-latest",
   persona: generateContextObject({
+    role: "tool",
     text: [
       "You are a Hacker News Research Agent.",
-      "Use markdown to format your response.",
-      "Do not infer or make assumptions about any information.",
-    ].join("\n"),
-  }).context,
-  task: generateContextObject({
-    text: [
       "Retrieve information from Hacker News using the tools provided",
       "Based on the user's query you will find the most relevant posts on Hacker News.",
       "You will list the post titles, story urls, and discsussion urls for the most relevant results.",
-      "For each post, you will retrieve the most relevant comments and summarise the overall discussion.",
-      "Return the results of your research",
+      "For each post, you will retrieve the most relevant comments.",
+      "Based on the comments, summarise the factual information contained in the article",
+      "Summarise the overall discussion and provide a brief analysis of the information.",
+      "Use markdown to format your response.",
+      "Do not infer or make assumptions about any information.",
       "When you have completed all of your tasks, you will reply with '##DONE##'",
     ].join("\n"),
   }).context,
+  // task: generateContextObject({
+  //   role: "tool",
+  //   text: [
+  //     "Retrieve information from Hacker News using the tools provided",
+  //     "Based on the user's query you will find the most relevant posts on Hacker News.",
+  //     "You will list the post titles, story urls, and discsussion urls for the most relevant results.",
+  //     "For each post, you will retrieve the most relevant comments and summarise the overall discussion.",
+  //     "Return the results of your research",
+  //     "When you have completed all of your tasks, you will reply with '##DONE##'",
+  //   ].join("\n"),
+  // }).context,
 });
 
 const looper = agents.looper({
@@ -105,7 +118,11 @@ input.context.as("context").to(looper);
 looper.loop.as("in").to(searcher);
 
 looper.done.to(output);
-looper.loop.to(base.output())
+looper.loop.to(
+  base.output({
+    $metadata: { title: "Intermediate Output" },
+  })
+);
 
 const serialised = await input.serialize({
   title: "Hacker News Research Agent",
