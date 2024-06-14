@@ -125,19 +125,23 @@ function manipulate<T extends Record<string, unknown>>(
       if (mode === "pick") {
         const result: Record<string, unknown> = {};
         keys.forEach((key) => {
-          if (strict && !object[key]) {
+          // Check for key existence only when strict mode is enabled
+          if (strict && !(key in object)) {
             throw new Error(`Key "${key}" not found in object`);
+          } else if (key in object) {
+            result[key] = object[key];
           }
-          result[key] = object[key];
         });
         return { object: result };
       } else {
         const result = { ...object };
         keys.forEach((key) => {
-          if (strict && !object[key]) {
+          // Check for key existence only when strict mode is enabled
+          if (strict && !(key in object)) {
             throw new Error(`Key "${key}" not found in object`);
+          } else if (key in object) {
+            delete result[key];
           }
-          delete result[key];
         });
         return { object: result };
       }
