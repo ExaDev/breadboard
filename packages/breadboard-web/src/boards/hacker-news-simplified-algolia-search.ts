@@ -163,6 +163,7 @@ const invokeForEach = core.invoke({
         "url",
         "objectType",
       ],
+      strict: false,
     });
     const convertTagsToType = code(
       ({ item }: { item: VerboseSearchResult }) => {
