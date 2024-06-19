@@ -10,13 +10,8 @@ import {
   GraphProviderCapabilities,
   GraphProviderExtendedCapabilities,
 } from "@google-labs/breadboard";
+import { BreadboardManifest } from "@google-labs/breadboard-manifest/types/breadboard-manifest.js";
 import { GraphProviderStore } from "./types";
-
-export type BoardInfo = {
-  title: string;
-  url: string;
-  version?: string;
-};
 
 export class ExamplesGraphProvider implements GraphProvider {
   name = "ExamplesGraphProvider";
@@ -24,7 +19,7 @@ export class ExamplesGraphProvider implements GraphProvider {
   #blank: URL | null = null;
   #items: Map<string, GraphProviderStore> = new Map();
 
-  constructor(boards: BoardInfo[]) {
+  constructor(manifest: BreadboardManifest) {
     const blank = boards.find((board) => {
       return board.url.endsWith("blank.json");
     });

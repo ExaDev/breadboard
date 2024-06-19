@@ -61,17 +61,17 @@ export abstract class Resource<T> {
     return resource.resource !== undefined;
   }
 
-  isConcrete(): this is ConcreteResource<T> {
-    return Resource.isConcrete(this);
-  }
+  // isConcrete(): this is ConcreteResource<T> {
+  //   return Resource.isConcrete(this);
+  // }
 
-  isRetrieved(): this is RetrievedResource<T> {
-    return Resource.isRetrieved(this);
-  }
+  // isRetrieved(): this is RetrievedResource<T> {
+  //   return Resource.isRetrieved(this);
+  // }
 
-  isReferenced(): this is ReferencedResource<T> {
-    return Resource.isReference(this);
-  }
+  // isReferenced(): this is ReferencedResource<T> {
+  //   return Resource.isReference(this);
+  // }
 
   static async retrieve<T>(res: Resource<T>): Promise<T> {
     if (Resource.isRetrieved(res)) {
@@ -85,24 +85,28 @@ export abstract class Resource<T> {
     }
   }
 
-  async retrieve(): Promise<T> {
-    const value = await Resource.retrieve(this);
-    Object.defineProperty(this, "resource", {
-      value,
-      writable: false,
-    });
-    return this.resource!;
-  }
+  // async retrieve(): Promise<T> {
+  //   const value = await Resource.retrieve(this);
+  //   Object.defineProperty(this, "resource", {
+  //     value,
+  //     writable: false,
+  //   });
+  //   return this.resource!;
+  // }
 
-  async fetch(): Promise<FetchedOrConcreteResource<T>> {
-    return Resource.fetch(this);
-  }
+  // async fetch(): Promise<FetchedOrConcreteResource<T>> {
+  //   return Resource.fetch(this);
+  // }
 
   static async fetch<T>(
     res: Resource<T>
   ): Promise<FetchedOrConcreteResource<T>> {
-    const updated = await res.retrieve();
-    return updated as FetchedOrConcreteResource<T>;
+    const value = await Resource.retrieve(res);
+    Object.defineProperty(res, "resource", {
+      value,
+      writable: false,
+    });
+    return res as FetchedOrConcreteResource<T>;
   }
 }
 
@@ -133,9 +137,9 @@ export abstract class ReferencedResource<T> extends Resource<T> {
     }
   }
 
-  isRemote(): boolean {
-    return ReferencedResource.isRemote(this);
-  }
+  // isRemote(): boolean {
+  //   return ReferencedResource.isRemote(this);
+  // }
 
   static isLocal<T>(
     res: ReferencedResource<T>
@@ -143,9 +147,9 @@ export abstract class ReferencedResource<T> extends Resource<T> {
     return !ReferencedResource.isRemote(res);
   }
 
-  isLocal(): boolean {
-    return ReferencedResource.isLocal(this);
-  }
+  // isLocal(): boolean {
+  //   return ReferencedResource.isLocal(this);
+  // }
 }
 
 export abstract class ReferencedLocalResource<T> extends ReferencedResource<T> {
@@ -164,7 +168,7 @@ export abstract class ReferencedRemoteResource<
 
 export abstract class ConcreteResource<T> extends Resource<T> {
   readonly resource: T;
-  readonly url: never = undefined as never;
+  readonly url?: never = undefined as never;
 
   constructor(args: ConcreteResourceArgs<T>) {
     super(args);
@@ -215,7 +219,7 @@ export class BreadboardManifest {
   ): Promise<FetchedOrConcreteResource<Breadboard>[]> {
     const updated: FetchedOrConcreteResource<Breadboard>[] = [];
     for await (const board of boards) {
-      updated.push(await board.fetch());
+      updated.push(await Resource.fetch(board));
     }
     return updated;
   }

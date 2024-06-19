@@ -9,7 +9,7 @@ import addFormats from "ajv-formats";
 import * as assert from "node:assert";
 import test, { describe } from "node:test";
 import schema from "../../bbm.schema.json" with { type: "json" };
-import { BreadboardManifest } from "../types";
+import { BreadboardManifest, ConreteManifestResource } from "../types";
 
 const ajv = new Ajv({
   // keywords: definitions({
@@ -37,78 +37,79 @@ test("Schema is valid.", async () => {
   assert.ok(validate);
 });
 
-const fixtures: BreadboardManifest[] = [
-  {},
-  { title: "Empty manifest" },
-  { title: "Manifest with an empty boards array", boards: [] },
-  { title: "Manifest with an empty manifests array", manifests: [] },
+const fixtures: ConreteManifestResource[] = [
+  { title: "Manifest with an empty boards array", resource: { boards: [] } },
+  {
+    title: "Manifest with an empty manifests array",
+    resource: { manifests: [] },
+  },
   {
     title: "Manifest with empty boards and manifests arrays",
-    boards: [],
-    manifests: [],
+    resource: {
+      boards: [],
+      manifests: [],
+    },
   },
   {
     title: "Manifest with boards",
-    boards: [
-      {
-        title: "My First Board",
-        url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
-        version: "1.0.0",
-      },
-      {
-        title: "My Second Board",
-        url: "./boards/board.bgl.json",
-      },
-    ],
+    resource: {
+      boards: [
+        {
+          title: "My First Board",
+          url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
+          version: "1.0.0",
+        },
+        {
+          title: "My Second Board",
+          url: "./boards/board.bgl.json",
+        },
+      ],
+    },
   },
   {
     title: "Manifest with manifests",
-    manifests: [
-      {
-        title: "Gist Manifest",
-        url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
-      },
-    ],
+    resource: {
+      manifests: [
+        {
+          title: "Gist Manifest",
+          url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
+        },
+      ],
+    },
   },
   {
     title: "Manifest with boards and manifests",
-    boards: [
-      {
-        title: "My First Board",
-        url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
-        version: "1.0.0",
-      },
-      {
-        title: "My Second Board",
-        url: "./boards/board.bgl.json",
-      },
-    ],
-    manifests: [
-      {
-        title: "Gist Manifest",
-        url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
-      },
-    ],
+    resource: {
+      boards: [
+        {
+          title: "My First Board",
+          url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
+          version: "1.0.0",
+        },
+        {
+          title: "My Second Board",
+          url: "./boards/board.bgl.json",
+        },
+      ],
+      manifests: [
+        {
+          title: "Gist Manifest",
+          url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
+        },
+      ],
+    },
   },
   {
     title: "Nested manifest",
-    manifests: [
-      {
-        title: "Gist Manifest",
-        url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
-      },
-      {
-        title: "Nested Nested Manifest",
-        boards: [
-          {
-            title: "My First Board",
-            url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
-            version: "1.0.0",
-          },
-        ],
-        manifests: [
-          {
-            title: "Nested Nested Nested Manifest",
+    resource: {
+      manifests: [
+        {
+          title: "Gist Manifest",
+          url: "https://gist.githubusercontent.com/user/SOME_ID/raw/manifest.bbm.json",
+        },
+        {
+          title: "Nested Nested Manifest",
+          resource: {
             boards: [
               {
                 title: "My First Board",
@@ -116,10 +117,24 @@ const fixtures: BreadboardManifest[] = [
                 version: "1.0.0",
               },
             ],
+            manifests: [
+              {
+                title: "Nested Nested Nested Manifest",
+                resource: {
+                  boards: [
+                    {
+                      title: "My First Board",
+                      url: "https://gist.githubusercontent.com/user/SOME_ID/raw/board.bgl.json",
+                      version: "1.0.0",
+                    },
+                  ],
+                },
+              },
+            ],
           },
-        ],
-      },
-    ],
+        },
+      ],
+    },
   },
 ];
 
@@ -137,7 +152,6 @@ for (const manifest of fixtures) {
   console.debug();
 }
 
-
 describe("BreadboardManifest", () => {
   const test = new ConreteManifestResource({
     resource: new BreadboardManifest({
@@ -146,6 +160,5 @@ describe("BreadboardManifest", () => {
     }),
   });
 
-  const resource: BreadboardManifest = await test.retrieve();
-
-})
+  // const resource: BreadboardManifest = await test.retrieve();
+});
