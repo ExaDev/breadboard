@@ -8,8 +8,9 @@ import BreadboardManifestJsonSchema from "../bbm.schema.json" assert { type: "js
 
 export const BreadboardManifestSchema = BreadboardManifestJsonSchema;
 
-export type { BoardReference } from "./types/board-reference";
-export  { BreadboardManifest } from "./types/breadboard-manifest";
-export type { ManifestItem } from "./types/manifest-item";
-export type { ManifestReference } from "./types/manifest-reference";
+export * from "./types";
+export type * from "./types";
+// export { BreadboardManifest } from "./types/breadboard-manifest";
+// export type { ManifestItem } from "./types/manifest-item";
+// export  { ManifestReference } from "./types/manifest-reference";
 

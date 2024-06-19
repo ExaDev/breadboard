@@ -1,4 +1,3 @@
-import { BreadboardManifest } from "./breadboard-manifest";
-import { ManifestReference } from "./manifest-reference";
+// import { BreadboardManifest } from "./breadboard-manifest";
 
-export type ManifestItem = ManifestReference | BreadboardManifest;
+// export type ManifestItem = ManifestReference | BreadboardManifest;

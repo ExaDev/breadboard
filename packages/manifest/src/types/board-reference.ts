@@ -5,6 +5,7 @@
  *
  */
 
+import { Breadboard } from "@google-labs/breadboard";
 import { UriReference } from "./uri-reference";
 
 /**
@@ -18,7 +19,7 @@ import { UriReference } from "./uri-reference";
  *  },
  * ]
  */
-export interface BoardReference {
+export class BoardReference {
   /**
    * @examples [ "My Board" ]
    */
@@ -43,4 +44,16 @@ export interface BoardReference {
 
   // Allow additional properties without allowing it on all other types.
   [x: string | number | symbol]: unknown;
+
+  constructor(data: BoardReference) {
+    this.title = data.title;
+    this.url = data.url;
+    this.version = data.version;
+  }
+}
+
+export type BoardItem = BoardReference | Breadboard;
+
+export function isBoardReference(item: BoardItem): item is BoardReference {
+  return (item as BoardReference).url !== undefined;
 }

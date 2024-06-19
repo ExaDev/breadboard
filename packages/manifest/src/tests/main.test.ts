@@ -7,7 +7,7 @@
 import Ajv, { type ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import * as assert from "node:assert";
-import test from "node:test";
+import test, { describe } from "node:test";
 import schema from "../../bbm.schema.json" with { type: "json" };
 import { BreadboardManifest } from "../types";
 
@@ -136,3 +136,16 @@ for (const manifest of fixtures) {
   );
   console.debug();
 }
+
+
+describe("BreadboardManifest", () => {
+  const test = new ConreteManifestResource({
+    resource: new BreadboardManifest({
+      boards: [],
+      manifests: [],
+    }),
+  });
+
+  const resource: BreadboardManifest = await test.retrieve();
+
+})
