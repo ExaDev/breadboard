@@ -4,11 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export type GraphStoreItem<T> = {
+  url: string;
+  mine: boolean;
+  readonly: boolean;
+  handle: T;
+};
+
 export type GraphProviderStore<T = unknown> = {
   permission: "unknown" | "prompt" | "granted";
   title: string;
-  items: Map<
-    string,
-    { url: string; mine: boolean; readonly: boolean; handle: T }
-  >;
+  items: Map<string, GraphStoreItem<T>>;
 };

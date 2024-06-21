@@ -6,12 +6,13 @@
 
 // import { GraphDescriptor } from "@google-labs/breadboard";
 import { SerializableBoard, serialize } from "@breadboard-ai/build";
+import { formatGraphDescriptor } from "@google-labs/breadboard";
+import { BreadboardManifest } from "@google-labs/breadboard-manifest";
+// import { BreadboardManifest } from "@google-labs/breadboard-manifest";
 import { Dirent } from "fs";
 import { mkdir, readdir, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { formatGraphDescriptor } from "@google-labs/breadboard";
-// import { execSync } from "child_process";
 
 const MODULE_DIR: string = path.dirname(fileURLToPath(import.meta.url));
 const PATH: string = path.join(MODULE_DIR, "boards");
@@ -147,13 +148,15 @@ async function saveBoard(filePath: string): Promise<ManifestItem | undefined> {
 
 async function saveAllBoards(): Promise<void> {
   const tsFiles = await findTsFiles(PATH);
-  const manifest = [];
+  const manifest: BreadboardManifest = {
+    boards: [],
+  };
   for (const file of tsFiles) {
     const manifestEntry = await saveBoard(file);
     if (!manifestEntry) continue;
     // Avoid adding .local.json files to the manifest
     if (!file.endsWith(".local.ts")) {
-      manifest.push(manifestEntry);
+      manifest.boards?.push(manifestEntry);
     }
   }
   // TODO: Reenable.
@@ -166,6 +169,7 @@ async function saveAllBoards(): Promise<void> {
   //   }
   //   manifest.push(manifestEntry);
   // }
+
   await writeFile(
     path.join(MANIFEST_PATH, "local-boards.json"),
     JSON.stringify(manifest, null, 2)

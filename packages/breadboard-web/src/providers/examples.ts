@@ -10,13 +10,14 @@ import {
   GraphProviderCapabilities,
   GraphProviderExtendedCapabilities,
 } from "@google-labs/breadboard";
-import { GraphProviderStore } from "./types";
+import {
+  BreadboardManifest,
+  FullyDereferencedManifest,
+  fullyDereferenceManifest,
+} from "@google-labs/breadboard-manifest";
+// } from "../../../manifest/dist"
 
-export type BoardInfo = {
-  title: string;
-  url: string;
-  version?: string;
-};
+import { GraphProviderStore, GraphStoreItem } from "./types";
 
 export class ExamplesGraphProvider implements GraphProvider {
   name = "ExamplesGraphProvider";
@@ -24,28 +25,35 @@ export class ExamplesGraphProvider implements GraphProvider {
   #blank: URL | null = null;
   #items: Map<string, GraphProviderStore> = new Map();
 
-  constructor(boards: BoardInfo[]) {
-    const blank = boards.find((board) => {
-      return board.url.endsWith("blank.json");
-    });
-    if (blank?.url) {
-      this.#blank = new URL(blank.url, window.location.href);
-    }
-    const boardMap = new Map(
-      boards
-        .sort((a, b) => a.title.localeCompare(b.title))
-        .map((board) => {
-          return [
-            board.title,
-            { url: board.url, readonly: true, mine: false, handle: undefined },
-          ];
-        })
-    );
-    this.#items.set("examples", {
+  static async buildFromManifest(
+    manifest: BreadboardManifest
+  ): Promise<ExamplesGraphProvider> {
+    return new ExamplesGraphProvider(await fullyDereferenceManifest(manifest));
+  }
+
+  constructor(manifest: FullyDereferencedManifest) {
+    const graphStore: GraphProviderStore = {
       permission: "granted",
-      title: "Example Boards",
-      items: boardMap,
-    });
+      title: manifest.title || "Example Boards",
+      items: new Map(),
+    };
+
+    for (const [key, value] of Object.entries(manifest.boards)) {
+      const boardItem: GraphStoreItem<null> = {
+        url: value.url || "",
+        mine: false,
+        readonly: true,
+        handle: null,
+      };
+      graphStore.items.set(key, boardItem);
+      this.#items.set(key, graphStore);
+    }
+
+    // if (manifest.blank) {
+    //   this.#blank = new URL(manifest.blank);
+    // }
+
+    this.#items.set("examples", graphStore);
   }
 
   items(): Map<string, GraphProviderStore> {
