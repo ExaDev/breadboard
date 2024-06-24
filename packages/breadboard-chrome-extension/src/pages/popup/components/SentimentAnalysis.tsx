@@ -25,7 +25,7 @@ const SentimentAnalysis = (): React.JSX.Element => {
       inputs: result,
       apiKey: key,
       use_cache: true,
-      wait_for_model: false,
+      wait_for_model: true,
     });
     if (boardRun) {
       const boardResponse: any = boardRun.response;
