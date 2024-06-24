@@ -1,9 +1,7 @@
 import useDownloads from "@/chrome-api-hooks/use-downloads";
-import serializedClaudeBoard from "@breadboard/graphs/claudeSummarisationBoard.json";
 import "@settings/background-scripts/settings";
-import { ExtensionBoardRunner } from "@/breadboard/classes/ExtensionBoardRunner";
-import { ClaudeKit } from "@/breadboard/kits/kits-as-code-node";
 import { API_KEY_NAME } from "@/chrome-api-hooks/types/types";
+import claudeSummarisationBoard from "@/breadboard/boards/summarise";
 
 //Get api key from local storage
 let apiKey = "";
@@ -71,16 +69,10 @@ const handleSummariseClick = async (info: chrome.contextMenus.OnClickData) => {
   getApiKey(); //Get Claude API key from storage
   const result = info.selectionText;
   chrome.action.setBadgeText({ text: "ON" });
-  const extensionRunner = new ExtensionBoardRunner(serializedClaudeBoard, [
-    ClaudeKit,
-  ]);
-  const boardRun = await extensionRunner.runBoard({
+  const boardRun = await claudeSummarisationBoard({
     message: result,
     claudeKey: apiKey,
   });
-  console.log(boardRun);
-  if (boardRun) {
-    useDownloads(boardRun["completion"]);
-    chrome.action.setBadgeText({ text: "DONE" });
-  }
+  useDownloads(boardRun["completion"]);
+  chrome.action.setBadgeText({ text: "DONE" });
 };
