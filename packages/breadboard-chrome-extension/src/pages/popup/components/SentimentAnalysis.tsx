@@ -47,8 +47,8 @@ const SentimentAnalysis = (): React.JSX.Element => {
             <PacmanLoader loading={loading} color="#ef7900" />
           ) : (
             <table>
-              <th>Label</th>
-              <th>Score</th>
+              <th>{output ? "Label" : ""}</th>
+              <th>{output ? "Score" : ""}</th>
               <tbody>
                 {output?.map((r: any) => (
                   <>

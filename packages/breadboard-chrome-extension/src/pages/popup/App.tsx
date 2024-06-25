@@ -11,7 +11,7 @@ function App() {
         <a href="https://github.com/breadboard-ai/breadboard" target="_blank">
           <img src={breadboardLogo} className="logo" alt="Breadboard logo" />{" "}
         </a>
-        <h4>Breadboard Summariser</h4>
+        <h4>Breadboard Sentiment Analysis</h4>
       </header>
       <SentimentAnalysis />
       <footer>
