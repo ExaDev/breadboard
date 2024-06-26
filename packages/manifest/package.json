@@ -11,7 +11,7 @@
     "ajv-keywords": "^5.1.0",
     "c8": "^10.1.2",
     "ts-json-schema-generator": "^2.3.0",
-    "tsx": "^4.15.6",
+    "tsx": "^4.15.7",
     "typescript": "^5.4.5"
   },
   "exports": {
@@ -64,12 +64,27 @@
         "../schema:build",
         "validate"
       ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
       "output": [
         "bbm.schema.json"
       ]
     },
     "build:ts": {
-      "command": "tsc -b -v",
+      "command": "tsc -b -v --pretty",
+      "clean": "if-file-deleted",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
+      "output": [
+        "dist/**",
+        "tsconfig.tsbuildinfo"
+      ],
       "dependencies": [
         "build:schema",
         "../breadboard:build",
@@ -81,6 +96,8 @@
       "dependencies": [
         "build"
       ],
+      "files": [],
+      "output": [],
       "env": {
         "FORCE_COLOR": "1"
       }
@@ -90,7 +107,13 @@
       "dependencies": [
         "../breadboard:build",
         "../schema:build"
-      ]
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
+      "output": []
     }
   }
 }

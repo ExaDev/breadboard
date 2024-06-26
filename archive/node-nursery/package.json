@@ -1,17 +1,18 @@
 {
-  "name": "@google-labs/discovery-types",
+  "name": "@google-labs/node-nursery",
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "private": true,
-  "version": "0.0.1",
-  "description": "Simplest possible Discovery doc-to-TypeScript definitions converter",
+  "version": "0.0.15",
+  "description": "Nursery for new nodes. Move to other kits to publish.",
   "main": "./dist/src/index.js",
   "exports": "./dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "type": "module",
   "scripts": {
     "prepack": "npm run build",
+    "generate:docs": "wireit",
     "test": "wireit",
     "build": "wireit",
     "build:tsc": "wireit",
@@ -20,6 +21,7 @@
   "wireit": {
     "build": {
       "dependencies": [
+        "../breadboard:build",
         "build:tsc"
       ]
     },
@@ -28,6 +30,9 @@
       "env": {
         "FORCE_COLOR": "1"
       },
+      "dependencies": [
+        "../breadboard:build:tsc"
+      ],
       "files": [
         "src/**/*.ts",
         "tests/**/*.ts",
@@ -35,8 +40,7 @@
         "../../core/tsconfig/base.json"
       ],
       "output": [
-        "dist/",
-        "!dist/**/*.min.js{,.map}"
+        "dist/"
       ],
       "clean": "if-file-deleted"
     },
@@ -63,10 +67,24 @@
         "../../.eslintrc.json"
       ],
       "output": []
+    },
+    "generate:docs": {
+      "command": "typedoc --plugin typedoc-plugin-markdown",
+      "dependencies": [
+        "build:tsc"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json",
+        "../../core/tsconfig/base.json"
+      ],
+      "output": [
+        "docs/api/"
+      ]
     }
   },
   "repository": {
-    "directory": "packages/discovery-types",
+    "directory": "packages/node-nursery",
     "type": "git",
     "url": "git+https://github.com/breadboard-ai/breadboard.git"
   },
@@ -96,15 +114,25 @@
   "devDependencies": {
     "@ava/typescript": "^4.0.0",
     "@google-labs/tsconfig": "^0.0.1",
+    "@types/json-stable-stringify": "^1.0.34",
     "@types/node": "^20.14.8",
-    "@types/prettier": "^3.0.0",
+    "@types/sqlite3": "^3.1.8",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "ava": "^5.2.0",
+    "typedoc": "^0.25.12",
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "prettier": "^3.3.2"
+    "@google-labs/breadboard": "^0.20.0",
+    "@google-labs/chunker": "^0.0.1",
+    "@google-labs/core-kit": "^0.9.0",
+    "@google-labs/palm-lite": "^0.0.3",
+    "@google-labs/template-kit": "^0.3.2",
+    "json-stable-stringify": "^1.0.2",
+    "jsonschema": "^1.4.1",
+    "ml-distance": "^4.0.1",
+    "sqlite": "^5.0.1",
+    "sqlite3": "^5.1.6"
   }
 }
