@@ -1,6 +1,6 @@
-import { agents } from "@google-labs/agent-kit";
 import { Schema, base, board, code } from "@google-labs/breadboard";
 import { core } from "@google-labs/core-kit";
+import { gemini } from "@google-labs/gemini-kit";
 import { Context, LlmContentRole } from "../../../agent-kit/dist/src/context";
 import boardForEach from "./board-for-each";
 export type CSEResult = {
@@ -100,7 +100,7 @@ const input = base.input({
         title: "Persona",
         type: "string",
         default:
-          "Your purpose is to help classify search results to select and reject a candidate element based on the user's query.",
+          "Your purpose is to help classify search results to accept or reject a candidate element based on the user's query.",
       },
       taskTemplate: {
         type: "string",
@@ -116,7 +116,7 @@ const input = base.input({
           `Rejected: {{rejected}}`,
           ``,
           `Candidate: {{candidate}}`,
-        ].join(". \n"),
+        ].join(" \n"),
       },
     },
   } satisfies Schema,
@@ -141,6 +141,14 @@ const contextPartMakerSchema = {
   },
 } satisfies Schema;
 
+// const example = {
+//   role: "user",
+//   parts: [
+//     {
+//       text: `This ad is for my lawn care company that will fit into an inch of newspaper copy. It's called "Max's Lawn Care" and it should use the slogan "I care about your lawn." Emphasize the folksiness of it being a local, sole proprietorship that I started after graduating from high school.`,
+//     },
+//   ],
+// };
 const makeContext = code<ContextMakerNodeInput, { context: Context }>(
   (inputs: ContextMakerNodeInput) => {
     const parts = [{ text: inputs.text }];
@@ -191,14 +199,6 @@ const populateTemplate = code<{
   }, template);
 
   return { result };
-});
-
-const makeAgentInput = makeContext({
-  $metadata: {
-    title: "Agent Input",
-  },
-  // text: input.review as unknown as string,
-  role: "user",
 });
 
 const makeMarkdownList = code<
@@ -296,7 +296,7 @@ stringifyCandidate.result.to(
 
 const injectProperty = code<{
   key: string;
-  value: string;
+  value: unknown;
   obj: Record<string, unknown>;
 }>(({ key, value, obj = {} }) => {
   return {
@@ -347,9 +347,23 @@ const tempalteValues = injectProperty({
       },
       key: "candidate",
       value: stringifyCandidate.result,
-      obj: {},
-    }).obj,
-  }).obj,
+      obj: injectProperty({
+        $metadata: {
+          title: "Include Prompt",
+        },
+        key: "prompt",
+        value: input.prompt,
+        obj: injectProperty({
+          $metadata: {
+            title: "Include Query",
+          },
+          key: "query",
+          value: input.query,
+          obj: {},
+        }).obj as unknown as Record<string, unknown>,
+      }).obj as unknown as Record<string, unknown>,
+    }).obj as unknown as Record<string, unknown>,
+  }).obj as unknown as Record<string, unknown>,
 });
 const combined = injectProperty({
   $metadata: {
@@ -368,14 +382,14 @@ base.output({
 });
 tempalteValues.to(base.output({}));
 
-const populatedTaskTemplate = populateTemplate({
+const populatedTemplate = populateTemplate({
   $metadata: {
     title: "Populate Task Template",
   },
-  template: input.taskTemplate,
-  values: tempalteValues.obj,
+  template: input.taskTemplate as unknown as string,
+  values: tempalteValues.obj as unknown as Record<string, string>,
 });
-populatedTaskTemplate.to(base.output({}));
+populatedTemplate.to(base.output({}));
 
 // input.as({}).to(stringifyAccepted);
 
@@ -410,12 +424,50 @@ const makePersonaContext = makeContext({
   text: input.persona as unknown as string,
 });
 
-const bot = agents.specialist({
-  $metadata: { title: "Chat Bot" },
-  // in: makeAgentInput.context,
-  // persona: makePersonaContext.context,
-  // task: input.task,
+const makeAgentInput = makeContext({
+  $metadata: {
+    title: "Agent Input",
+  },
+  text: populatedTemplate.result as unknown as string,
+  role: "user",
+});
+const taskInput = makeContext({
+  $metadata: {
+    title: "Agent Input",
+  },
+  text: populatedTemplate.result as unknown as string,
+  role: "user",
+});
+
+// const bot = agents.specialist({
+//   $metadata: { title: "Chat Bot" },
+//   in: makeAgentInput.context,
+//   persona: makePersonaContext.context,
+//   task: taskInput.context,
+//   model: "gemini-1.5-flash-latest",
+// });
+
+const generate = gemini.text({
+  responseMimeType: "application/json",
   model: "gemini-1.5-flash-latest",
+  context: makeContext({
+    role: "user",
+    $metadata: {
+      title: "Gemini Context",
+    },
+    text: populatedTemplate.result as unknown as string,
+  }).context,
+  // instruction: populatedTemplate.result,
+  instruction: input.persona,
+  schema: {
+    type: "object",
+    properties: {
+      summary: {
+        type: "string",
+        description: "the summary",
+      },
+    },
+  },
 });
 
 const output = base.output({
@@ -425,7 +477,7 @@ const output = base.output({
   // ...input,
 });
 
-bot.out.as("reply").to(output);
+generate.to(output);
 
 const serialised = await input.serialize({
   title: "Filter Bot",
