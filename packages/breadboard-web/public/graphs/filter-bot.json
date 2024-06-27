@@ -1,0 +1,840 @@
+{
+  "title": "Filter Bot",
+  "edges": [
+    {
+      "from": "fn-53",
+      "to": "fn-55",
+      "out": "result",
+      "in": "value"
+    },
+    {
+      "from": "fn-53",
+      "to": "fn-58",
+      "out": "result",
+      "in": "value"
+    },
+    {
+      "from": "fn-53",
+      "to": "output-54",
+      "out": "result",
+      "in": "result"
+    },
+    {
+      "from": "fn-55",
+      "to": "fn-56",
+      "out": "obj",
+      "in": "obj"
+    },
+    {
+      "from": "fn-56",
+      "to": "fn-57",
+      "out": "obj",
+      "in": "obj"
+    },
+    {
+      "from": "fn-57",
+      "to": "fn-61",
+      "out": "obj",
+      "in": "values"
+    },
+    {
+      "from": "fn-57",
+      "to": "output-60",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "fn-58",
+      "to": "output-59",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "fn-61",
+      "to": "output-62",
+      "out": "*",
+      "in": ""
+    },
+    {
+      "from": "input-45",
+      "to": "fn-53",
+      "out": "candidate",
+      "in": "value"
+    },
+    {
+      "from": "input-45",
+      "to": "fn-61",
+      "out": "taskTemplate",
+      "in": "template"
+    },
+    {
+      "from": "input-45",
+      "to": "fn-63",
+      "out": "persona",
+      "in": "text"
+    },
+    {
+      "from": "input-45",
+      "to": "invoke-47",
+      "out": "accepted",
+      "in": "array"
+    },
+    {
+      "from": "input-45",
+      "to": "invoke-50",
+      "out": "rejected",
+      "in": "array"
+    },
+    {
+      "from": "invoke-47",
+      "to": "fn-57",
+      "out": "array",
+      "in": "value"
+    },
+    {
+      "from": "invoke-47",
+      "to": "output-49",
+      "out": "array",
+      "in": "array"
+    },
+    {
+      "from": "invoke-50",
+      "to": "fn-56",
+      "out": "array",
+      "in": "value"
+    },
+    {
+      "from": "invoke-50",
+      "to": "output-52",
+      "out": "array",
+      "in": "array"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "input-45",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "accepted": {
+              "type": "array",
+              "title": "Accepted",
+              "examples": [
+                "[\n  {\n    \"kind\": \"customsearch#result\",\n    \"title\": \"Breadboard: Main Page\",\n    \"htmlTitle\": \"<b>Breadboard</b>: Main Page\",\n    \"link\": \"http://google.github.io/breadboard/\",\n    \"displayLink\": \"google.github.io\",\n    \"snippet\": \"Breadboard is a scripting system designed to be easy to use for both programmers and game designers. Once a library of nodes has been defined, ...\",\n    \"htmlSnippet\": \"<b>Breadboard</b> is a scripting system designed to be easy to use for both programmers and game designers. Once a library of nodes has been defined,&nbsp;...\",\n    \"formattedUrl\": \"http://google.github.io/breadboard/\",\n    \"htmlFormattedUrl\": \"http://<b>google</b>.github.io/<b>breadboard</b>/\"\n  }\n]"
+              ],
+              "items": {}
+            },
+            "candidate": {
+              "type": "object",
+              "title": "Candidate",
+              "examples": [
+                "{\n  \"kind\": \"customsearch#result\",\n  \"title\": \"Breadboard: Main Page\",\n  \"htmlTitle\": \"<b>Breadboard</b>: Main Page\",\n  \"link\": \"http://google.github.io/breadboard/\",\n  \"displayLink\": \"google.github.io\",\n  \"snippet\": \"Breadboard is a scripting system designed to be easy to use for both programmers and game designers. Once a library of nodes has been defined, ...\",\n  \"htmlSnippet\": \"<b>Breadboard</b> is a scripting system designed to be easy to use for both programmers and game designers. Once a library of nodes has been defined,&nbsp;...\",\n  \"formattedUrl\": \"http://google.github.io/breadboard/\",\n  \"htmlFormattedUrl\": \"http://<b>google</b>.github.io/<b>breadboard</b>/\"\n}"
+              ]
+            },
+            "persona": {
+              "type": "string",
+              "title": "Persona",
+              "default": "Your purpose is to help classify search results to select and reject a candidate element based on the user's query."
+            },
+            "prompt": {
+              "type": "string",
+              "title": "Prompt",
+              "description": "The user's natural language query",
+              "default": "What is Google's Breadboard project?"
+            },
+            "query": {
+              "type": "string",
+              "title": "Query",
+              "description": "The query that yielded the search results",
+              "default": "google breadboard"
+            },
+            "rejected": {
+              "type": "array",
+              "title": "Rejected",
+              "examples": [
+                "[\n  {\n    \"kind\": \"customsearch#result\",\n    \"title\": \"google/breadboard: C++ graph based event system - GitHub\",\n    \"htmlTitle\": \"google/breadboard: C++ graph based event system - GitHub\",\n    \"link\": \"https://github.com/google/breadboard\",\n    \"displayLink\": \"github.com\",\n    \"snippet\": \"Jan 10, 2023 ... C++ graph based event system. Contribute to google/breadboard development by creating an account on GitHub.\",\n    \"htmlSnippet\": \"Jan 10, 2023 <b>...</b> C++ graph based event system. Contribute to <b>google</b>/<b>breadboard</b> development by creating an account on GitHub.\",\n    \"formattedUrl\": \"https://github.com/google/breadboard\",\n    \"htmlFormattedUrl\": \"https://github.com/<b>google</b>/<b>breadboard</b>\"\n  }\n]"
+              ],
+              "items": {}
+            },
+            "taskTemplate": {
+              "type": "string",
+              "title": "Task Template",
+              "default": "Prompt: \"{{prompt}}\".. \n. \nQuery: \"{{query}}\". \n. \nAccepted: {{accepted}}. \n. \nRejected: {{rejected}}. \n. \nCandidate: {{candidate}}",
+              "format": "multiline"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "title": "Input"
+      }
+    },
+    {
+      "id": "output-49",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "array": {
+              "type": "string",
+              "title": "array"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "title": "Stringified Accepted"
+      }
+    },
+    {
+      "id": "output-52",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "array": {
+              "type": "string",
+              "title": "array"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "title": "Stringified Rejected"
+      }
+    },
+    {
+      "id": "output-54",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string",
+              "title": "result"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "title": "Stringified Candidate"
+      }
+    },
+    {
+      "id": "output-59",
+      "type": "output",
+      "configuration": {},
+      "metadata": {
+        "title": "TESTING TEMPLATE"
+      }
+    },
+    {
+      "id": "output-60",
+      "type": "output",
+      "configuration": {}
+    },
+    {
+      "id": "output-62",
+      "type": "output",
+      "configuration": {}
+    },
+    {
+      "id": "fn-53",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_53 = ({value,spaces=2})=>{return{result:JSON.stringify(value,null,spaces)}};",
+        "name": "fn_53",
+        "raw": true,
+        "spaces": 2
+      },
+      "metadata": {
+        "title": "Stringify Candidate"
+      }
+    },
+    {
+      "id": "fn-55",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_55 = ({key,value,obj={}})=>{return{obj:{...obj,[key]:value}}};",
+        "key": "candidate",
+        "name": "fn_55",
+        "obj": {},
+        "raw": true
+      },
+      "metadata": {
+        "title": "Include Candidate"
+      }
+    },
+    {
+      "id": "fn-56",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_56 = ({key,value,obj={}})=>{return{obj:{...obj,[key]:value}}};",
+        "key": "rejected",
+        "name": "fn_56",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Include Rejected"
+      }
+    },
+    {
+      "id": "fn-57",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_57 = ({key,value,obj={}})=>{return{obj:{...obj,[key]:value}}};",
+        "key": "accepted",
+        "name": "fn_57",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Include Accepted"
+      }
+    },
+    {
+      "id": "fn-58",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_58 = ({key,value,obj={}})=>{return{obj:{...obj,[key]:value}}};",
+        "key": "candidate",
+        "name": "fn_58",
+        "obj": {},
+        "raw": true
+      },
+      "metadata": {
+        "title": "Include Candidate"
+      }
+    },
+    {
+      "id": "fn-61",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_61 = ({template,values,handleMissing=\"error\"})=>{const keys=Object.keys(values);const placeholders=template.match(/{{\\w+}}/g)||[];const missingKeys=placeholders.filter(placeholder=>!keys.includes(placeholder.slice(2,-2)));const missingPlaceholders=keys.filter(key=>!placeholders.includes(`{{${key}}}`));if(handleMissing===\"error\"&&missingKeys.length){throw new Error(`Template missing keys: ${missingKeys.join(\", \")}`)}if(handleMissing===\"error\"&&missingPlaceholders.length){throw new Error(`Template has extra keys: ${missingPlaceholders.join(\", \")}`)}const allKeys=new Set([...keys,...placeholders]);const result=Array.from(allKeys).reduce((acc,key)=>{const value=values[key];if(!value){if(handleMissing===\"removePlaceholder\"){return acc.replace(new RegExp(`{{${key}}}`,\"g\"),\"\")}else if(handleMissing===\"keepPlaceholder\"){return acc}}return acc.replace(new RegExp(`{{${key}}}`,\"g\"),value)},template);return{result}};",
+        "name": "fn_61",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Populate Task Template"
+      }
+    },
+    {
+      "id": "fn-63",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const fn_63 = inputs=>{const parts=[{text:inputs.text}];return{context:inputs.role?{role:inputs.role,parts}:{parts}}};",
+        "name": "fn_63",
+        "raw": true
+      },
+      "metadata": {
+        "title": "Persona context"
+      }
+    },
+    {
+      "id": "invoke-47",
+      "type": "invoke",
+      "configuration": {
+        "$board": {
+          "title": "Board for Each",
+          "description": "Iterate over an array and run a subgraph for each item in the array.",
+          "edges": [
+            {
+              "from": "input-23",
+              "to": "passthrough-24",
+              "out": "board",
+              "in": "board"
+            },
+            {
+              "from": "input-23",
+              "to": "fn-27",
+              "out": "array",
+              "in": "array"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "passthrough-24",
+              "out": "board",
+              "in": "board"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "invoke-25",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "invoke-25",
+              "out": "board",
+              "in": "$board"
+            },
+            {
+              "from": "fn-27",
+              "to": "fn-27",
+              "out": "array",
+              "in": "array"
+            },
+            {
+              "from": "fn-27",
+              "to": "passthrough-24",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "fn-27",
+              "to": "fn-29",
+              "out": "array",
+              "in": "a"
+            },
+            {
+              "from": "invoke-25",
+              "to": "fn-28",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "fn-29",
+              "to": "output-26",
+              "out": "emit",
+              "in": "array"
+            },
+            {
+              "from": "fn-28",
+              "to": "fn-28",
+              "out": "*",
+              "in": ""
+            },
+            {
+              "from": "fn-28",
+              "to": "fn-29",
+              "out": "array",
+              "in": "b"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "input-23",
+              "type": "input",
+              "configuration": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "board": {
+                      "examples": [
+                        "{\"edges\":[{\"from\":\"fn-4\",\"to\":\"output-5\",\"out\":\"*\",\"in\":\"\"},{\"from\":\"input-3\",\"to\":\"fn-4\",\"out\":\"item\",\"in\":\"item\"}],\"nodes\":[{\"id\":\"output-5\",\"type\":\"output\",\"configuration\":{},\"metadata\":{\"title\":\"Output\"}},{\"id\":\"fn-4\",\"type\":\"runJavascript\",\"configuration\":{\"code\":\"const fn_4 = inputs=>{const{item}=inputs;return{item:item.split(\\\"\\\").map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join(\\\"\\\")}};\",\"name\":\"fn_4\",\"raw\":true}},{\"id\":\"input-3\",\"type\":\"input\",\"configuration\":{\"schema\":{\"type\":\"object\",\"properties\":{\"item\":{\"type\":\"string\",\"title\":\"item\"}},\"required\":[\"item\"]}},\"metadata\":{\"title\":\"Input\"}}],\"graphs\":{}}"
+                      ]
+                    },
+                    "array": {
+                      "type": "array",
+                      "examples": [
+                        "[\"The\",\"quick\",\"brown\",\"fox\"]"
+                      ]
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "title": "Input"
+              }
+            },
+            {
+              "id": "passthrough-24",
+              "type": "passthrough",
+              "configuration": {},
+              "metadata": {
+                "title": "Passthrough"
+              }
+            },
+            {
+              "id": "fn-27",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_27 = inputs=>{const{array}=inputs;const[item,...rest]=array;if(item){return{array:rest,item}}return{}};",
+                "name": "fn_27",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Pop item"
+              }
+            },
+            {
+              "id": "invoke-25",
+              "type": "invoke",
+              "configuration": {},
+              "metadata": {
+                "title": "Invoke"
+              }
+            },
+            {
+              "id": "fn-29",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_29 = inputs=>{let emit=void 0;if(!inputs.a||inputs.a.length===0){emit=inputs.b}return{emit,a:inputs.a,b:inputs.b}};",
+                "name": "fn_29",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Emitter"
+              }
+            },
+            {
+              "id": "fn-28",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_28 = inputs2=>{const{item,array=[]}=inputs2;return{array:[...array,item]}};",
+                "name": "fn_28",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Accumulate"
+              }
+            },
+            {
+              "id": "output-26",
+              "type": "output",
+              "configuration": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "array": {
+                      "type": "string",
+                      "title": "array"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "title": "Output"
+              }
+            }
+          ],
+          "graphs": {}
+        },
+        "board": {
+          "kind": "board",
+          "board": {
+            "kits": [],
+            "edges": [
+              {
+                "from": "fn-3",
+                "to": "output-2",
+                "out": "result",
+                "in": "item"
+              },
+              {
+                "from": "input-1",
+                "to": "fn-3",
+                "out": "item",
+                "in": "value"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "output-2",
+                "type": "output",
+                "configuration": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "item": {
+                        "type": "string",
+                        "title": "item"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "fn-3",
+                "type": "runJavascript",
+                "configuration": {
+                  "spaces": 2,
+                  "code": "const fn_3 = ({value,spaces=2})=>{return{result:JSON.stringify(value,null,spaces)}};",
+                  "name": "fn_3",
+                  "raw": true
+                }
+              },
+              {
+                "id": "input-1",
+                "type": "input",
+                "configuration": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "item": {
+                        "type": "string",
+                        "title": "item"
+                      }
+                    },
+                    "required": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "graphs": {}
+          }
+        }
+      },
+      "metadata": {
+        "title": "Stringify Accepted"
+      }
+    },
+    {
+      "id": "invoke-50",
+      "type": "invoke",
+      "configuration": {
+        "$board": {
+          "title": "Board for Each",
+          "description": "Iterate over an array and run a subgraph for each item in the array.",
+          "edges": [
+            {
+              "from": "input-23",
+              "to": "passthrough-24",
+              "out": "board",
+              "in": "board"
+            },
+            {
+              "from": "input-23",
+              "to": "fn-27",
+              "out": "array",
+              "in": "array"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "passthrough-24",
+              "out": "board",
+              "in": "board"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "invoke-25",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "passthrough-24",
+              "to": "invoke-25",
+              "out": "board",
+              "in": "$board"
+            },
+            {
+              "from": "fn-27",
+              "to": "fn-27",
+              "out": "array",
+              "in": "array"
+            },
+            {
+              "from": "fn-27",
+              "to": "passthrough-24",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "fn-27",
+              "to": "fn-29",
+              "out": "array",
+              "in": "a"
+            },
+            {
+              "from": "invoke-25",
+              "to": "fn-28",
+              "out": "item",
+              "in": "item"
+            },
+            {
+              "from": "fn-29",
+              "to": "output-26",
+              "out": "emit",
+              "in": "array"
+            },
+            {
+              "from": "fn-28",
+              "to": "fn-28",
+              "out": "*",
+              "in": ""
+            },
+            {
+              "from": "fn-28",
+              "to": "fn-29",
+              "out": "array",
+              "in": "b"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "input-23",
+              "type": "input",
+              "configuration": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "board": {
+                      "examples": [
+                        "{\"edges\":[{\"from\":\"fn-4\",\"to\":\"output-5\",\"out\":\"*\",\"in\":\"\"},{\"from\":\"input-3\",\"to\":\"fn-4\",\"out\":\"item\",\"in\":\"item\"}],\"nodes\":[{\"id\":\"output-5\",\"type\":\"output\",\"configuration\":{},\"metadata\":{\"title\":\"Output\"}},{\"id\":\"fn-4\",\"type\":\"runJavascript\",\"configuration\":{\"code\":\"const fn_4 = inputs=>{const{item}=inputs;return{item:item.split(\\\"\\\").map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join(\\\"\\\")}};\",\"name\":\"fn_4\",\"raw\":true}},{\"id\":\"input-3\",\"type\":\"input\",\"configuration\":{\"schema\":{\"type\":\"object\",\"properties\":{\"item\":{\"type\":\"string\",\"title\":\"item\"}},\"required\":[\"item\"]}},\"metadata\":{\"title\":\"Input\"}}],\"graphs\":{}}"
+                      ]
+                    },
+                    "array": {
+                      "type": "array",
+                      "examples": [
+                        "[\"The\",\"quick\",\"brown\",\"fox\"]"
+                      ]
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "title": "Input"
+              }
+            },
+            {
+              "id": "passthrough-24",
+              "type": "passthrough",
+              "configuration": {},
+              "metadata": {
+                "title": "Passthrough"
+              }
+            },
+            {
+              "id": "fn-27",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_27 = inputs=>{const{array}=inputs;const[item,...rest]=array;if(item){return{array:rest,item}}return{}};",
+                "name": "fn_27",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Pop item"
+              }
+            },
+            {
+              "id": "invoke-25",
+              "type": "invoke",
+              "configuration": {},
+              "metadata": {
+                "title": "Invoke"
+              }
+            },
+            {
+              "id": "fn-29",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_29 = inputs=>{let emit=void 0;if(!inputs.a||inputs.a.length===0){emit=inputs.b}return{emit,a:inputs.a,b:inputs.b}};",
+                "name": "fn_29",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Emitter"
+              }
+            },
+            {
+              "id": "fn-28",
+              "type": "runJavascript",
+              "configuration": {
+                "code": "const fn_28 = inputs2=>{const{item,array=[]}=inputs2;return{array:[...array,item]}};",
+                "name": "fn_28",
+                "raw": true
+              },
+              "metadata": {
+                "title": "Accumulate"
+              }
+            },
+            {
+              "id": "output-26",
+              "type": "output",
+              "configuration": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "array": {
+                      "type": "string",
+                      "title": "array"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "title": "Output"
+              }
+            }
+          ],
+          "graphs": {}
+        },
+        "board": {
+          "kind": "board",
+          "board": {
+            "kits": [],
+            "edges": [
+              {
+                "from": "fn-3",
+                "to": "output-2",
+                "out": "result",
+                "in": "item"
+              },
+              {
+                "from": "input-1",
+                "to": "fn-3",
+                "out": "item",
+                "in": "value"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "output-2",
+                "type": "output",
+                "configuration": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "item": {
+                        "type": "string",
+                        "title": "item"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "fn-3",
+                "type": "runJavascript",
+                "configuration": {
+                  "spaces": 2,
+                  "code": "const fn_3 = ({value,spaces=2})=>{return{result:JSON.stringify(value,null,spaces)}};",
+                  "name": "fn_3",
+                  "raw": true
+                }
+              },
+              {
+                "id": "input-1",
+                "type": "input",
+                "configuration": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "item": {
+                        "type": "string",
+                        "title": "item"
+                      }
+                    },
+                    "required": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ],
+            "graphs": {}
+          }
+        }
+      },
+      "metadata": {
+        "title": "Stringify Rejected"
+      }
+    }
+  ]
+}
