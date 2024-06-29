@@ -11,6 +11,8 @@ import {
 } from "@google-labs/breadboard";
 import { generateSchemaId } from "./scripts/util/generate-schema-id";
 
+// import {  } from "@google-labs/breadboard-schema"
+
 /**
  * A Breadboard Manifest.
  *
@@ -185,13 +187,9 @@ export interface Node extends AdditionalProperties {}
 export interface Edge extends AdditionalProperties {}
 
 /**
- * A proxy for the {@link GraphDescriptor} type
+ * A reference to the BGL schema GraphDescriptor type.
  */
-export interface Board extends ResourceWithAdditionalProperties {
-  title?: Title;
-  nodes?: Node[];
-  edges?: Edge[];
-}
+export type Board = GraphDescriptor;
 
 /**
  * Union of {@link ResourceReference} and {@link Board}

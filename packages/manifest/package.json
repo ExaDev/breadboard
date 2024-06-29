@@ -2,7 +2,8 @@
   "author": "Google Labs Team",
   "dependencies": {
     "@google-labs/breadboard": "^0.21.0",
-    "@google-labs/breadboard-schema": "^1.5.0"
+    "@google-labs/breadboard-schema": "^1.5.0",
+    "json-schema": "^0.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",
