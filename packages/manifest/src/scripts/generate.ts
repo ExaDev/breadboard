@@ -10,9 +10,7 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { type Config } from "ts-json-schema-generator";
 import { fileURLToPath } from "url";
-import {
-  ABSOLUTE_PACKAGE_ROOT
-} from "./util/constants";
+import { ABSOLUTE_PACKAGE_ROOT } from "./util/constants";
 import { generateSchemaFile } from "./util/generate-schema-file";
 import { generateSchemaId } from "./util/generate-schema-id";
 

@@ -12,7 +12,16 @@ import { sortObject } from "./sort-objects";
 
 export function generateSchemaFile(
   conf: Partial<Config> = {},
-  postProcessor: (schema: Schema) => Schema = sortObject
+  postProcessor: (s: Schema) => Schema = (s: Schema): Schema => {
+    const graphDescriptorRef = `${boardSchemaId}#/definitions/GraphDescriptor`;
+
+    s.definitions!["Board"] = {
+      ...(s.definitions!["Board"] as Schema),
+      $ref: graphDescriptorRef,
+    };
+
+    return sortObject(s);
+  }
 ) {
   console.debug(
     "Generating schema with config:",
