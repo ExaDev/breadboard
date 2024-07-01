@@ -4,6 +4,8 @@ import useCurrentTabText from "../../../chrome-api-hooks/use-current-tab-text";
 import { PacmanLoader } from "react-spinners";
 import { ExtensionBoardRunner } from "@breadboard/classes/ExtensionBoardRunner";
 import serializedLabellingBoard from "@breadboard/graphs/HuggingFaceLabellingBoard.json";
+import useTextSelection from "@/chrome-api-hooks/use-text-selection";
+import "./Labelling.css";
 
 const Labelling = (): React.JSX.Element => {
   const [output, setOutput] = useState<any | undefined>(undefined);
@@ -27,7 +29,32 @@ const Labelling = (): React.JSX.Element => {
     const boardRun = await extensionRunner.runBoard({
       inputs: activeTabText,
       apiKey: key,
-      candidate_labels: "legal, economy",
+      candidate_labels: "travel, England, history",
+      multi_label: true,
+      use_cache: false,
+      wait_for_model: true,
+    });
+    console.log(boardRun);
+    if (boardRun) {
+      const boardResponse: any = boardRun.response;
+      setOutput(boardResponse);
+      setLoading(false);
+    }
+  };
+
+  const handleSelectionLabelling = async (): Promise<void> => {
+    const activeTab = await useActiveTab();
+    const result = await useTextSelection(activeTab.id ?? 0);
+    setLoading(true);
+    setLoading(true);
+    const extensionRunner = new ExtensionBoardRunner(
+      serializedLabellingBoard,
+      []
+    );
+    const boardRun = await extensionRunner.runBoard({
+      inputs: result,
+      apiKey: key,
+      candidate_labels: "travel, England, history",
       multi_label: true,
       use_cache: false,
       wait_for_model: true,
@@ -45,18 +72,25 @@ const Labelling = (): React.JSX.Element => {
         <button type="submit" onClick={handlePageLabelling}>
           Label text on this page
         </button>
+        <button className="submitSelected" onClick={handleSelectionLabelling}>
+          Label selected text
+        </button>
       </section>
       <section className="summary">
-        <p>
+        <div>
           {loading ? (
             <PacmanLoader loading={loading} color="#ef7900" />
           ) : (
-            <div>
-              {output?.labels.map((r: string) => <td>{r}</td>)}
-              {output?.scores.map((r: string) => <td>{r}</td>)}
+            <div className="resultsGrid">
+              <div className="resultsGridData">
+                {output?.labels.map((r: string) => <p>{r}</p>)}
+              </div>
+              <div className="resultsGridData">
+                {output?.scores.map((r: string) => <p>{r}</p>)}
+              </div>
             </div>
           )}
-        </p>
+        </div>
       </section>
     </main>
   );
