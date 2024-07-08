@@ -2,7 +2,7 @@ import "./App.css";
 import breadboardLogo from "/breadboard-logo.svg";
 import viteLogo from "/vite.svg";
 import reactLogo from "../../assets/react.svg";
-import AudioRecorder from "./components/AudioRecorder";
+import BbAudioRecorder from "./components/AudioRecorder";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
         </a>
         <h4>Breadboard Summariser</h4>
       </header>
-      <AudioRecorder />
+      <BbAudioRecorder />
       <footer>
         <p>Made with</p>
         <a href="https://vitejs.dev" target="_blank">

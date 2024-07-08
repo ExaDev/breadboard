@@ -1,13 +1,13 @@
-import { base, board, code } from "@google-labs/breadboard";
+import { base, board, code, Schema } from "@google-labs/breadboard";
 import fs from "fs";
 import path from "path";
 
-const filePathSchema = {
-  type: "string",
+const audioBlobSchema = {
+  type: "object",
   title: "inputs",
-  default: "audio-sample.mp3",
-  description: "The audio file to transcribe",
-};
+  format: "audio-file",
+  description: "The audio file to transcribe as Blob",
+} satisfies Schema;
 
 const keySchema = {
   type: "string",
@@ -16,15 +16,25 @@ const keySchema = {
   description: "The hugging face api key",
 };
 
+/* const convertBlobToBuffer = code<{ blob: Blob }>(async (data) => {
+  const { blob } = data;
+  const arrayBuffer = await blob.arrayBuffer(); //put this and the line below into a separate code node that converts a blob to a buffer?
+  const buffer = Buffer.from(arrayBuffer);
+  return buffer;
+}); */
+
 const transcribeFile = code<{ data: Blob; apiKey: string }>(async (input) => {
   const { data, apiKey } = input;
+  const arrayBuffer = await data.arrayBuffer(); //put this and the line below into a separate code node that converts a blob to a buffer?
+  const buffer = Buffer.from(arrayBuffer);
+  //const buffer = convertBlobToBuffer({ blob: data});
 
   const response = await fetch(
     "https://api-inference.huggingface.co/models/facebook/wav2vec2-base-960h",
     {
       headers: { Authorization: `Bearer ${apiKey}` },
       method: "POST",
-      body: data,
+      body: buffer,
     }
   );
   const result = await response.json();
@@ -37,7 +47,7 @@ export const huggingFaceAudioTranscript = await board(() => {
     schema: {
       title: "Hugging Face Schema For Audio Transcript",
       properties: {
-        data: filePathSchema,
+        data: audioBlobSchema,
         apiKey: keySchema,
       },
     },
@@ -47,7 +57,7 @@ export const huggingFaceAudioTranscript = await board(() => {
   const output = base.output({ $id: "main" });
 
   const { result } = transcribeFile({
-    file_name: inputs.file_name as unknown as string,
+    data: inputs.data as unknown as Blob,
     apiKey: inputs.apiKey as unknown as string,
   });
 
