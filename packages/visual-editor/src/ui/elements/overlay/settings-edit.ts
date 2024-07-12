@@ -334,7 +334,7 @@ export class SettingsEditOverlay extends LitElement {
     if (!section) {
       return;
     }
-    section.pendingItems.set(itemId, {
+    section.pendingItems?.set(itemId, {
       name: "gemini",
       value: "gemini",
     });
@@ -772,7 +772,7 @@ export class SettingsEditOverlay extends LitElement {
     return element;
   }
 
-  #renderItemsPendingDeletion(
+  /* #renderItemsPendingDeletion(
     elementName: string,
     settingsType: SETTINGS_TYPE,
     settingsPendingItems?: Settings[SETTINGS_TYPE]["pendingItems"]
@@ -784,5 +784,5 @@ export class SettingsEditOverlay extends LitElement {
     element.settingsType = settingsType;
     element.pendingItems = settingsPendingItems;
     console.log(settingsPendingItems);
-  }
+  } */
 }

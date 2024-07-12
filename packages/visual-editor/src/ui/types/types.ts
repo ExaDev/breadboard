@@ -148,7 +148,7 @@ export type Settings = {
       customElement?: string;
     };
     items: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
-    pendingItems: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
+    pendingItems?: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
   };
 };
 
