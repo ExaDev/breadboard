@@ -148,12 +148,14 @@ export type Settings = {
       customElement?: string;
     };
     items: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
+    pendingItems: Map<SettingEntry["value"]["name"], SettingEntry["value"]>;
   };
 };
 
 export type CustomSettingsElement = HTMLElement & {
   settingsType?: SETTINGS_TYPE | undefined;
   settingsItems?: Settings[SETTINGS_TYPE]["items"] | undefined;
+  pendingItems?: Settings[SETTINGS_TYPE]["pendingItems"] | undefined;
 };
 
 /**

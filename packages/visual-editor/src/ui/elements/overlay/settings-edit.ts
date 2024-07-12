@@ -325,11 +325,7 @@ export class SettingsEditOverlay extends LitElement {
     this.requestUpdate();
   }
 
-  #deleteItem(id: keyof Settings, itemId: string) {
-    if (!confirm("Are you sure you want to delete this item?")) {
-      return;
-    }
-
+  #addPendingItem(id: keyof Settings, itemId: string) {
     if (!this.settings) {
       return;
     }
@@ -338,7 +334,11 @@ export class SettingsEditOverlay extends LitElement {
     if (!section) {
       return;
     }
-    section.items.delete(itemId);
+    section.pendingItems.set(itemId, {
+      name: "gemini",
+      value: "gemini",
+    });
+    console.log(section.pendingItems);
     this.requestUpdate();
   }
 
@@ -395,6 +395,7 @@ export class SettingsEditOverlay extends LitElement {
     }
 
     const settings = structuredClone(this.settings);
+    console.log(settings);
     const data = new FormData(form);
     const seenItemsBySection = new Map<string, Set<string>>();
     for (const [name, section] of data) {
@@ -548,8 +549,9 @@ export class SettingsEditOverlay extends LitElement {
             ? html`<ul class="settings-group">
                 ${map(
                   Object.entries(this.settings),
-                  ([name, { configuration, items }], idx) => {
+                  ([name, { configuration, items, pendingItems }], idx) => {
                     const id = name.toLocaleLowerCase().replace(/\s/g, "_");
+                    let addPendingItem: HTMLTemplateResult | symbol = nothing;
                     let addNewItem: HTMLTemplateResult | symbol = nothing;
                     if (configuration.extensible) {
                       addNewItem = html`<button
@@ -677,12 +679,12 @@ export class SettingsEditOverlay extends LitElement {
                                     }
                                   }
 
-                                  const deleteButton = configuration.extensible
+                                  addPendingItem = configuration.extensible
                                     ? html`<button
                                         class="delete"
                                         type="button"
                                         @click=${() => {
-                                          this.#deleteItem(
+                                          this.#addPendingItem(
                                             name as keyof Settings,
                                             itemId
                                           );
@@ -719,13 +721,20 @@ export class SettingsEditOverlay extends LitElement {
                                     >
                                       ${inValue}
                                     </div>
-                                    <div>${deleteButton}</div>`;
+                                    <div>${addPendingItem}</div>`;
                                 })
                               : html`<div class="no-entries">
                                   There are currently no entries
                                 </div>`}
                           ${addNewItem}
                         </section>
+                        <div>
+                          ${pendingItems
+                            ? map(pendingItems.entries(), ([itemId, item]) => {
+                                html`<p key=${itemId}>${item.value}</p>`;
+                              })
+                            : nothing}
+                        </div>
                       </li>
                     `;
                   }
@@ -761,5 +770,19 @@ export class SettingsEditOverlay extends LitElement {
     element.settingsType = settingsType;
     element.settingsItems = settingsItems;
     return element;
+  }
+
+  #renderItemsPendingDeletion(
+    elementName: string,
+    settingsType: SETTINGS_TYPE,
+    settingsPendingItems?: Settings[SETTINGS_TYPE]["pendingItems"]
+  ) {
+    const element = document.createElement(
+      elementName
+    ) as CustomSettingsElement;
+    element.classList.add("custom-panel");
+    element.settingsType = settingsType;
+    element.pendingItems = settingsPendingItems;
+    console.log(settingsPendingItems);
   }
 }

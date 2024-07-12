@@ -128,6 +128,7 @@ export class SettingsStore {
         nameVisible: true,
       },
       items: new Map([]),
+      pendingItems: new Map([]),
     },
     [BreadboardUI.Types.SETTINGS_TYPE.INPUTS]: {
       configuration: {
