@@ -106,7 +106,7 @@ export class SettingsEditOverlay extends LitElement {
     }
 
     .settings {
-      height: var(--height);
+      height: auto;
       position: relative;
     }
 
@@ -338,7 +338,7 @@ export class SettingsEditOverlay extends LitElement {
       name: "gemini",
       value: "gemini",
     });
-    console.log(section.pendingItems);
+    section.items.delete(itemId);
     this.requestUpdate();
   }
 
@@ -727,14 +727,14 @@ export class SettingsEditOverlay extends LitElement {
                                   There are currently no entries
                                 </div>`}
                           ${addNewItem}
+                          <div>
+                            ${pendingItems
+                              ? map(pendingItems.entries(), ([itemId]) => {
+                                  return html`<p>${itemId}</p>`;
+                                })
+                              : nothing}
+                          </div>
                         </section>
-                        <div>
-                          ${pendingItems
-                            ? map(pendingItems.entries(), ([itemId, item]) => {
-                                html`<p key=${itemId}>${item.value}</p>`;
-                              })
-                            : nothing}
-                        </div>
                       </li>
                     `;
                   }
