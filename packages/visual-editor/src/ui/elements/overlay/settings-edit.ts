@@ -342,6 +342,23 @@ export class SettingsEditOverlay extends LitElement {
     this.requestUpdate();
   }
 
+  #restoreDeletedItem(id: keyof Settings, itemId: string) {
+    if (!this.settings) {
+      return;
+    }
+
+    const section = this.settings[id];
+    if (!section) {
+      return;
+    }
+    section.items?.set(itemId, {
+      name: "gemini",
+      value: "gemini",
+    });
+    section.pendingItems?.delete(itemId);
+    this.requestUpdate();
+  }
+
   #validate(form: HTMLFormElement) {
     if (!this.settings) {
       return;
@@ -730,7 +747,19 @@ export class SettingsEditOverlay extends LitElement {
                           <div>
                             ${pendingItems
                               ? map(pendingItems.entries(), ([itemId]) => {
-                                  return html`<p>${itemId}</p>`;
+                                  return html`<p>${itemId}</p>
+                                    <button
+                                      class="undo"
+                                      type="button"
+                                      @click=${() => {
+                                        this.#restoreDeletedItem(
+                                          name as keyof Settings,
+                                          itemId
+                                        );
+                                      }}
+                                    >
+                                      Undo
+                                    </button>`;
                                 })
                               : nothing}
                           </div>
