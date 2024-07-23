@@ -178,7 +178,8 @@ export class SettingsEditOverlay extends LitElement {
 
     .settings-group-items .no-entries,
     .settings-group-items .description,
-    .settings-group-items .custom-panel {
+    .settings-group-items .custom-panel,
+    .pending-items-list {
       grid-column: 1 / 4;
     }
 
@@ -219,11 +220,11 @@ export class SettingsEditOverlay extends LitElement {
       width: 30%;
     }
 
-    .delete {
+    .delete,
+    .undo {
       width: 16px;
       height: 16px;
       background: none;
-      background-image: var(--bb-icon-delete);
       background-position: center center;
       background-repeat: no-repeat;
       background-size: 16px 16px;
@@ -234,8 +235,17 @@ export class SettingsEditOverlay extends LitElement {
       margin-left: var(--bb-grid-size);
     }
 
-    .delete:hover {
+    .delete:hover,
+    .undo:hover {
       opacity: 1;
+    }
+
+    .delete {
+      background-image: var(--bb-icon-delete);
+    }
+
+    .undo {
+      background-image: var(--bb-icon-undo);
     }
 
     input[type="text"],
@@ -256,6 +266,13 @@ export class SettingsEditOverlay extends LitElement {
 
     #add-new-item:hover {
       opacity: 1;
+    }
+
+    .pending-items-list {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      gap: 1em;
     }
   `;
 
@@ -325,7 +342,16 @@ export class SettingsEditOverlay extends LitElement {
     this.requestUpdate();
   }
 
-  #addPendingItem(id: keyof Settings, itemId: string) {
+  #addPendingItem(
+    id: keyof Settings,
+    itemId: string,
+    item: {
+      id?: string;
+      name: string;
+      description?: string;
+      value: string | number | boolean;
+    }
+  ) {
     if (!this.settings) {
       return;
     }
@@ -334,15 +360,25 @@ export class SettingsEditOverlay extends LitElement {
     if (!section) {
       return;
     }
+
     section.pendingItems?.set(itemId, {
-      name: "gemini",
-      value: "gemini",
+      name: item.name,
+      value: item.value,
     });
     section.items.delete(itemId);
     this.requestUpdate();
   }
 
-  #restoreDeletedItem(id: keyof Settings, itemId: string) {
+  #restoreDeletedItem(
+    id: keyof Settings,
+    itemId: string,
+    item: {
+      id?: string;
+      name: string;
+      description?: string;
+      value: string | number | boolean;
+    }
+  ) {
     if (!this.settings) {
       return;
     }
@@ -351,9 +387,12 @@ export class SettingsEditOverlay extends LitElement {
     if (!section) {
       return;
     }
+
+    console.log(item);
+
     section.items?.set(itemId, {
-      name: "gemini",
-      value: "gemini",
+      name: item.name,
+      value: item.value,
     });
     section.pendingItems?.delete(itemId);
     this.requestUpdate();
@@ -703,7 +742,8 @@ export class SettingsEditOverlay extends LitElement {
                                         @click=${() => {
                                           this.#addPendingItem(
                                             name as keyof Settings,
-                                            itemId
+                                            itemId,
+                                            item
                                           );
                                         }}
                                       >
@@ -744,23 +784,27 @@ export class SettingsEditOverlay extends LitElement {
                                   There are currently no entries
                                 </div>`}
                           ${addNewItem}
-                          <div>
+                          <div class="pending-items-list">
                             ${pendingItems
-                              ? map(pendingItems.entries(), ([itemId]) => {
-                                  return html`<p>${itemId}</p>
-                                    <button
-                                      class="undo"
-                                      type="button"
-                                      @click=${() => {
-                                        this.#restoreDeletedItem(
-                                          name as keyof Settings,
-                                          itemId
-                                        );
-                                      }}
-                                    >
-                                      Undo
-                                    </button>`;
-                                })
+                              ? map(
+                                  pendingItems.entries(),
+                                  ([itemId, item]) => {
+                                    return html`<p>${itemId}</p>
+                                      <button
+                                        class="undo"
+                                        type="button"
+                                        @click=${() => {
+                                          this.#restoreDeletedItem(
+                                            name as keyof Settings,
+                                            itemId,
+                                            item
+                                          );
+                                        }}
+                                      >
+                                        Undo
+                                      </button>`;
+                                  }
+                                )
                               : nothing}
                           </div>
                         </section>
