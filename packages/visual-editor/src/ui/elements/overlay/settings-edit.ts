@@ -179,7 +179,8 @@ export class SettingsEditOverlay extends LitElement {
     .settings-group-items .no-entries,
     .settings-group-items .description,
     .settings-group-items .custom-panel,
-    .pending-items-list {
+    .pending-items-list,
+    .pending-entries-description {
       grid-column: 1 / 4;
     }
 
@@ -268,11 +269,14 @@ export class SettingsEditOverlay extends LitElement {
       opacity: 1;
     }
 
-    .pending-items-list {
+    .pending-item {
       display: flex;
       align-items: center;
-      flex-direction: row;
       gap: 1em;
+      color: red;
+      height: 1.2em;
+      font-size: var(--bb-body-x-small);
+      padding-inline: 2px;
     }
   `;
 
@@ -361,6 +365,8 @@ export class SettingsEditOverlay extends LitElement {
       return;
     }
 
+    console.log(itemId, item.id);
+
     section.pendingItems?.set(itemId, {
       name: item.name,
       value: item.value,
@@ -387,8 +393,6 @@ export class SettingsEditOverlay extends LitElement {
     if (!section) {
       return;
     }
-
-    console.log(item);
 
     section.items?.set(itemId, {
       name: item.name,
@@ -451,7 +455,6 @@ export class SettingsEditOverlay extends LitElement {
     }
 
     const settings = structuredClone(this.settings);
-    console.log(settings);
     const data = new FormData(form);
     const seenItemsBySection = new Map<string, Set<string>>();
     for (const [name, section] of data) {
@@ -547,6 +550,7 @@ export class SettingsEditOverlay extends LitElement {
       }
     }
 
+    //Clean up pending items; get all pending items and delete them when Save is pressed
     return settings;
   }
 
@@ -583,6 +587,11 @@ export class SettingsEditOverlay extends LitElement {
           if (!newSettings) {
             return;
           }
+
+          /* if (this.settings) {
+            this.settings["Secrets"].pendingItems?.clear();
+			console.log(this.settings["Secrets"]);
+          } */
 
           this.dispatchEvent(new SettingsUpdateEvent(newSettings));
         }}
@@ -661,151 +670,169 @@ export class SettingsEditOverlay extends LitElement {
                           <p class="description">
                             ${configuration.description}
                           </p>
-                          ${configuration.customElement
-                            ? this.#renderCustomSettingsElement(
-                                configuration.customElement,
-                                name as SETTINGS_TYPE,
-                                items
-                              )
-                            : items.size > 0
-                              ? map(items.entries(), ([itemId, item], idx) => {
-                                  const inName = html`
-                                    ${configuration.nameEditable
-                                      ? html`<input
-                                          type="text"
-                                          name="setting-${id}-name-${idx}"
-                                          required
-                                          @input=${(evt: Event) => {
-                                            if (
-                                              !(
-                                                evt.target instanceof
-                                                HTMLInputElement
-                                              )
-                                            ) {
-                                              return;
-                                            }
-
-                                            evt.target.setCustomValidity("");
-                                          }}
-                                          .value=${item.name}
-                                        />`
-                                      : html`<input
-                                            type="hidden"
-                                            name="setting-${id}-name-${idx}"
-                                            .value=${item.name}
-                                          />${configuration.nameVisible
-                                            ? item.name
-                                            : ""}`}
-                                    ${item.description
-                                      ? html`<div class="setting-description">
-                                          ${item.description}
-                                        </div>`
-                                      : nothing}
-                                  `;
-                                  let inValue: HTMLTemplateResult | symbol =
-                                    nothing;
-                                  switch (typeof item.value) {
-                                    case "boolean": {
-                                      inValue = html`<input
-                                        type="checkbox"
-                                        name="setting-${id}-value-${idx}"
-                                        .checked=${item.value}
-                                      />`;
-                                      break;
-                                    }
-
-                                    case "number": {
-                                      inValue = html`<input
-                                        type="number"
-                                        name="setting-${id}-value-${idx}"
-                                        required
-                                        .value=${item.value}
-                                      />`;
-                                      break;
-                                    }
-
-                                    default: {
-                                      inValue = html`<input
-                                        type="text"
-                                        name="setting-${id}-value-${idx}"
-                                        required
-                                        .value=${item.value}
-                                      />`;
-                                      break;
-                                    }
-                                  }
-
-                                  addPendingItem = configuration.extensible
-                                    ? html`<button
-                                        class="delete"
-                                        type="button"
-                                        @click=${() => {
-                                          this.#addPendingItem(
-                                            name as keyof Settings,
-                                            itemId,
-                                            item
-                                          );
-                                        }}
-                                      >
-                                        Delete
-                                      </button>`
-                                    : nothing;
-
-                                  const double =
-                                    typeof item.value === "boolean" &&
-                                    !configuration.extensible;
-                                  return html` <input
-                                      type="hidden"
-                                      name="setting-${id}-section-${idx}"
-                                      .value=${name}
-                                    />
-
-                                    <div
-                                      class=${classMap({
-                                        "setting-name": true,
-                                        double,
-                                        hidden: !configuration.nameVisible,
-                                      })}
-                                    >
-                                      ${inName}
-                                    </div>
-
-                                    <div
-                                      class=${classMap({
-                                        "setting-value": true,
-                                        double: !configuration.nameVisible,
-                                      })}
-                                    >
-                                      ${inValue}
-                                    </div>
-                                    <div>${addPendingItem}</div>`;
-                                })
-                              : html`<div class="no-entries">
-                                  There are currently no entries
-                                </div>`}
-                          ${addNewItem}
-                          <div class="pending-items-list">
-                            ${pendingItems
-                              ? map(
-                                  pendingItems.entries(),
-                                  ([itemId, item]) => {
-                                    return html`<p>${itemId}</p>
-                                      <button
-                                        class="undo"
-                                        type="button"
-                                        @click=${() => {
-                                          this.#restoreDeletedItem(
-                                            name as keyof Settings,
-                                            itemId,
-                                            item
-                                          );
-                                        }}
-                                      >
-                                        Undo
-                                      </button>`;
-                                  }
+                          ${
+                            configuration.customElement
+                              ? this.#renderCustomSettingsElement(
+                                  configuration.customElement,
+                                  name as SETTINGS_TYPE,
+                                  items
                                 )
-                              : nothing}
+                              : items.size > 0
+                                ? map(
+                                    items.entries(),
+                                    ([itemId, item], idx) => {
+                                      const inName = html`
+                                        ${configuration.nameEditable
+                                          ? html`<input
+                                              type="text"
+                                              name="setting-${id}-name-${idx}"
+                                              required
+                                              @input=${(evt: Event) => {
+                                                if (
+                                                  !(
+                                                    evt.target instanceof
+                                                    HTMLInputElement
+                                                  )
+                                                ) {
+                                                  return;
+                                                }
+
+                                                evt.target.setCustomValidity(
+                                                  ""
+                                                );
+                                              }}
+                                              .value=${item.name}
+                                            />`
+                                          : html`<input
+                                                type="hidden"
+                                                name="setting-${id}-name-${idx}"
+                                                .value=${item.name}
+                                              />${configuration.nameVisible
+                                                ? item.name
+                                                : ""}`}
+                                        ${item.description
+                                          ? html`<div
+                                              class="setting-description"
+                                            >
+                                              ${item.description}
+                                            </div>`
+                                          : nothing}
+                                      `;
+                                      let inValue: HTMLTemplateResult | symbol =
+                                        nothing;
+                                      switch (typeof item.value) {
+                                        case "boolean": {
+                                          inValue = html`<input
+                                            type="checkbox"
+                                            name="setting-${id}-value-${idx}"
+                                            .checked=${item.value}
+                                          />`;
+                                          break;
+                                        }
+
+                                        case "number": {
+                                          inValue = html`<input
+                                            type="number"
+                                            name="setting-${id}-value-${idx}"
+                                            required
+                                            .value=${item.value}
+                                          />`;
+                                          break;
+                                        }
+
+                                        default: {
+                                          inValue = html`<input
+                                            type="text"
+                                            name="setting-${id}-value-${idx}"
+                                            required
+                                            .value=${item.value}
+                                          />`;
+                                          break;
+                                        }
+                                      }
+
+                                      addPendingItem = configuration.extensible
+                                        ? html`<button
+                                            class="delete"
+                                            type="button"
+                                            @click=${() => {
+                                              this.#addPendingItem(
+                                                name as keyof Settings,
+                                                itemId,
+                                                item
+                                              );
+                                            }}
+                                          >
+                                            Delete
+                                          </button>`
+                                        : nothing;
+
+                                      const double =
+                                        typeof item.value === "boolean" &&
+                                        !configuration.extensible;
+                                      return html` <input
+                                          type="hidden"
+                                          name="setting-${id}-section-${idx}"
+                                          .value=${name}
+                                        />
+
+                                        <div
+                                          class=${classMap({
+                                            "setting-name": true,
+                                            double,
+                                            hidden: !configuration.nameVisible,
+                                          })}
+                                        >
+                                          ${inName}
+                                        </div>
+
+                                        <div
+                                          class=${classMap({
+                                            "setting-value": true,
+                                            double: !configuration.nameVisible,
+                                          })}
+                                        >
+                                          ${inValue}
+                                        </div>
+                                        <div>${addPendingItem}</div>`;
+                                    }
+                                  )
+                                : html`<div class="no-entries">
+                                    There are currently no entries
+                                  </div>`
+                          }
+                          ${addNewItem}
+                          ${
+                            pendingItems && pendingItems.size > 0
+                              ? html`<div class="pending-items-list">
+                                  <p class="description">
+                                    The following items are pending deletion. To
+                                    confirm deletion, press 'Save'.
+                                  </p>
+                                  ${map(
+                                    pendingItems.entries(),
+                                    ([itemId, item]) => {
+                                      return html`<div class="pending-item">
+                                        <p>${itemId}</p>
+                                        <button
+                                          class="undo"
+                                          type="button"
+                                          @click=${() => {
+                                            this.#restoreDeletedItem(
+                                              name as keyof Settings,
+                                              itemId,
+                                              item
+                                            );
+                                          }}
+                                        >
+                                          Undo
+                                        </button>
+                                      </div>`;
+                                    }
+                                  )}
+                                </div> `
+                              : nothing
+                          }
                           </div>
                         </section>
                       </li>

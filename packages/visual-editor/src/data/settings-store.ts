@@ -138,6 +138,7 @@ export class SettingsStore {
         nameVisible: true,
       },
       items: new Map([]),
+      pendingItems: new Map([]),
     },
     [BreadboardUI.Types.SETTINGS_TYPE.NODE_PROXY_SERVERS]: {
       configuration: {
@@ -148,6 +149,7 @@ export class SettingsStore {
         nameVisible: true,
       },
       items: new Map([]),
+      pendingItems: new Map([]),
     },
     [BreadboardUI.Types.SETTINGS_TYPE.CONNECTIONS]: {
       configuration: {
