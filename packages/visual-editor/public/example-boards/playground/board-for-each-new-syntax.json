@@ -1,30 +1,24 @@
 {
-  "title": "Board for each",
+  "title": "Board for each new Syntax Test",
   "version": "0.1.0",
   "edges": [
     {
-      "from": "Accummulate",
-      "to": "Accummulate",
+      "from": "AccummulateRes",
+      "to": "AccummulateRes",
       "out": "array",
       "in": "array"
     },
     {
-      "from": "Accummulate",
-      "to": "Emitter",
+      "from": "AccummulateRes",
+      "to": "runJavascript-0",
       "out": "array",
       "in": "b"
     },
     {
       "from": "Board Output",
-      "to": "Accummulate",
+      "to": "AccummulateRes",
       "out": "object",
       "in": "item"
-    },
-    {
-      "from": "Emitter",
-      "to": "output-0",
-      "out": "emit",
-      "in": "outputs"
     },
     {
       "from": "input-0",
@@ -64,12 +58,6 @@
     },
     {
       "from": "Pop",
-      "to": "Emitter",
-      "out": "array",
-      "in": "a"
-    },
-    {
-      "from": "Pop",
       "to": "passthrough-0",
       "out": "array",
       "in": "array"
@@ -79,6 +67,18 @@
       "to": "passthrough-0",
       "out": "item",
       "in": "item"
+    },
+    {
+      "from": "Pop",
+      "to": "runJavascript-0",
+      "out": "array",
+      "in": "a"
+    },
+    {
+      "from": "runJavascript-0",
+      "to": "output-0",
+      "out": "emit",
+      "in": "outputs"
     }
   ],
   "nodes": [
@@ -99,7 +99,7 @@
                 "string"
               ],
               "title": "array input",
-              "default": "[\n  \"What\",\n  \"did\",\n  \"the\",\n  \"fox\",\n  \"say?\"\n]"
+              "default": "[\n  \"ok\",\n  \"fox\"\n]"
             },
             "board": {
               "type": [
@@ -143,11 +143,11 @@
       }
     },
     {
-      "id": "Accummulate",
+      "id": "AccummulateRes",
       "type": "runJavascript",
       "configuration": {
         "array": [],
-        "code": "const Accummulate = ({item,array})=>{return{array:[...array,item]}};",
+        "code": "const AccummulateRes = ({item,array})=>{return{array:[...array,item]}};",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -187,7 +187,7 @@
             }
           }
         },
-        "name": "Accummulate",
+        "name": "AccummulateRes",
         "outputSchema": {
           "type": "object",
           "properties": {
@@ -210,75 +210,6 @@
       "id": "Board Output",
       "type": "invoke",
       "configuration": {}
-    },
-    {
-      "id": "Emitter",
-      "type": "runJavascript",
-      "configuration": {
-        "code": "const Emitter = ({a,b})=>{let emit=void 0;if(!a||a.length===0){emit=b}return{emit}};",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "a": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
-            },
-            "b": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
-            }
-          }
-        },
-        "name": "Emitter",
-        "outputSchema": {
-          "type": "object",
-          "properties": {
-            "emit": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
-            },
-            "a": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
-            },
-            "b": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
-            }
-          }
-        },
-        "raw": true
-      }
     },
     {
       "id": "passthrough-0",
@@ -334,6 +265,75 @@
               ]
             },
             "item": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            }
+          }
+        },
+        "raw": true
+      }
+    },
+    {
+      "id": "runJavascript-0",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const run = ({a,b})=>{let emit=void 0;if(!a||a.length===0){emit=b}return{emit}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "a": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
+            "b": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            }
+          }
+        },
+        "name": "run",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "emit": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
+            "a": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
+            "b": {
               "type": [
                 "array",
                 "boolean",

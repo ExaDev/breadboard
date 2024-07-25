@@ -36,8 +36,9 @@
       "version": "0.0.1"
     },
     {
-      "title": "Board for Each",
-      "reference": "/example-boards/playground/board-for-each.json"
+      "title": "Board for each",
+      "reference": "/example-boards/playground/board-for-each.json",
+      "version": "0.1.0"
     },
     {
       "title": "Chat bot 2.0",
