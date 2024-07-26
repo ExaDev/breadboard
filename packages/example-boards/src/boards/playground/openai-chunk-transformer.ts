@@ -4,21 +4,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { V, base, board } from "@google-labs/breadboard";
-import { json } from "@google-labs/json-kit";
+import { board, input, output } from "@breadboard-ai/build";
+import { jsonata } from "@google-labs/json-kit";
 
-/**
- * A board for chunking OpenaAI output streams into text chunks.
- */
-export const chunkTransformer = board(() => {
-  const input = base.input({ $id: "chunk" });
-  const transformCompletion = json.jsonata({
-    $id: "transformCompletion",
-    expression: 'choices[0].delta.content ? choices[0].delta.content : ""',
-    json: input.chunk as V<string>,
-  });
+const chunk = input({
+  $id: "chunk"
+});
 
-  return transformCompletion.result
-    .as("chunk")
-    .to(base.output({ $id: "result" }));
+const transform = jsonata({
+  $id: "transformCompletion",
+  expression: 'choices[0].delta.content ? choices[0].delta.content : ""',
+  json: chunk,
+}).unsafeOutput("result");
+
+export const chunkTransformer = board({
+  title: "OpenAI Chunk Transformer",
+  description: "A board for chunking OpenaAI output streams into text chunks.",
+  version: "0.1.0",
+  inputs: { chunk },
+  outputs: { result: output(transform, { id: "result" }) },
 });
