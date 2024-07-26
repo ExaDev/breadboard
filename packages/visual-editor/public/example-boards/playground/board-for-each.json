@@ -99,7 +99,7 @@
                 "string"
               ],
               "title": "array input",
-              "default": "[\n  \"What\",\n  \"did\",\n  \"the\",\n  \"fox\",\n  \"say?\"\n]"
+              "default": "[\n  \"What\",\n  \"did\",\n  \"the\",\n  \"fox\",\n  \"say!\"\n]"
             },
             "board": {
               "type": [

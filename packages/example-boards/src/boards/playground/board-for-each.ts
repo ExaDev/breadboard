@@ -25,7 +25,7 @@ export const boardJSON = input({
 const arrayInput = input({
   type: "unknown",
   title: "array input",
-  default: ["What", "did", "the", "fox", "say?"]
+  default: ["What", "did", "the", "fox", "say!"]
 })
 
 const itemLoop = loopback({ type: "unknown" })
@@ -51,7 +51,7 @@ boardLoop.resolve(passthroughOutput.outputs.board)
 itemLoop.resolve(passthroughOutput.outputs.array)
 
 
-const res = invoke({
+const invokeOutput = invoke({
   $id: "Board Output",
   $board: passthroughOutput.outputs.board,
   object: passthroughOutput.outputs.item
@@ -59,8 +59,7 @@ const res = invoke({
 
 
 const arrayLoop = loopback({type:"unknown"})
-
-const accummulate = code({$id: "Accummulate", item: res, array: converge([] , arrayLoop) }, {array: "unknown"}, ({ item, array}) => {
+const accummulate = code({$id: "Accummulate", item: invokeOutput, array: converge([] , arrayLoop) }, {array: "unknown"}, ({ item, array}) => {
   
   return { array: [...array as [] , item] } as any;
 }).outputs.array
