@@ -62,7 +62,7 @@ const invokeOutput = invoke({
   object: passthroughOutput.outputs.item
 }).unsafeOutput("object");
 
-
+// TODO REFACTOR ACCUMMULATE AND EMITTER TO BE A FUNCTION THAT RETURNS A CODE NODE INSTEAD
 const arrayLoop = loopback({ type: array("unknown") })
 const accummulate = code({ $id: "Accummulate", item: invokeOutput, array: converge([], arrayLoop) }, { array: array("unknown") }, ({ item, array }) => {
 
