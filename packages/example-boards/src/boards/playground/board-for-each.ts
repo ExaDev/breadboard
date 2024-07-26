@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { board, converge, input, loopback, output } from "@breadboard-ai/build";
+import { annotate, array, board, converge, input, loopback, object, output } from "@breadboard-ai/build";
 import { code, invoke, passthrough } from "@google-labs/core-kit";
 
 // TODO have a board and then serialize it as a default
 export const boardJSON = input({
-  type: "unknown",
+  type: annotate(object({}), {
+    behavior: ["board"],
+  }),
   title: "board json",
   default: {
     "edges": [
@@ -23,16 +25,15 @@ export const boardJSON = input({
 })
 
 const arrayInput = input({
-  type: "unknown",
+  type: array("unknown"),
   title: "array input",
   default: ["What", "did", "the", "fox", "say!"]
 })
 
-const itemLoop = loopback({ type: "unknown" })
+const itemLoop = loopback({ type: array("unknown") })
 
 // converge so we can provide an initial input but also cycle on this node with the next array
-const pop = code({$id:"Pop", array: converge(arrayInput, itemLoop) }, { array: "unknown", item: "unknown" }, ({ array }) => {
-  // @ts-ignore
+const pop = code({ $id: "Pop", array: converge(arrayInput, itemLoop) }, { array: array("unknown"), item: "unknown" }, ({ array }) => {
   const [item, ...rest] = array;
 
   if (item) {
@@ -41,10 +42,14 @@ const pop = code({$id:"Pop", array: converge(arrayInput, itemLoop) }, { array: "
   return {} as any;
 })
 
-const boardLoop = loopback({ type: "unknown" })
+const boardLoop = loopback({
+  type: annotate(object({}), {
+    behavior: ["board"],
+  }),
+})
 
-// @ts-ignore
 // passthrough complains because of converge()
+// @ts-ignore
 const passthroughOutput = passthrough({ board: converge(boardJSON, boardLoop), item: pop.outputs.item, array: pop.outputs.array });
 // start the cycle again until array is empty
 boardLoop.resolve(passthroughOutput.outputs.board)
@@ -58,17 +63,16 @@ const invokeOutput = invoke({
 }).unsafeOutput("object");
 
 
-const arrayLoop = loopback({type:"unknown"})
-const accummulate = code({$id: "Accummulate", item: invokeOutput, array: converge([] , arrayLoop) }, {array: "unknown"}, ({ item, array}) => {
-  
-  return { array: [...array as [] , item] } as any;
+const arrayLoop = loopback({ type: array("unknown") })
+const accummulate = code({ $id: "Accummulate", item: invokeOutput, array: converge([], arrayLoop) }, { array: array("unknown") }, ({ item, array }) => {
+
+  return { array: [...array as [], item] } as any;
 }).outputs.array
 
 arrayLoop.resolve(accummulate)
 
-const emitter = code({$id:"Emitter", a: pop.outputs.array, b: accummulate}, {emit: "unknown", a:"unknown", b:"unknown"}, ({a, b}) => {
+const emitter = code({ $id: "Emitter", a: pop.outputs.array, b: accummulate }, { emit: array("unknown"), a: array("unknown"), b: array("unknown") }, ({ a, b }) => {
   let emit = undefined;
-  // @ts-ignore
   if (!a || a.length === 0) {
     emit = b;
   }
@@ -76,11 +80,10 @@ const emitter = code({$id:"Emitter", a: pop.outputs.array, b: accummulate}, {emi
   return { emit: emit } as any;
 })
 
-
 export default board({
   title: "Board for each",
   version: "0.1.0",
   inputs: { board: boardJSON, array: arrayInput },
-  outputs: { outputs: output(emitter.outputs.emit)}
+  outputs: { outputs: output(emitter.outputs.emit) }
 })
 

@@ -42,7 +42,7 @@ const sliceOutput = code({
   list: passThrough.outputs.object
 },
   {
-    sliced: "unknown"
+    sliced: array("unknown")
   }, ({ limit, list }) => {
     return { sliced: list?.slice(0, limit) };
   })

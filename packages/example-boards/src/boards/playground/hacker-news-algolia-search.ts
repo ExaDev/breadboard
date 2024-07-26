@@ -132,7 +132,7 @@ const spreadHackerNewsStoryResponse = code({
   return { ...object } as any;
 })
 
-const sliceOutput = code({ $id: "sliceOutput", list: spreadHackerNewsStoryResponse.outputs.hits, limit: searchLimit }, { sliced: "unknown" }, ({ list, limit }) => {
+const sliceOutput = code({ $id: "sliceOutput", list: spreadHackerNewsStoryResponse.outputs.hits, limit: searchLimit }, { sliced: array("unknown") }, ({ list, limit }) => {
   return { sliced: list.slice(0, limit) };
 })
 

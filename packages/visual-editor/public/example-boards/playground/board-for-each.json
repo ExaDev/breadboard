@@ -90,28 +90,30 @@
           "type": "object",
           "properties": {
             "array": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ],
+              "type": "array",
               "title": "array input",
-              "default": "[\n  \"What\",\n  \"did\",\n  \"the\",\n  \"fox\",\n  \"say!\"\n]"
+              "default": "[\n  \"What\",\n  \"did\",\n  \"the\",\n  \"fox\",\n  \"say!\"\n]",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             },
             "board": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
+              "type": "object",
+              "behavior": [
+                "board"
               ],
               "title": "board json",
-              "default": "{\n  \"edges\": [\n    {\n      \"from\": \"fn-4\",\n      \"to\": \"output-5\",\n      \"out\": \"*\",\n      \"in\": \"\"\n    },\n    {\n      \"from\": \"input-3\",\n      \"to\": \"fn-4\",\n      \"out\": \"object\",\n      \"in\": \"object\"\n    }\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"output-5\",\n      \"type\": \"output\",\n      \"configuration\": {},\n      \"metadata\": {\n        \"title\": \"Output\"\n      }\n    },\n    {\n      \"id\": \"fn-4\",\n      \"type\": \"runJavascript\",\n      \"configuration\": {\n        \"code\": \"const fn_4 = inputs=>{const{object}=inputs;return{object:object.split(\\\"\\\").map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join(\\\"\\\")}};\",\n        \"name\": \"fn_4\",\n        \"raw\": true\n      }\n    },\n    {\n      \"id\": \"input-3\",\n      \"type\": \"input\",\n      \"configuration\": {\n        \"schema\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"object\": {\n              \"type\": \"string\",\n              \"title\": \"object\"\n            }\n          },\n          \"required\": [\n            \"object\"\n          ]\n        }\n      },\n      \"metadata\": {\n        \"title\": \"Input\"\n      }\n    }\n  ],\n  \"graphs\": {}\n}"
+              "default": "{\n  \"edges\": [\n    {\n      \"from\": \"fn-4\",\n      \"to\": \"output-5\",\n      \"out\": \"*\",\n      \"in\": \"\"\n    },\n    {\n      \"from\": \"input-3\",\n      \"to\": \"fn-4\",\n      \"out\": \"object\",\n      \"in\": \"object\"\n    }\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"output-5\",\n      \"type\": \"output\",\n      \"configuration\": {},\n      \"metadata\": {\n        \"title\": \"Output\"\n      }\n    },\n    {\n      \"id\": \"fn-4\",\n      \"type\": \"runJavascript\",\n      \"configuration\": {\n        \"code\": \"const fn_4 = inputs=>{const{object}=inputs;return{object:object.split(\\\"\\\").map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join(\\\"\\\")}};\",\n        \"name\": \"fn_4\",\n        \"raw\": true\n      }\n    },\n    {\n      \"id\": \"input-3\",\n      \"type\": \"input\",\n      \"configuration\": {\n        \"schema\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"object\": {\n              \"type\": \"string\",\n              \"title\": \"object\"\n            }\n          },\n          \"required\": [\n            \"object\"\n          ]\n        }\n      },\n      \"metadata\": {\n        \"title\": \"Input\"\n      }\n    }\n  ],\n  \"graphs\": {}\n}",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
             }
           },
           "required": []
@@ -126,14 +128,17 @@
           "type": "object",
           "properties": {
             "outputs": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           },
           "required": [
@@ -147,7 +152,7 @@
       "type": "runJavascript",
       "configuration": {
         "array": [],
-        "code": "const Accummulate = ({item,array})=>{return{array:[...array,item]}};",
+        "code": "const Accummulate = ({item,array:array2})=>{return{array:[...array2,item]}};",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -174,14 +179,17 @@
                   ]
                 },
                 {
-                  "type": [
-                    "array",
-                    "boolean",
-                    "null",
-                    "number",
-                    "object",
-                    "string"
-                  ]
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "array",
+                      "boolean",
+                      "null",
+                      "number",
+                      "object",
+                      "string"
+                    ]
+                  }
                 }
               ]
             }
@@ -192,14 +200,17 @@
           "type": "object",
           "properties": {
             "array": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           }
         },
@@ -220,24 +231,30 @@
           "type": "object",
           "properties": {
             "a": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             },
             "b": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           }
         },
@@ -246,34 +263,43 @@
           "type": "object",
           "properties": {
             "emit": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             },
             "a": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             },
             "b": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           }
         },
@@ -289,21 +315,24 @@
       "id": "Pop",
       "type": "runJavascript",
       "configuration": {
-        "code": "const Pop = ({array})=>{const[item,...rest]=array;if(item){return{array:rest,item}}return{}};",
+        "code": "const Pop = ({array:array2})=>{const[item,...rest]=array2;if(item){return{array:rest,item}}return{}};",
         "inputSchema": {
           "type": "object",
           "properties": {
             "array": {
               "anyOf": [
                 {
-                  "type": [
-                    "array",
-                    "boolean",
-                    "null",
-                    "number",
-                    "object",
-                    "string"
-                  ]
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "array",
+                      "boolean",
+                      "null",
+                      "number",
+                      "object",
+                      "string"
+                    ]
+                  }
                 },
                 {
                   "type": [
@@ -324,14 +353,17 @@
           "type": "object",
           "properties": {
             "array": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             },
             "item": {
               "type": [
