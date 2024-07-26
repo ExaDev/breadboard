@@ -59,14 +59,17 @@
           "type": "object",
           "properties": {
             "storyIDs": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           },
           "required": [
@@ -142,14 +145,17 @@
           "type": "object",
           "properties": {
             "sliced": {
-              "type": [
-                "array",
-                "boolean",
-                "null",
-                "number",
-                "object",
-                "string"
-              ]
+              "type": "array",
+              "items": {
+                "type": [
+                  "array",
+                  "boolean",
+                  "null",
+                  "number",
+                  "object",
+                  "string"
+                ]
+              }
             }
           }
         },

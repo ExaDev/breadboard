@@ -335,14 +335,17 @@
                   }
                 },
                 {
-                  "type": [
-                    "array",
-                    "boolean",
-                    "null",
-                    "number",
-                    "object",
-                    "string"
-                  ]
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "array",
+                      "boolean",
+                      "null",
+                      "number",
+                      "object",
+                      "string"
+                    ]
+                  }
                 }
               ]
             }
