@@ -50,7 +50,7 @@ const boardLoop = loopback({
 
 // passthrough complains because of converge()
 // @ts-ignore
-const passthroughOutput = passthrough({ board: converge(boardJSON, boardLoop), item: pop.outputs.item, array: pop.outputs.array });
+const passthroughOutput = passthrough({ board: converge(boardJSON, boardLoop), item: pop.outputs.item, array: pop.outputs.array});
 // start the cycle again until array is empty
 boardLoop.resolve(passthroughOutput.outputs.board)
 itemLoop.resolve(passthroughOutput.outputs.array)
@@ -59,7 +59,7 @@ itemLoop.resolve(passthroughOutput.outputs.array)
 const invokeOutput = invoke({
   $id: "Board Output",
   $board: passthroughOutput.outputs.board,
-  object: passthroughOutput.outputs.item
+  object: passthroughOutput.outputs.item,
 }).unsafeOutput("object");
 
 

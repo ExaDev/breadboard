@@ -155,6 +155,11 @@
       "version": "0.0.1"
     },
     {
+      "title": "Object Manip New Syntax",
+      "reference": "/example-boards/playground/object-manipulator-new-syntax.json",
+      "version": "0.1.0"
+    },
+    {
       "title": "Object Manipulator",
       "reference": "/example-boards/playground/object-manipulator.json"
     },

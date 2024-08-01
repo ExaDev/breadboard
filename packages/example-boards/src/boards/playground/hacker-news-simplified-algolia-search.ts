@@ -86,7 +86,7 @@ const objectManipBoard = input({
       behavior: ["board"],
   }),
   description: "The URL of the generator to call",
-  default: { kind: "board", path: "object-manipulator.json" },
+  default: { kind: "board", path: "object-manipulator-new-syntax.json" },
 })
 
 const forEachBoard = input({
@@ -101,24 +101,22 @@ const forEachBoard = input({
 
 // ignore until object manip board has been refactored
 // @ts-ignore
-const invokeForEach = invoke({$id: "forEachOutput", $board: forEachBoard, board: objectManipBoard, array:hackerNewsOutput, mode: "pick",
-  keys: [
-      "created_at",
-      "num_comments",
-      "comment_text",
-      "objectID",
-      "points",
-      "story_id",
-      "title",
-      "url",
-      "type",
-      "_tags"
-    ], }).unsafeOutput("outputs")
-
+const invokeForEach = invoke({$id: "forEachOutput", $board: forEachBoard, board: objectManipBoard, array:hackerNewsOutput, mode: "ommit", keys: [
+  "created_at",
+  "num_comments",
+  "comment_text",
+  "objectID",
+  "points",
+  "story_id",
+  "title",
+  "url",
+  "type",
+  "_tags"]
+}).unsafeOutput("outputs")
 
 export default board({
   title: "Hacker News Angolia Simplified Search",
   version: "0.1.0",
-  inputs: { query: searchQuery, tags: searchTags, hackerNewsSearchBoard, objectManipBoard, forEachBoard },
+  inputs: { query: searchQuery, tags: searchTags, hackerNewsSearchBoard, objectManipBoard, forEachBoard},
   outputs: { output: output(invokeForEach) }
 })
