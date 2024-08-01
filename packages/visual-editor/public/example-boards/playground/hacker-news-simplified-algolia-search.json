@@ -197,7 +197,7 @@
           "type",
           "_tags"
         ],
-        "mode": "ommit"
+        "mode": "pick"
       }
     },
     {

@@ -4,30 +4,30 @@
   "edges": [
     {
       "from": "input-0",
-      "to": "runJavascript-0",
+      "to": "manipulation",
       "out": "keys",
       "in": "keys"
     },
     {
       "from": "input-0",
-      "to": "runJavascript-0",
+      "to": "manipulation",
       "out": "mode",
       "in": "mode"
     },
     {
       "from": "input-0",
-      "to": "runJavascript-0",
+      "to": "manipulation",
       "out": "object",
       "in": "object"
     },
     {
       "from": "input-0",
-      "to": "runJavascript-0",
+      "to": "manipulation",
       "out": "strict",
       "in": "strict"
     },
     {
-      "from": "runJavascript-0",
+      "from": "manipulation",
       "to": "output-0",
       "out": "object",
       "in": "object"
@@ -60,7 +60,7 @@
             },
             "object": {
               "type": "object",
-              "title": "Query",
+              "title": "object",
               "description": "The term to search for",
               "default": "{\n  \"forename\": \"John\",\n  \"surname\": \"Smith\",\n  \"age\": 30,\n  \"city\": \"New York\"\n}",
               "properties": {},
@@ -69,8 +69,8 @@
             },
             "strict": {
               "type": "boolean",
-              "title": "mode",
-              "description": "pick or ommit mode",
+              "title": "strict",
+              "description": "strict",
               "default": "false"
             }
           },
@@ -103,10 +103,10 @@
       }
     },
     {
-      "id": "runJavascript-0",
+      "id": "manipulation",
       "type": "runJavascript",
       "configuration": {
-        "code": "const run = ({object:object3,keys:keys3,mode:mode3,strict:strict3})=>{const obj=object3;if(typeof obj!==\"object\"||obj==void 0){throw new Error(`object is of type ${typeof obj} not object`)}if(keys3==void 0){throw new Error(`keys undefined`)}if(mode3===\"pick\"){const result={};keys3.forEach(key=>{if(strict3&&!obj[key]){throw new Error(`Key \"${key}\" not found in object`)}result[key]=obj[key]});return{object:result}}else{const result={...obj};keys3.forEach(key=>{if(strict3&&!obj[key]){throw new Error(`Key \"${key}\" not found in object`)}delete result[key]});return{object:result}}};",
+        "code": "const manipulation = ({object:object3,keys:keys3,mode:mode3,strict:strict3})=>{const obj=object3;if(typeof obj!==\"object\"||obj==void 0){throw new Error(`object is of type ${typeof obj} not object`)}if(keys3==void 0){throw new Error(`keys undefined`)}if(mode3===\"pick\"){const result={};keys3.forEach(key=>{if(strict3&&!obj[key]){throw new Error(`Key \"${key}\" not found in object`)}result[key]=obj[key]});return{object:result}}else{const result={...obj};keys3.forEach(key=>{if(strict3&&!obj[key]){throw new Error(`Key \"${key}\" not found in object`)}delete result[key]});return{object:result}}};",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -134,7 +134,7 @@
             }
           }
         },
-        "name": "run",
+        "name": "manipulation",
         "outputSchema": {
           "type": "object",
           "properties": {
@@ -151,10 +151,6 @@
           }
         },
         "raw": true
-      },
-      "metadata": {
-        "title": "Manip",
-        "description": "Manipulate Board"
       }
     }
   ]

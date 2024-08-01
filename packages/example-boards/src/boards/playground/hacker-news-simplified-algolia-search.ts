@@ -101,7 +101,7 @@ const forEachBoard = input({
 
 // ignore until object manip board has been refactored
 // @ts-ignore
-const invokeForEach = invoke({$id: "forEachOutput", $board: forEachBoard, board: objectManipBoard, array:hackerNewsOutput, mode: "ommit", keys: [
+const invokeForEach = invoke({$id: "forEachOutput", $board: forEachBoard, board: objectManipBoard, array:hackerNewsOutput, mode: "pick", keys: [
   "created_at",
   "num_comments",
   "comment_text",
