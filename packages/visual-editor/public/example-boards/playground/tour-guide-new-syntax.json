@@ -1,0 +1,138 @@
+{
+  "title": "Tour guide test",
+  "version": "0.1.0",
+  "edges": [
+    {
+      "from": "input-0",
+      "to": "invoke-0",
+      "out": "boardLocation",
+      "in": "$board"
+    },
+    {
+      "from": "input-0",
+      "to": "travelTininerary",
+      "out": "location",
+      "in": "location"
+    },
+    {
+      "from": "invoke-0",
+      "to": "runJavascript-0",
+      "out": "text",
+      "in": "itenary"
+    },
+    {
+      "from": "runJavascript-0",
+      "to": "output-0",
+      "out": "list",
+      "in": "output"
+    },
+    {
+      "from": "travelTininerary",
+      "to": "invoke-0",
+      "out": "prompt",
+      "in": "text"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "input-0",
+      "type": "input",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardLocation": {
+              "type": "object",
+              "behavior": [
+                "board"
+              ],
+              "title": "Board Location",
+              "default": "[\n  \"blank.json\"\n]",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            },
+            "location": {
+              "type": "string",
+              "title": "location",
+              "default": "Stresa, Italy"
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "id": "output-0",
+      "type": "output",
+      "configuration": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "output"
+          ]
+        }
+      }
+    },
+    {
+      "id": "invoke-0",
+      "type": "invoke",
+      "configuration": {
+        "stopSequences": [
+          "\n[Place]"
+        ],
+        "useStreaming": false
+      }
+    },
+    {
+      "id": "runJavascript-0",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const run = ({itenary})=>{const input2=itenary;const list=input2.split(/[0-9]{1,2}\\)/).map(e=>e.trim()).filter(e=>e!==\"\");return{list}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "itenary": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            }
+          }
+        },
+        "name": "run",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "raw": true
+      }
+    },
+    {
+      "id": "travelTininerary",
+      "type": "promptTemplate",
+      "configuration": {
+        "template": "[Place] Seattle, WA\n  [Top ten place-based experiences with no duplicates]\n  1) See the city from the Space Needle\n  2) Watch the fish throwing at Pike Place Market\n  3) Add chewing gum to the The Gum Wall\n  4) Stroll the Chihuly Garden and Glass Museum\n  5) Take a selfie with the Fremont Troll\n  6) Walk the quad at the University of Washington\n  7) Watch the octopus feeding at the Seattle Aquarium\n  8) Learn about aviation history at the Museum of Flight\n  9) Wander the art at the Seattle Art Museum\n  10) See the baby gorilla at the Woodland Park Zoo\n\n  [Place] Madrid, Spain\n  [Top ten place-based experiences with no duplicates]\n  1) Stroll the Gran Via\n  2) See the Prado Museum\n  3) Attend a Real Madrid game\n  4) Stroll through the Mercado de San Miguel\n  5) Sip wine at the Bodega de Palacio\n  6) Go clubbing at the Chueca district\n  7) Shop at the El Rastro flea market\n  8) Take a selfie at the Puerta del Sol\n  9) Shop at the El Corte Ingles\n  10) Enjoy tapas and wine at La Latina\n\n  [Place] Chicago, IL\n  [Top ten place-based experiences with no duplicates]\n  1) Attend a Chicago Bulls game\n  2) Stroll the Magnificent Mile\n  3) Go to a museum at the Museum of Science and Industry\n  4) Stroll the Millennium Park\n  5) Visit the Willis Tower\n  6) See the Chicago River\n  7) Take a selfie at the Bean\n  8) Eat deep dish pizza at Giordano's\n  9) Shop at the Water Tower Place\n  10) See the Chicago Theatre\n\n  [Place] {{location}}\n  [Top ten place-based experiences with no duplicates]\n  "
+      }
+    }
+  ]
+}
