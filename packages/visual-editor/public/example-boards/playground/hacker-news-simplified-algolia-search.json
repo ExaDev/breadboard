@@ -147,7 +147,7 @@
               ],
               "title": "board location",
               "description": "The URL of the generator to call",
-              "default": "{\n  \"kind\": \"board\",\n  \"path\": \"object-manipulator-new-syntax.json\"\n}",
+              "default": "{\n  \"kind\": \"board\",\n  \"path\": \"object-manipulator.json\"\n}",
               "properties": {},
               "required": [],
               "additionalProperties": false

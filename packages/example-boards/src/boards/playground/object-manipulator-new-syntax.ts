@@ -86,7 +86,7 @@ const strict = input({
     default: false
 })
 
-export const keys = input({ type: array("string"), default: ["forename", "surname"] })
+export const keys = input({type: array("string"), default: ["forename", "surname"] })
 
 const manipulation = createManipulateNode(inputObject, keys, mode, strict, { object: "unknown" })
 

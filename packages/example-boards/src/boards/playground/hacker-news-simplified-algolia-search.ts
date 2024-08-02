@@ -86,7 +86,7 @@ const objectManipBoard = input({
       behavior: ["board"],
   }),
   description: "The URL of the generator to call",
-  default: { kind: "board", path: "object-manipulator-new-syntax.json" },
+  default: { kind: "board", path: "object-manipulator.json" },
 })
 
 const forEachBoard = input({
@@ -96,7 +96,7 @@ const forEachBoard = input({
       behavior: ["board"],
   }),
   description: "The URL of the generator to call",
-  default: { kind: "board", path: "board-for-each.json" }
+  default: { kind: "board", path: "board-for-each-new-syntax.json" }
 });
 
 // ignore until object manip board has been refactored

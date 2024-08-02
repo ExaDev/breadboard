@@ -220,9 +220,7 @@
     {
       "id": "Board Output",
       "type": "invoke",
-      "configuration": {
-        "keys": {}
-      }
+      "configuration": {}
     },
     {
       "id": "Emitter",

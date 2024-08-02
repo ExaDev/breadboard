@@ -5,7 +5,7 @@
  */
 
 import { annotate, array, board, converge, input, loopback, object, output} from "@breadboard-ai/build";
-import { base } from "@google-labs/breadboard";
+
 import { code, invoke, passthrough } from "@google-labs/core-kit";
 
 // TODO have a board and then serialize it as a default
