@@ -209,14 +209,9 @@
       "version": "0.0.2"
     },
     {
-      "title": "Tour guide test",
-      "reference": "/example-boards/playground/tour-guide-new-syntax.json",
-      "version": "0.1.0"
-    },
-    {
       "title": "Tour Guide Writer",
       "reference": "/example-boards/playground/tour-guide-writer.json",
-      "version": "0.0.3"
+      "version": "0.1.0"
     },
     {
       "title": "Webcam",

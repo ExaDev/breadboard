@@ -3,8 +3,68 @@
   "version": "0.1.0",
   "edges": [
     {
+      "from": "Accummulate",
+      "to": "Accummulate",
+      "out": "array",
+      "in": "array"
+    },
+    {
+      "from": "Accummulate",
+      "to": "Emitter",
+      "out": "array",
+      "in": "accumulate"
+    },
+    {
+      "from": "combineGuide",
+      "to": "output-0",
+      "out": "guide",
+      "in": "output"
+    },
+    {
+      "from": "Emitter",
+      "to": "combineGuide",
+      "out": "emit",
+      "in": "guides"
+    },
+    {
+      "from": "Guide",
+      "to": "Accummulate",
+      "out": "text",
+      "in": "item"
+    },
+    {
+      "from": "guideTemplate",
+      "to": "Guide",
+      "out": "prompt",
+      "in": "text"
+    },
+    {
       "from": "input-0",
-      "to": "invoke-0",
+      "to": "combineGuide",
+      "out": "location",
+      "in": "location"
+    },
+    {
+      "from": "input-0",
+      "to": "Guide",
+      "out": "boardLocation",
+      "in": "$board"
+    },
+    {
+      "from": "input-0",
+      "to": "passthrough-0",
+      "out": "boardLocation",
+      "in": "board"
+    },
+    {
+      "from": "input-0",
+      "to": "passthrough-0",
+      "out": "location",
+      "in": "location"
+    },
+    {
+      "from": "input-0",
+      "to": "Travel Itenary",
       "out": "boardLocation",
       "in": "$board"
     },
@@ -15,20 +75,86 @@
       "in": "location"
     },
     {
-      "from": "invoke-0",
+      "from": "passthrough-0",
+      "to": "Guide",
+      "out": "board",
+      "in": "$board"
+    },
+    {
+      "from": "passthrough-0",
+      "to": "guideTemplate",
+      "out": "item",
+      "in": "activity"
+    },
+    {
+      "from": "passthrough-0",
+      "to": "guideTemplate",
+      "out": "location",
+      "in": "location"
+    },
+    {
+      "from": "passthrough-0",
+      "to": "passthrough-0",
+      "out": "board",
+      "in": "board"
+    },
+    {
+      "from": "passthrough-0",
+      "to": "passthrough-0",
+      "out": "location",
+      "in": "location"
+    },
+    {
+      "from": "Pop",
+      "to": "Emitter",
+      "out": "array",
+      "in": "poppedArray"
+    },
+    {
+      "from": "Pop",
+      "to": "passthrough-0",
+      "out": "array",
+      "in": "array"
+    },
+    {
+      "from": "Pop",
+      "to": "passthrough-0",
+      "out": "item",
+      "in": "item"
+    },
+    {
+      "from": "Pop",
+      "to": "Pop",
+      "out": "array",
+      "in": "array"
+    },
+    {
+      "from": "runJavascript-0",
+      "to": "combineGuide",
+      "out": "list",
+      "in": "itenary"
+    },
+    {
+      "from": "runJavascript-0",
+      "to": "Pop",
+      "out": "list",
+      "in": "array"
+    },
+    {
+      "from": "Travel Itenary",
+      "to": "output-0",
+      "out": "text",
+      "in": "itenary"
+    },
+    {
+      "from": "Travel Itenary",
       "to": "runJavascript-0",
       "out": "text",
       "in": "itenary"
     },
     {
-      "from": "runJavascript-0",
-      "to": "output-0",
-      "out": "list",
-      "in": "output"
-    },
-    {
       "from": "travelTininerary",
-      "to": "invoke-0",
+      "to": "Travel Itenary",
       "out": "prompt",
       "in": "text"
     }
@@ -47,7 +173,7 @@
                 "board"
               ],
               "title": "Board Location",
-              "default": "[\n  \"blank.json\"\n]",
+              "default": "[\n  \"text-generator.json\"\n]",
               "properties": {},
               "required": [],
               "additionalProperties": false
@@ -69,27 +195,233 @@
         "schema": {
           "type": "object",
           "properties": {
+            "itenary": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
             "output": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+              "type": "string"
             }
           },
           "required": [
+            "itenary",
             "output"
           ]
         }
       }
     },
     {
-      "id": "invoke-0",
+      "id": "Accummulate",
+      "type": "runJavascript",
+      "configuration": {
+        "array": [],
+        "code": "const Accummulate = ({item,array:array2})=>{return{array:[...array2,item]}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": [
+                "array",
+                "boolean",
+                "null",
+                "number",
+                "object",
+                "string"
+              ]
+            },
+            "array": {
+              "anyOf": [
+                {
+                  "type": [
+                    "array",
+                    "boolean",
+                    "null",
+                    "number",
+                    "object",
+                    "string"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "name": "Accummulate",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "array": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "raw": true
+      }
+    },
+    {
+      "id": "combineGuide",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const combineGuide = ({location:location2,itenary,guides})=>{const guideList=guides.map(item=>item);return{guide:`# ${location2}\n${itenary.map((activity,index)=>`## ${activity}\n${guideList[index]}\n\n`).join(\"\")}`}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string"
+            },
+            "itenary": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "guides": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "name": "combineGuide",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "guide": {
+              "type": "string"
+            }
+          }
+        },
+        "raw": true
+      }
+    },
+    {
+      "id": "Emitter",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const Emitter = ({poppedArray,accumulate})=>{let emit=void 0;if(!poppedArray||poppedArray.length===0){emit=accumulate}return{emit}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "poppedArray": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "accumulate": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "name": "Emitter",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "emit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "a": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "b": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "raw": true
+      }
+    },
+    {
+      "id": "Guide",
       "type": "invoke",
       "configuration": {
         "stopSequences": [
           "\n[Place]"
         ],
         "useStreaming": false
+      }
+    },
+    {
+      "id": "guideTemplate",
+      "type": "promptTemplate",
+      "configuration": {
+        "template": "[City] Paris, France\n    [Activity] Have a picnic in the Luxembourg Gardens\n    [Experiential story] Grab a baguette, some cheese and bottle of wine and head over to Luxembourg Gardens. You'll enjoy an even stroll, a great chance to people watch, and a charming free evening that is quintessentially Parisian.\n\n    [City] Madrid, Spain\n    [Activity] See the Prado Museum\n    [Experiential story] The Prado is an art lover's paradise. It is home to the largest collection of works by Goya, Velazquez, and El Greco. There are also works by Picasso, Monet, and Rembrandt. The Prado is a must-see for anyone visiting Madrid.\n\n    [City] Tatooine\n    [Activity] Catch a pod race\n    [Experiential story] A pod race is a race of flying engines called pods. Pod racing is a dangerous sport and was very popular in the Outer Rim Territories before the Empire was formed.\n\n\n    [City] {{location}}\n    [Activity] {{activity}}\n    [Experiential story]\n    "
+      }
+    },
+    {
+      "id": "passthrough-0",
+      "type": "passthrough",
+      "configuration": {}
+    },
+    {
+      "id": "Pop",
+      "type": "runJavascript",
+      "configuration": {
+        "code": "const Pop = ({array:array2})=>{const[item,...rest]=array2;if(item){return{array:rest,item}}return{}};",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "array": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "name": "Pop",
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "array": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "item": {
+              "type": "string"
+            }
+          }
+        },
+        "raw": true
       }
     },
     {
@@ -125,6 +457,16 @@
           }
         },
         "raw": true
+      }
+    },
+    {
+      "id": "Travel Itenary",
+      "type": "invoke",
+      "configuration": {
+        "stopSequences": [
+          "\n[Place]"
+        ],
+        "useStreaming": false
       }
     },
     {
